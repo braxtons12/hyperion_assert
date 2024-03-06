@@ -119,7 +119,6 @@ if(UNIX)
         hyperion_assert
         PUBLIC
         pthread
-        atomic
     )
 endif()
 
