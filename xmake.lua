@@ -109,7 +109,10 @@ target("hyperion_assert", function()
     add_packages("hyperion_platform", "hyperion_mpl", "boost", { public = true })
     if not is_plat("windows") then
         add_packages("libbacktrace", {public = true})
-        add_links("pthread", "atomic", {public = true})
+        add_links("pthread", {public = true})
+        if not is_plat("macosx") then
+            add_links("atomic", {public = true})
+        end
     end
 end)
 

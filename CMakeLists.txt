@@ -123,6 +123,14 @@ if(UNIX)
     )
 endif()
 
+if(UNIX AND NOT (APPLE OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
+    target_link_libraries(
+        hyperion_assert
+        PUBLIC
+        atomic
+    )
+endif()
+
 if(MSVC)
     target_link_libraries(hyperion_assert
         PUBLIC
