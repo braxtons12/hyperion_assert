@@ -56,9 +56,13 @@ if(${HYPERION_USE_FETCH_CONTENT})
         libs/config
         libs/container_hash
         libs/core
+        libs/describe
+        libs/mp11
         libs/predef
-        libs/winapi
         libs/stacktrace
+        libs/static_assert
+        libs/throw_exception
+        libs/winapi
         tools/cmake
         )
     FetchContent_MakeAvailable(boost)
