@@ -128,6 +128,7 @@ jobs:
         run: |
           echo "CC=$(brew --prefix llvm@15)/bin/clang" >> $GITHUB_ENV
           echo "CXX=$(brew --prefix llvm@15)/bin/clang++" >> $GITHUB_ENV
+          sudo ln -s "$(brew --prefix llvm@15)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
 
       - name: Configure
         working-directory: ${{github.workspace}}
