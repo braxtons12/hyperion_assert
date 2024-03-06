@@ -52,6 +52,12 @@ if(${HYPERION_USE_FETCH_CONTENT})
         GIT_REPOSITORY "https://github.com/boostorg/boost"
         GIT_TAG "boost-1.84.0"
         GIT_SUBMODULES
+        libs/assert
+        libs/config
+        libs/container_hash
+        libs/core
+        libs/predef
+        libs/winapi
         libs/stacktrace
         tools/cmake
         )
