@@ -52,7 +52,7 @@ if(${HYPERION_USE_FETCH_CONTENT})
     FetchContent_MakeAvailable(fmt)
 
     SET(BOOST_ENABLE_CMAKE ON)
-    FetchContent_Declare(boost
+    FetchContent_Declare(Boost
         GIT_REPOSITORY "https://github.com/boostorg/boost"
         GIT_TAG "boost-1.84.0"
         GIT_SUBMODULES
@@ -69,7 +69,7 @@ if(${HYPERION_USE_FETCH_CONTENT})
         libs/winapi
         tools/cmake
         )
-    FetchContent_MakeAvailable(boost)
+    FetchContent_MakeAvailable(Boost)
 else()
     find_package(hyperion_platform REQUIRED)
     find_package(hyperion_mpl REQUIRED)
