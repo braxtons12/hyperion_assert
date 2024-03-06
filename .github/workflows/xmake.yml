@@ -76,7 +76,6 @@ jobs:
         run: sudo cp /usr/bin/clang-tidy-16 /usr/bin/clang-tidy -f
 
       - name: Configure
-        env:
         working-directory: ${{github.workspace}}
         run: |
           rm -rf build .xmake
