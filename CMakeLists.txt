@@ -4,9 +4,13 @@ project(hyperion_assert LANGUAGES CXX)
 include(CTest)
 
 option(HYPERION_ENABLE_TRACY "Enables Profiling with Tracy" OFF)
-option(HYPERION_ENABLE_TESTING "Enables Testing Macros with Doctest" OFF)
 option(HYPERION_USE_FETCH_CONTENT "Enables FetchContent usage for getting dependencies" ON)
 
+set(HYPERION_ENABLE_TESTING
+    ON
+    CACHE
+    INTERNAL
+    "force dependencies's `HYPERION_ENABLE_TESTING` to the value of this top-level project")
 set(HYPERION_ENABLE_TRACY
     ${HYPERION_ENABLE_TRACY}
     CACHE
@@ -25,13 +29,13 @@ endif()
 if(${HYPERION_USE_FETCH_CONTENT})
     FetchContent_Declare(hyperion_platform
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_platform"
-        GIT_TAG "v0.2.2"
+        GIT_TAG "v0.2.3"
         )
     FetchContent_MakeAvailable(hyperion_platform)
 
     FetchContent_Declare(hyperion_mpl
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_mpl"
-        GIT_TAG "v0.7.1"
+        GIT_TAG "v0.7.2"
         )
     FetchContent_MakeAvailable(hyperion_mpl)
 
