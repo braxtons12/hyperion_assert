@@ -82,6 +82,7 @@ local setup_boost_config = function(target)
         else
             target:add("defines", "BOOST_STACKTRACE_USE_WINDBG_CACHED", {public = true})
         end
+
         target:add("links", "ole32", "dbgeng", {public = true})
     else
         target:add("defines", "BOOST_STACKTRACE_USE_BACKTRACE", {public = true})
