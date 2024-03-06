@@ -80,7 +80,7 @@ set(HYPERION_MPL_HEADERS
     "${HYPERION_MPL_INCLUDE_PATH}/assert/panic.h"
 )
 
-add_library(hyperion_assert INTERFACE)
+add_library(hyperion_assert static)
 add_library(hyperion::assert ALIAS hyperion_assert)
 target_include_directories(
     hyperion_assert
