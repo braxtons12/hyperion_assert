@@ -33,6 +33,11 @@ function(hyperion_compile_settings TARGET)
             /Zc:__cplusplus
             /EHsc
         )
+        target_link_options(
+            ${TARGET}
+            ${PUBLIC_VISIBILITY}
+            /EHsc
+        )
     endif()
 
     if(WIN32)
