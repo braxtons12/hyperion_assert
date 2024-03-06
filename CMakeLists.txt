@@ -114,6 +114,14 @@ target_link_libraries(
     hyperion::mpl
     fmt::fmt
 )
+if(UNIX)
+    target_link_libraries(
+        hyperion_assert
+        PUBLIC
+        pthread
+        atomic
+    )
+endif()
 
 if(MSVC)
     target_link_libraries(hyperion_assert
@@ -154,6 +162,10 @@ else()
         BOOST_STACKTRACE_USE_BACKTRACE
     )
 endif()
+target_compile_definitions(hyperion_assert
+    PUBLIC
+    BOOST_STACKTRACE_LINK
+)
 
 hyperion_compile_settings(hyperion_assert)
 hyperion_enable_warnings(hyperion_assert)

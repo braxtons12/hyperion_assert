@@ -88,6 +88,7 @@ local setup_boost_config = function(target)
         target:add("defines", "BOOST_STACKTRACE_USE_BACKTRACE", {public = true})
         target:add("links", "dl", {public = true})
     end
+    target:add("defines", "BOOST_STACKTRACE_LINK", {public = true})
 end
 
 target("hyperion_assert", function()
@@ -108,6 +109,7 @@ target("hyperion_assert", function()
     add_packages("hyperion_platform", "hyperion_mpl", "boost", { public = true })
     if not is_plat("windows") then
         add_packages("libbacktrace", {public = true})
+        add_links("pthread", "atomic", {public = true})
     end
 end)
 
