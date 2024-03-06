@@ -30,6 +30,7 @@ local function _set_compile_options(target)
         target:add("cxflags", "/Zc:rvalueCast", { public = true })
         target:add("cxflags", "/Zc:__cplusplus", { public = true })
         target:add("cxflags", "/wd5104", { public = true })
+        target:add("cxflags", "/EHsc", { public = true })
         target:add("cxflags", "/MP", { public = false })
         target:add("cxflags", "/sdl", { public = false })
     elseif target:has_tool("cxx", "clang", "clang++") then
