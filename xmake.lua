@@ -102,8 +102,7 @@ target("hyperion_assert", function()
         settings.set_compiler_settings(target)
         setup_boost_config(target)
     end)
-    add_options("hyperion_enable_tracy")
-    add_options("hyperion_enable_testing")
+    add_options("hyperion_enable_tracy", {public = true})
 
     add_packages("hyperion_platform", "hyperion_mpl", "boost", { public = true })
     if not is_plat("windows") then
