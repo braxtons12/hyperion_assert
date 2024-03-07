@@ -33,7 +33,7 @@ jobs:
         env:
           ACTIONS_STEP_DEBUG: true
         working-directory: ${{github.workspace}}
-        run: xmake test
+        run: xmake test -vD
 
       - name: Extract branch name
         shell: bash
@@ -93,7 +93,7 @@ jobs:
         env:
           ACTIONS_STEP_DEBUG: true
         working-directory: ${{github.workspace}}
-        run: xmake test
+        run: xmake test -vD
 
       - name: Extract branch name
         shell: bash
@@ -149,7 +149,7 @@ jobs:
         env:
           ACTIONS_STEP_DEBUG: true
         working-directory: ${{github.workspace}}
-        run: xmake test
+        run: xmake test -vD
 
       - name: Extract branch name
         shell: bash
@@ -199,7 +199,7 @@ jobs:
         env:
           ACTIONS_STEP_DEBUG: true
         working-directory: ${{github.workspace}}
-        run: xmake test
+        run: xmake test -vD
 
       - name: Extract branch name
         shell: bash
