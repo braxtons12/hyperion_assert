@@ -190,6 +190,11 @@ target_link_libraries(hyperion_assert_tests
     hyperion::assert
     Boost::ut
 )
+target_compile_definitions(
+    hyperion_assert_tests
+    PUBLIC
+    BOOST_UT_DISABLE_MODULE=1
+)
 
 hyperion_compile_settings(hyperion_assert_tests)
 hyperion_enable_warnings(hyperion_assert_tests)
