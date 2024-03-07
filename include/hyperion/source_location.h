@@ -141,8 +141,19 @@ namespace hyperion::_test::source_location {
             constexpr auto current = get_location();
 
             REQUIRE_EQ(current.line(), 135_u32);
-            REQUIRE((current.column() == 50_u32 || current.column() == 16_u32
-                     || current.column() == 0_u32));
+            // column can be one of:
+            // - The beginning of the qualified name of the call to `source_location::current`
+            // (e.g. the position of "h" `hyperion::source_location::current()`)
+            //      - Clang does this
+            // - The beginning of the unqualified name of the call to `source_location::current`
+            // (regardless of whether it is actually qualified or not)
+            // (i.e. the position of the "c" in `current`)
+            //      - MSVC does this
+            // - The location of the opening parenthesis of the call to `source_location::current`
+            //      - GCC does this or `0`
+            // - `0` (the implementation doesn't support column location)
+            REQUIRE((current.column() == 50_u32 || current.column() == 43_u32
+                     || current.column() == 16_u32 || current.column() == 0_u32));
             const auto file_name = std::string_view{current.file_name()};
 
             REQUIRE_NE(file_name.find("source_location.h"), std::string_view::npos);
