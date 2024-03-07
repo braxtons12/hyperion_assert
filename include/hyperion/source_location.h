@@ -141,6 +141,8 @@ namespace hyperion::_test::source_location {
             constexpr auto current = get_location();
 
             REQUIRE_EQ(current.line(), 135_u32);
+            CHECK_EQ(current.column(), 0_u32);
+            CHECK_EQ(current.column(), 16_u32);
             REQUIRE((current.column() == 16_u32 || current.column() == 0_u32));
             const auto file_name = std::string_view{current.file_name()};
 
