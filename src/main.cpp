@@ -1,4 +1,5 @@
 #include <hyperion/platform/types.h>
+#include <hyperion/source_location.h>
 
 using namespace hyperion;      // NOLINT(google-build-using-namespace)
 

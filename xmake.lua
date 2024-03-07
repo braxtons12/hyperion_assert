@@ -20,7 +20,6 @@ add_requires("hyperion_platform", {
     configs = {
         languages = "cxx20",
         hyperion_enable_tracy = has_config("hyperion_enable_tracy"),
-        hyperion_enable_testing = true,
     }
 })
 add_requires("hyperion_mpl", {
@@ -29,10 +28,9 @@ add_requires("hyperion_mpl", {
     configs = {
         languages = "cxx20",
         hyperion_enable_tracy = has_config("hyperion_enable_tracy"),
-        hyperion_enable_testing = true,
     }
 })
-add_requires("doctest", {
+add_requires("boost_ut", {
     system = false,
     external = true,
     configs = {
@@ -78,40 +76,43 @@ local hyperion_assert_sources = {
 local setup_boost_config = function(target)
     if target:is_plat("windows") then
         if target:has_tool("cxx", "gcc", "clang") then
-            target:add("defines", "BOOST_STACKTRACE_USE_WINDBG", {public = true})
+            target:add("defines", "BOOST_STACKTRACE_USE_WINDBG", { public = true })
         else
-            target:add("defines", "BOOST_STACKTRACE_USE_WINDBG_CACHED", {public = true})
+            target:add("defines", "BOOST_STACKTRACE_USE_WINDBG_CACHED", { public = true })
         end
 
-        target:add("links", "ole32", "dbgeng", {public = true})
+        target:add("links", "ole32", "dbgeng", { public = true })
     else
-        target:add("defines", "BOOST_STACKTRACE_USE_BACKTRACE", {public = true})
-        target:add("links", "dl", {public = true})
+        target:add("defines", "BOOST_STACKTRACE_USE_BACKTRACE", { public = true })
+        target:add("links", "dl", { public = true })
     end
-    target:add("defines", "BOOST_STACKTRACE_LINK", {public = true})
+    target:add("defines", "BOOST_STACKTRACE_LINK", { public = true })
 end
 
 target("hyperion_assert", function()
     set_kind("static")
     set_languages("cxx20")
+    set_default(true)
+
     add_includedirs("$(projectdir)/include", { public = true })
     add_headerfiles(hyperion_assert_main_headers, { prefixdir = "hyperion", public = true })
     add_headerfiles(hyperion_assert_headers, { prefixdir = "hyperion/assert", public = true })
     add_files(hyperion_assert_sources)
-    set_default(true)
+
     on_config(function(target)
         import("hyperion_compiler_settings", { alias = "settings" })
         settings.set_compiler_settings(target)
         setup_boost_config(target)
     end)
-    add_options("hyperion_enable_tracy", {public = true})
+
+    add_options("hyperion_enable_tracy", { public = true })
 
     add_packages("hyperion_platform", "hyperion_mpl", "boost", { public = true })
     if not is_plat("windows") then
-        add_packages("libbacktrace", {public = true})
-        add_links("pthread", {public = true})
+        add_packages("libbacktrace", { public = true })
+        add_links("pthread", { public = true })
         if not is_plat("macosx") then
-            add_links("atomic", {public = true})
+            add_links("atomic", { public = true })
         end
     end
 end)
@@ -119,9 +120,12 @@ end)
 target("hyperion_assert_main", function()
     set_kind("binary")
     set_languages("cxx20")
-    add_files("$(projectdir)/src/main.cpp")
-    add_deps("hyperion_assert")
     set_default(true)
+
+    add_files("$(projectdir)/src/main.cpp")
+
+    add_deps("hyperion_assert")
+
     on_config(function(target)
         import("hyperion_compiler_settings", { alias = "settings" })
         settings.set_compiler_settings(target)
@@ -132,13 +136,19 @@ end)
 target("hyperion_assert_tests", function()
     set_kind("binary")
     set_languages("cxx20")
-    add_files("$(projectdir)/src/test_main.cpp")
-    add_deps("hyperion_assert")
     set_default(true)
+
+    add_files("$(projectdir)/src/test_main.cpp")
+    add_defines("HYPERION_ENABLE_TESTING=1")
+
+    add_deps("hyperion_assert")
+    add_packages("boost_ut")
+
     on_config(function(target)
         import("hyperion_compiler_settings", { alias = "settings" })
         settings.set_compiler_settings(target)
     end)
+
     add_tests("hyperion_assert_tests")
 end)
 

@@ -125,22 +125,27 @@ namespace hyperion {
 #endif // HYPERION_STD_LIB_HAS_SOURCE_LOCATION
        // && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 17)
 
-#include <hyperion/platform/testing.h>
+#if HYPERION_ENABLE_TESTING
 
-#include <string_view>
+    #include <boost/ut.hpp>
+
+    #include <string_view>
 
 namespace hyperion::_test::source_location {
+
+    // NOLINTNEXTLINE(google-build-using-namespace)
+    using namespace boost::ut;
 
     [[nodiscard]] static constexpr auto get_location() {
         return hyperion::source_location::current();
     }
 
-    // NOLINTNEXTLINE(modernize-use-trailing-return-type)
-    TEST_SUITE("[hyperion::source_location]") {
-        TEST_CASE("current") {
+    // NOLINTNEXTLINE(cert-err58-cpp)
+    static const suite<"hyperion::source_location"> source_location_tests = [] {
+        "current"_test = [] {
             constexpr auto current = get_location();
 
-            REQUIRE_EQ(current.line(), 135_u32);
+            expect(current.line() == 140_u32);
             // column can be one of:
             // - The beginning of the qualified name of the call to `source_location::current`
             // (e.g. the position of "h" `hyperion::source_location::current()`)
@@ -152,17 +157,19 @@ namespace hyperion::_test::source_location {
             // - The location of the opening parenthesis of the call to `source_location::current`
             //      - GCC does this or `0`
             // - `0` (the implementation doesn't support column location)
-            REQUIRE((current.column() == 50_u32 || current.column() == 43_u32
-                     || current.column() == 16_u32 || current.column() == 0_u32));
+            expect(current.column() == 50_u32 || current.column() == 43_u32
+                   || current.column() == 16_u32 || current.column() == 0_u32);
             const auto file_name = std::string_view{current.file_name()};
 
-            REQUIRE_NE(file_name.find("source_location.h"), std::string_view::npos);
+            expect(file_name.find("source_location.h") != std::string_view::npos);
 
             const auto function_name = std::string_view{current.function_name()};
-            REQUIRE_NE(function_name.find("get_location"), std::string_view::npos);
-        }
-    }
+            expect(function_name.find("get_location") != std::string_view::npos);
+        };
+    };
 
 } // namespace hyperion::_test::source_location
+
+#endif // HYPERION_ENABLE_TESTING
 
 #endif // HYPERION_ASSERT_SOURCE_LOCATION_H

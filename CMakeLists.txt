@@ -6,11 +6,6 @@ include(CTest)
 option(HYPERION_ENABLE_TRACY "Enables Profiling with Tracy" OFF)
 option(HYPERION_USE_FETCH_CONTENT "Enables FetchContent usage for getting dependencies" ON)
 
-set(HYPERION_ENABLE_TESTING
-    ON
-    CACHE
-    INTERNAL
-    "force dependencies's `HYPERION_ENABLE_TESTING` to the value of this top-level project")
 set(HYPERION_ENABLE_TRACY
     ${HYPERION_ENABLE_TRACY}
     CACHE
@@ -29,21 +24,21 @@ endif()
 if(${HYPERION_USE_FETCH_CONTENT})
     FetchContent_Declare(hyperion_platform
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_platform"
-        GIT_TAG "v0.2.4"
+        GIT_TAG "v0.3.1"
         )
     FetchContent_MakeAvailable(hyperion_platform)
 
     FetchContent_Declare(hyperion_mpl
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_mpl"
-        GIT_TAG "v0.7.2"
+        GIT_TAG "v0.8.0"
         )
     FetchContent_MakeAvailable(hyperion_mpl)
 
-    FetchContent_Declare(doctest
-        GIT_REPOSITORY "https://github.com/doctest/doctest"
-        GIT_TAG "v2.4.11"
+    FetchContent_Declare(boost_ut
+        GIT_REPOSITORY "https://github.com/boost-ext/ut"
+        GIT_TAG "v2.0.1"
         )
-    FetchContent_MakeAvailable(doctest)
+    FetchContent_MakeAvailable(boost_ut)
 
     FetchContent_Declare(fmt
         GIT_REPOSITORY "https://github.com/fmtlib/fmt"
@@ -73,7 +68,7 @@ if(${HYPERION_USE_FETCH_CONTENT})
 else()
     find_package(hyperion_platform REQUIRED)
     find_package(hyperion_mpl REQUIRED)
-    find_package(doctest REQUIRED)
+    find_package(ut REQUIRED)
     find_package(fmt REQUIRED)
     find_package(Boost COMPONENTS stacktrace REQUIRED)
 endif()
@@ -193,6 +188,7 @@ add_executable(hyperion_assert_tests ${CMAKE_CURRENT_SOURCE_DIR}/src/test_main.c
 target_link_libraries(hyperion_assert_tests
     PRIVATE
     hyperion::assert
+    Boost::ut
 )
 
 hyperion_compile_settings(hyperion_assert_tests)
