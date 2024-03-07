@@ -18,6 +18,9 @@ local function _set_compile_options(target)
         target:set("optimize", "aggressive")
         target:add("vectorexts", "all")
         target:set("strip", "all")
+        if is_plat("macosx") then
+            target:set("policy", "build.optimization.lto", false, {public = false})
+        end
     else
         target:set("optimize", "none")
     end
