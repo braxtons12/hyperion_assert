@@ -181,7 +181,7 @@ namespace hyperion::_test::source_location {
 
     #if HYPERION_PLATFORM_IS_APPLE
         #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored - Wtautological - value - range - compare
+        #pragma GCC diagnostic ignored "-Wtautological-value-range-compare"
     #endif // HYPERION_PLATFORM_IS_APPLE
             const auto file_name = std::string_view{current.file_name()};
             expect(file_name.find("source_location.h") != std::string_view::npos);
@@ -213,7 +213,7 @@ namespace hyperion::_test::source_location {
 
     #if HYPERION_PLATFORM_IS_APPLE
         #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored - Wtautological - value - range - compare
+        #pragma GCC diagnostic ignored "-Wtautological-value-range-compare"
     #endif // HYPERION_PLATFORM_IS_APPLE
             const auto file_name = std::string_view{current.file_name()};
 
