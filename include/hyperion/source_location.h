@@ -178,12 +178,19 @@ namespace hyperion::_test::source_location {
             // - `0` (the implementation doesn't support column location)
             expect(current.column() == 50_u32 || current.column() == 43_u32
                    || current.column() == 16_u32 || current.column() == 0_u32);
-            const auto file_name = std::string_view{current.file_name()};
 
+    #if HYPERION_PLATFORM_IS_APPLE
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored - Wtautological - value - range - compare
+    #endif // HYPERION_PLATFORM_IS_APPLE
+            const auto file_name = std::string_view{current.file_name()};
             expect(file_name.find("source_location.h") != std::string_view::npos);
 
             const auto function_name = std::string_view{current.function_name()};
             expect(function_name.find("get_location") != std::string_view::npos);
+    #if HYPERION_PLATFORM_IS_APPLE
+        #pragma GCC diagnostic pop
+    #endif // HYPERION_PLATFORM_IS_APPLE
         };
 
         "current_as_default_arg"_test = [] {
@@ -203,12 +210,20 @@ namespace hyperion::_test::source_location {
             // - `0` (the implementation doesn't support column location)
             expect(current.column() == 52_u32 || current.column() == 40_u32
                    || current.column() == 16_u32 || current.column() == 0_u32);
+
+    #if HYPERION_PLATFORM_IS_APPLE
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored - Wtautological - value - range - compare
+    #endif // HYPERION_PLATFORM_IS_APPLE
             const auto file_name = std::string_view{current.file_name()};
 
             expect(file_name.find("source_location.h") != std::string_view::npos);
 
             const auto function_name = std::string_view{current.function_name()};
             expect(function_name.find("get_default") != std::string_view::npos);
+    #if HYPERION_PLATFORM_IS_APPLE
+        #pragma GCC diagnostic pop
+    #endif // HYPERION_PLATFORM_IS_APPLE
         };
     };
 
