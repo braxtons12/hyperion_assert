@@ -3,7 +3,7 @@
 /// @brief Implementation of `std::source_location` (or re-export of it,
 /// if it is available)
 /// @version 0.1
-/// @date 2024-03-07
+/// @date 2024-03-08
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -140,8 +140,17 @@ namespace hyperion::_test::source_location {
     // NOLINTNEXTLINE(google-build-using-namespace)
     using namespace boost::ut;
 
-    [[nodiscard]] static constexpr auto get_location() {
+    [[nodiscard]] static constexpr auto get_location() noexcept {
         return hyperion::source_location::current();
+    }
+
+    [[nodiscard]] static constexpr auto
+    make_default(hyperion::source_location loc = hyperion::source_location::current()) noexcept {
+        return loc;
+    }
+
+    [[nodiscard]] static constexpr auto get_default() noexcept {
+        return _test::source_location::make_default();
     }
 
     // NOLINTNEXTLINE(cert-err58-cpp)
@@ -149,8 +158,8 @@ namespace hyperion::_test::source_location {
         "current"_test = [] {
             constexpr auto current = get_location();
 
-            expect(current.line() == 140_u32);
-            // column can be one of:
+            expect(current.line() == 144_u32);
+            // when `source_location::current` is used as a standalone call, column can be one of:
             // - The beginning of the qualified name of the call to `source_location::current`
             // (e.g. the position of "h" `hyperion::source_location::current()`)
             //      - Clang does this
@@ -169,6 +178,31 @@ namespace hyperion::_test::source_location {
 
             const auto function_name = std::string_view{current.function_name()};
             expect(function_name.find("get_location") != std::string_view::npos);
+        };
+
+        "current_as_default_arg"_test = [] {
+            constexpr auto current = _test::source_location::get_default();
+
+            expect(current.line() == 153_u32);
+            // when `source_location::current` is used as a default argument column can be one of:
+            // - The beginning of the qualified name of the call to the function
+            // (e.g. the first "_" in `test::source_location::get_default()`)
+            //      - Clang does this
+            // - The beginning of the unqualified name of the call to the function
+            // (regardless of whether it is actually qualified or not)
+            // (i.e. the position of the "g" in `get_default`)
+            //      - MSVC does this
+            // - The location of the opening parenthesis of the call to the function
+            //      - GCC does this or `0`
+            // - `0` (the implementation doesn't support column location)
+            expect(current.column() == 52_u32 || current.column() == 40_u32
+                   || current.column() == 16_u32 || current.column() == 0_u32);
+            const auto file_name = std::string_view{current.file_name()};
+
+            expect(file_name.find("source_location.h") != std::string_view::npos);
+
+            const auto function_name = std::string_view{current.function_name()};
+            expect(function_name.find("get_default") != std::string_view::npos);
         };
     };
 
