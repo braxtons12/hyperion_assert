@@ -33,7 +33,7 @@
 #include <hyperion/platform/types.h>
 
 #if HYPERION_STD_LIB_HAS_SOURCE_LOCATION \
-    && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 17)
+    && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 16)
 
     #include <source_location>
 
@@ -111,8 +111,14 @@ namespace hyperion {
             return m_impl.function;
         }
 
-        [[nodiscard]] static consteval auto
-        current(detail::SLImpl impl = {}) noexcept -> source_location {
+        [[nodiscard]] static
+    #if HYPERION_PLATFORM_COMPILER_IS_CLANG && __clang_major__ < 16
+            constexpr
+    #else
+            consteval
+    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG && __clang_major__ < 16
+            auto
+            current(detail::SLImpl impl = {}) noexcept -> source_location {
             return {impl};
         }
 
@@ -123,7 +129,7 @@ namespace hyperion {
 } // namespace hyperion
 
 #endif // HYPERION_STD_LIB_HAS_SOURCE_LOCATION
-       // && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 17)
+       // && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 16)
 
 #if HYPERION_ENABLE_TESTING
 
