@@ -89,21 +89,22 @@ set(HYPERION_MPL_HEADERS
     "${HYPERION_MPL_INCLUDE_PATH}/assert/panic.h"
 )
 
-add_library(hyperion_assert INTERFACE)
+add_library(hyperion_assert STATIC)
 add_library(hyperion::assert ALIAS hyperion_assert)
 target_include_directories(
     hyperion_assert
-    INTERFACE
+    PUBLIC
     ${HYPERION_MPL_INCLUDE_DIRECTORIES}
 )
 target_sources(
     hyperion_assert
-    INTERFACE
+    PUBLIC
     ${HYPERION_MPL_HEADERS}
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/panic.cpp"
 )
 target_link_libraries(
     hyperion_assert
-    INTERFACE
+    PUBLIC
     hyperion::platform
     hyperion::mpl
     fmt::fmt
@@ -111,7 +112,7 @@ target_link_libraries(
 if(UNIX)
     target_link_libraries(
         hyperion_assert
-        INTERFACE
+        PUBLIC
         pthread
     )
 endif()
@@ -119,52 +120,52 @@ endif()
 if(UNIX AND NOT (APPLE OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
     target_link_libraries(
         hyperion_assert
-        INTERFACE
+        PUBLIC
         atomic
     )
 endif()
 
 if(MSVC)
     target_link_libraries(hyperion_assert
-        INTERFACE
+        PUBLIC
         Boost::stacktrace_windbg_cached
         ole32
         dbgeng
     )
     target_compile_definitions(hyperion_assert
-        INTERFACE
+        PUBLIC
         BOOST_STACKTRACE_USE_WINDBG_CACHED
     )
 elseif(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(hyperion_assert
-        INTERFACE
+        PUBLIC
         Boost::stacktrace_windbg
         ole32
         dbgeng
     )
     target_compile_definitions(hyperion_assert
-        INTERFACE
+        PUBLIC
         BOOST_STACKTRACE_USE_WINDBG
     )
 elseif(APPLE OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR NOT TARGET Boost::stacktrace_backtrace)
     target_link_libraries(hyperion_assert
-        INTERFACE
+        PUBLIC
         Boost::stacktrace_basic
     )
 else()
     target_link_libraries(hyperion_assert
-        INTERFACE
+        PUBLIC
         Boost::stacktrace_backtrace
         dl
         backtrace
     )
     target_compile_definitions(hyperion_assert
-        INTERFACE
+        PUBLIC
         BOOST_STACKTRACE_USE_BACKTRACE
     )
 endif()
 target_compile_definitions(hyperion_assert
-    INTERFACE
+    PUBLIC
     BOOST_STACKTRACE_LINK
 )
 

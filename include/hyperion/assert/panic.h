@@ -35,13 +35,17 @@
 #include <hyperion/platform/def.h>
 #include <hyperion/source_location.h>
 
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
+
 #include <fmt/format.h>
 
-#include <atomic>
-#include <cstdlib>
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
+
+#include <concepts>
 #include <string_view>
-#include <type_traits>
 #include <utility>
+
+HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 
 /// @def HYPERION_ATTRIBUTE_COLD
 /// @brief Marks a function as as a "cold" codepath. I.E., it should not be inlined,
@@ -63,22 +67,24 @@
     #define HYPERION_ASSERT_DEBUG_BREAK() __debugbreak()
 #else
     #if __has_builtin(__builtin_debugtrap)
-        #define HYPERION_ASSERT_DEBUG_BREAK() __builtin_debugtrap()
+        #define HYPERION_ASSERT_DEBUG_BREAK() /** NOLINT(*-macro-usage) **/ __builtin_debugtrap()
     #else
 
         #if HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86) \
             || HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86_64)
 
-            #define HYPERION_ASSERT_DEBUG_BREAK() __asm__ volatile("int $0x03")
+            #define HYPERION_ASSERT_DEBUG_BREAK() /** NOLINT(*-macro-usage) **/ \
+                __asm__ volatile("int $0x03")
 
         #elif HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_ARM_V8)
 
-            #define HYPERION_ASSERT_DEBUG_BREAK() __asm__ volatile(".inst 0xd4200000")
+            #define HYPERION_ASSERT_DEBUG_BREAK() /** NOLINT(*-macro-usage) **/ \
+                __asm__ volatile(".inst 0xd4200000")
 
         #else // give up, use signals
 
             #include <signal.h>
-            #define HYPERION_ASSERT_DEBUG_BREAK() raise(SIGTRAP);
+            #define HYPERION_ASSERT_DEBUG_BREAK() /** NOLINT(*-macro-usage) **/ raise(SIGTRAP);
 
         #endif // HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86)
                // || HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86_64)
@@ -86,61 +92,34 @@
     #endif // __has_builtin(__builtin_debugtrap)
 #endif
 
+HYPERION_IGNORE_UNUSED_MACROS_WARNING_STOP;
+
 namespace hyperion::assert::panic {
     using Handler = void (*)(const std::string_view panic_message,
                              const hyperion::source_location& location,
                              const Backtrace& backtrace) noexcept;
 
-    namespace detail {
+    HYPERION_ATTRIBUTE_COLD auto set_handler(Handler handler) noexcept -> void;
 
-        [[noreturn]] static auto default_handler(const std::string_view panic_message,
-                                                 const hyperion::source_location& location,
-                                                 const Backtrace& backtrace) noexcept -> void {
-            if(panic_message.empty()) {
-                fmt::print(stderr,
-                           "panic occurred at {0}:\n\n"
-                           "Backtrace:\n{1}\n",
-                           location,
-                           backtrace);
-            }
-            else {
-                fmt::print(stderr,
-                           "panic occurred at {0}:\n\n"
-                           "{1}\n\n"
-                           "Backtrace:\n{2}\n",
-                           location,
-                           panic_message,
-                           backtrace);
-            }
-            HYPERION_ASSERT_DEBUG_BREAK();
-            std::abort();
-        }
+    HYPERION_ATTRIBUTE_COLD [[nodiscard]] auto get_handler() noexcept -> Handler;
 
-        static std::atomic<Handler> s_handler // NOLINT(*-avoid-non-const-global-variables)
-            = &default_handler;
+    HYPERION_ATTRIBUTE_COLD [[nodiscard]] auto default_handler() noexcept -> Handler;
 
-    } // namespace detail
+    HYPERION_ATTRIBUTE_COLD auto
+    execute(const hyperion::source_location& location, const Backtrace& backtrace) noexcept -> void;
 
-    static auto set_handler(Handler handler) noexcept -> void {
-        detail::s_handler.store(handler, std::memory_order_release);
-    }
+    HYPERION_ATTRIBUTE_COLD auto execute(const hyperion::source_location& location,
+                                         const Backtrace& backtrace,
+                                         std::string_view message) noexcept -> void;
 
-    [[nodiscard]] static auto get_handler() noexcept -> Handler {
-        return detail::s_handler.load(std::memory_order_acquire);
-    }
-
-    [[nodiscard]] static auto default_handler() noexcept -> Handler {
-        return &detail::default_handler;
-    }
-
-    HYPERION_ATTRIBUTE_COLD static auto
-    execute(const hyperion::source_location& location, const Backtrace& backtrace) noexcept {
-        panic::get_handler()("", location, backtrace);
-    }
+    HYPERION_IGNORE_UNUSED_TEMPLATES_WARNING_START;
 
     template<typename TArg>
     HYPERION_ATTRIBUTE_COLD static auto
-    execute(const hyperion::source_location& location, const Backtrace& backtrace, TArg&& arg)
+    execute(const hyperion::source_location& location,
+            const Backtrace& backtrace,
+            TArg&& arg) noexcept(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
+                                 || requires { std::string_view{std::forward<TArg>(arg)}; }) -> void
         requires fmt::is_formattable<TArg>::value
                  || std::same_as<std::string_view, std::remove_cvref_t<TArg>>
                  || requires { std::string_view{std::forward<TArg>(arg)}; }
@@ -161,19 +140,17 @@ namespace hyperion::assert::panic {
     HYPERION_ATTRIBUTE_COLD static auto execute(const hyperion::source_location& location,
                                                 const Backtrace& backtrace,
                                                 fmt::format_string<TArgs...> format_string,
-                                                TArgs&&... args) {
-        if constexpr(sizeof...(TArgs) == 0) {
-            panic::get_handler()(std::string_view{format_string.get().data()}, location, backtrace);
-        }
-        else {
-            const auto str = fmt::format(format_string, std::forward<TArgs>(args)...);
-            panic::get_handler()(str, location, backtrace);
-        }
+                                                TArgs&&... args) -> void {
+        const auto str = fmt::format(format_string, std::forward<TArgs>(args)...);
+        panic::get_handler()(str, location, backtrace);
     }
+
+    HYPERION_IGNORE_UNUSED_TEMPLATES_WARNING_STOP;
 
 } // namespace hyperion::assert::panic
 
 HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
+
 #define HYPERION_PANIC(...) /** NOLINT(*-macro-usage) **/ \
     hyperion::assert::panic::execute(                     \
         hyperion::source_location::current(),             \

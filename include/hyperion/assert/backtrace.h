@@ -28,8 +28,25 @@
 #ifndef HYPERION_ASSERT_BACKTRACE_H
 #define HYPERION_ASSERT_BACKTRACE_H
 
+#include <hyperion/platform.h>
+#include <hyperion/platform/def.h>
+
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
+
 #include <boost/stacktrace.hpp>
+
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
+#pragma GCC diagnostic pop
+#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
+
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
+
 #include <fmt/format.h>
+
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
 
 namespace hyperion::assert {
     /// @brief `Backtrace` provides a full backtrace of the current call stack at
