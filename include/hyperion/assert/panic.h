@@ -1,0 +1,280 @@
+/// @file panic.h
+/// @author Braxton Salyer <braxtonsalyer@gmail.com>
+/// @brief Provides runtime panic support. A runtime panic is an error reporting
+/// mechanism used to fail gracefully and report the associated error when an
+/// irrecoverable error has occurred.
+/// @version 0.1
+/// @date 2024-03-08
+///
+/// MIT License
+/// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
+///
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+///
+/// The above copyright notice and this permission notice shall be included in all
+/// copies or substantial portions of the Software.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+/// SOFTWARE.
+
+#ifndef HYPERION_ASSERT_PANIC_H
+#define HYPERION_ASSERT_PANIC_H
+
+#include <hyperion/assert/backtrace.h>
+#include <hyperion/platform.h>
+#include <hyperion/platform/def.h>
+#include <hyperion/source_location.h>
+
+#include <fmt/format.h>
+
+#include <atomic>
+#include <cstdlib>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+
+/// @def HYPERION_ATTRIBUTE_COLD
+/// @brief Marks a function as as a "cold" codepath. I.E., it should not be inlined,
+/// primed in the instruction cache, etc.
+/// @headerfile hyperion/assert/panic.h
+
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG or HYPERION_PLATFORM_COMPILER_IS_GCC
+    #define HYPERION_ATTRIBUTE_COLD
+#else
+    #define HYPERION_ATTRIBUTE_COLD [[gnu::cold]]
+#endif
+
+/// @def HYPERION_ASSERT_DEBUG_BREAK
+/// @brief Triggers a debugging break point
+/// @headerfile hyperion/assert/panic.h
+
+#if HYPERION_PLATFORM_IS_WINDOWS
+    #include <intrin.h>
+    #define HYPERION_ASSERT_DEBUG_BREAK() __debugbreak()
+#else
+    #if __has_builtin(__builtin_debugtrap)
+        #define HYPERION_ASSERT_DEBUG_BREAK() __builtin_debugtrap()
+    #else
+
+        #if HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86) \
+            || HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86_64)
+
+            #define HYPERION_ASSERT_DEBUG_BREAK() __asm__ volatile("int $0x03")
+
+        #elif HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_ARM_V8)
+
+            #define HYPERION_ASSERT_DEBUG_BREAK() __asm__ volatile(".inst 0xd4200000")
+
+        #else // give up, use signals
+
+            #include <signal.h>
+            #define HYPERION_ASSERT_DEBUG_BREAK() raise(SIGTRAP);
+
+        #endif // HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86)
+               // || HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86_64)
+
+    #endif // __has_builtin(__builtin_debugtrap)
+#endif
+
+namespace hyperion::assert::panic {
+    using Handler = void (*)(const std::string_view panic_message,
+                             const hyperion::source_location& location,
+                             const Backtrace& backtrace) noexcept;
+
+    namespace detail {
+
+        [[noreturn]] static auto default_handler(const std::string_view panic_message,
+                                                 const hyperion::source_location& location,
+                                                 const Backtrace& backtrace) noexcept -> void {
+            if(panic_message.empty()) {
+                fmt::print(stderr,
+                           "panic occurred at {0}:\n\n"
+                           "Backtrace:\n{1}\n",
+                           location,
+                           backtrace);
+            }
+            else {
+                fmt::print(stderr,
+                           "panic occurred at {0}:\n\n"
+                           "{1}\n\n"
+                           "Backtrace:\n{2}\n",
+                           location,
+                           panic_message,
+                           backtrace);
+            }
+            HYPERION_ASSERT_DEBUG_BREAK();
+            std::abort();
+        }
+
+        static std::atomic<Handler> s_handler // NOLINT(*-avoid-non-const-global-variables)
+            = &default_handler;
+
+    } // namespace detail
+
+    static auto set_handler(Handler handler) noexcept -> void {
+        detail::s_handler.store(handler, std::memory_order_release);
+    }
+
+    [[nodiscard]] static auto get_handler() noexcept -> Handler {
+        return detail::s_handler.load(std::memory_order_acquire);
+    }
+
+    [[nodiscard]] static auto default_handler() noexcept -> Handler {
+        return &detail::default_handler;
+    }
+
+    HYPERION_ATTRIBUTE_COLD static auto
+    execute(const hyperion::source_location& location, const Backtrace& backtrace) noexcept {
+        panic::get_handler()("", location, backtrace);
+    }
+
+    template<typename TArg>
+    HYPERION_ATTRIBUTE_COLD static auto
+    execute(const hyperion::source_location& location, const Backtrace& backtrace, TArg&& arg)
+        requires fmt::is_formattable<TArg>::value
+                 || std::same_as<std::string_view, std::remove_cvref_t<TArg>>
+                 || requires { std::string_view{std::forward<TArg>(arg)}; }
+    {
+        if constexpr(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
+                     || requires { std::string_view{std::forward<TArg>(arg)}; })
+        {
+            panic::get_handler()(std::string_view{std::forward<TArg>(arg)}, location, backtrace);
+        }
+        else {
+            const auto str = fmt::format("{}", std::forward<TArg>(arg));
+            panic::get_handler()(str, location, backtrace);
+        }
+    }
+
+    template<typename... TArgs>
+        requires(fmt::is_formattable<TArgs>::value && ...)
+    HYPERION_ATTRIBUTE_COLD static auto execute(const hyperion::source_location& location,
+                                                const Backtrace& backtrace,
+                                                fmt::format_string<TArgs...> format_string,
+                                                TArgs&&... args) {
+        if constexpr(sizeof...(TArgs) == 0) {
+            panic::get_handler()(std::string_view{format_string.get().data()}, location, backtrace);
+        }
+        else {
+            const auto str = fmt::format(format_string, std::forward<TArgs>(args)...);
+            panic::get_handler()(str, location, backtrace);
+        }
+    }
+
+} // namespace hyperion::assert::panic
+
+HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
+#define HYPERION_PANIC(...) /** NOLINT(*-macro-usage) **/ \
+    hyperion::assert::panic::execute(                     \
+        hyperion::source_location::current(),             \
+        hyperion::assert::Backtrace {} __VA_OPT__(, __VA_ARGS__))
+
+#if HYPERION_ASSERT_DEFINE_SHORT_ASSERT_NAMES
+    #define PANIC(...) /** NOLINT(*-macro-usage) **/ HYPERION_PANIC(__VA_ARGS__)
+#endif // HYPERION_ASSERT_DEFINE_SHORT_ASSERT_NAMES
+
+HYPERION_IGNORE_UNUSED_MACROS_WARNING_STOP;
+
+#if HYPERION_ENABLE_TESTING
+
+HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_START;
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
+    #include <boost/ut.hpp>
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
+HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_STOP;
+
+    #include <string>
+
+namespace hyperion::_test::assert::panic {
+
+    // NOLINTNEXTLINE(google-build-using-namespace)
+    using namespace boost::ut;
+
+    static void panic_no_message() {
+        HYPERION_PANIC();
+    }
+
+    static void panic_with_message() {
+        HYPERION_PANIC("With a panic Message!");
+    }
+
+    static void panic_with_formatted_message() {
+        HYPERION_PANIC("With {} panic Messages!", 42);
+    }
+
+    // NOLINTNEXTLINE(cert-err58-cpp, *-avoid-non-const-global-variables)
+    static std::string test_str;
+
+    static auto test_handler(const std::string_view panic_message,
+                             const hyperion::source_location& location,
+                             const hyperion::assert::Backtrace& backtrace) noexcept -> void {
+        if(panic_message.empty()) {
+            test_str = fmt::format("panic occurred at {0}:\n\n"
+                                   "Backtrace:\n{1}\n",
+                                   location,
+                                   backtrace);
+        }
+        else {
+            test_str = fmt::format("panic occurred at {0}:\n\n"
+                                   "{1}\n\n"
+                                   "Backtrace:\n{2}\n",
+                                   location,
+                                   panic_message,
+                                   backtrace);
+        }
+    }
+
+    // NOLINTNEXTLINE(cert-err58-cpp)
+    static const suite<"hyperion::assert::panic"> panic_tests = [] {
+        "no_message_contents"_test = [] {
+            hyperion::assert::panic::set_handler(test_handler);
+            panic_no_message();
+            expect(test_str.find("panic occurred at") != std::string::npos);
+            expect(test_str.find("panic_no_message") != std::string::npos);
+        };
+
+        "with_message_contents"_test = [] {
+            hyperion::assert::panic::set_handler(test_handler);
+            panic_with_message();
+            expect(test_str.find("With a panic Message!") != std::string::npos);
+            expect(test_str.find("panic_with_message") != std::string::npos);
+        };
+
+        "with_formatted_message_contents"_test = [] {
+            hyperion::assert::panic::set_handler(test_handler);
+            panic_with_formatted_message();
+            expect(test_str.find("With 42 panic Messages!") != std::string::npos);
+            expect(test_str.find("panic_with_formatted_message") != std::string::npos);
+        };
+
+        "no_message_failure"_test = [] {
+            hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+            expect(aborts([] { panic_no_message(); }));
+        };
+
+        "with_message_failure"_test = [] {
+            hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+            expect(aborts([] { panic_with_message(); }));
+        };
+
+        "with_formatted_message_failure"_test = [] {
+            hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+            expect(aborts([] { panic_with_formatted_message(); }));
+        };
+    };
+
+} // namespace hyperion::_test::assert::panic
+
+#endif // HYPERION_ENABLE_TESTING
+
+#endif // HYPERION_ASSERT_PANIC_H

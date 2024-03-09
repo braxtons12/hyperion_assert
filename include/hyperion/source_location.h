@@ -32,6 +32,8 @@
 #include <hyperion/platform/def.h>
 #include <hyperion/platform/types.h>
 
+#include <fmt/format.h>
+
 #if HYPERION_STD_LIB_HAS_SOURCE_LOCATION \
     && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 16)
 
@@ -131,6 +133,25 @@ namespace hyperion {
 #endif // HYPERION_STD_LIB_HAS_SOURCE_LOCATION
        // && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 16)
 
+template<>
+struct fmt::formatter<hyperion::source_location> {
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+    [[nodiscard]] inline constexpr auto parse(format_parse_context& context) {
+        return context.begin();
+    }
+
+    template<typename TFormatContext>
+    [[nodiscard]] inline auto
+    format(const hyperion::source_location& location, TFormatContext& context) {
+        return fmt::format_to(context.out(),
+                              "[{}|{}:{}]: {}",
+                              location.file_name(),
+                              location.line(),
+                              location.column(),
+                              location.function_name());
+    }
+};
+
 #if HYPERION_ENABLE_TESTING
 
 HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_START;
@@ -164,7 +185,7 @@ namespace hyperion::_test::source_location {
         "current"_test = [] {
             constexpr auto current = get_location();
 
-            expect(current.line() == 150_u32);
+            expect(current.line() == 171_u32);
             // when `source_location::current` is used as a standalone call, column can be one of:
             // - The beginning of the qualified name of the call to `source_location::current`
             // (e.g. the position of "h" `hyperion::source_location::current()`)
@@ -196,7 +217,7 @@ namespace hyperion::_test::source_location {
         "current_as_default_arg"_test = [] {
             constexpr auto current = _test::source_location::get_default();
 
-            expect(current.line() == 159_u32);
+            expect(current.line() == 180_u32);
             // when `source_location::current` is used as a default argument column can be one of:
             // - The beginning of the qualified name of the call to the function
             // (e.g. the first "_" in `test::source_location::get_default()`)

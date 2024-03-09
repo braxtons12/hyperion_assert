@@ -39,6 +39,7 @@ namespace hyperion::assert {
 } // namespace hyperion::assert
 
 /// @brief Specialization of `fmt::formatter` to provide `fmt` support for `hyperion::Backtrace`
+/// @headerfile hyperion/assert/backtrace.h
 template<>
 struct fmt::formatter<hyperion::assert::Backtrace> {
     [[nodiscard]] constexpr auto

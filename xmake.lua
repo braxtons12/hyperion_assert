@@ -69,9 +69,6 @@ local hyperion_assert_headers = {
     "$(projectdir)/include/hyperion/assert/backtrace.h",
     "$(projectdir)/include/hyperion/assert/panic.h",
 }
-local hyperion_assert_sources = {
-    "$(projectdir)/src/panic.cpp",
-}
 
 local setup_boost_config = function(target)
     if target:is_plat("windows") then
@@ -90,14 +87,13 @@ local setup_boost_config = function(target)
 end
 
 target("hyperion_assert", function()
-    set_kind("static")
+    set_kind("headeronly")
     set_languages("cxx20")
     set_default(true)
 
     add_includedirs("$(projectdir)/include", { public = true })
     add_headerfiles(hyperion_assert_main_headers, { prefixdir = "hyperion", public = true })
     add_headerfiles(hyperion_assert_headers, { prefixdir = "hyperion/assert", public = true })
-    add_files(hyperion_assert_sources)
 
     on_config(function(target)
         import("hyperion_compiler_settings", { alias = "settings" })
@@ -107,7 +103,7 @@ target("hyperion_assert", function()
 
     add_options("hyperion_enable_tracy", { public = true })
 
-    add_packages("hyperion_platform", "hyperion_mpl", "boost", { public = true })
+    add_packages("hyperion_platform", "hyperion_mpl", "boost", "fmt", { public = true })
     if not is_plat("windows") then
         add_packages("libbacktrace", { public = true })
         add_links("pthread", { public = true })
