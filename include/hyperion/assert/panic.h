@@ -238,6 +238,8 @@ namespace hyperion::_test::assert::panic {
             expect(test_str.find("panic_with_formatted_message") != std::string::npos);
         };
 
+            // ut only supports aborts tests on UNIX-likes for the moment
+    #if not HYPERION_PLATFORM_IS_WINDOWS
         "no_message_failure"_test = [] {
             hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
             expect(aborts([] { panic_no_message(); }));
@@ -252,6 +254,7 @@ namespace hyperion::_test::assert::panic {
             hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
             expect(aborts([] { panic_with_formatted_message(); }));
         };
+    #endif // not HYPERION_PLATFORM_IS_WINDOWS
     };
 
 } // namespace hyperion::_test::assert::panic
