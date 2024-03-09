@@ -77,8 +77,10 @@ local setup_boost_config = function(target)
     if target:is_plat("windows") then
         if target:has_tool("cxx", "gcc", "clang") then
             target:add("defines", "BOOST_STACKTRACE_USE_WINDBG", { public = true })
+            target:add("links", "boost_stacktrace_windbg", {public = true})
         else
             target:add("defines", "BOOST_STACKTRACE_USE_WINDBG_CACHED", { public = true })
+            target:add("links", "boost_stacktrace_windbg_cached", {public = true})
         end
 
         target:add("links", "ole32", "dbgeng", { public = true })

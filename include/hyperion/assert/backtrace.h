@@ -87,7 +87,7 @@ struct fmt::formatter<hyperion::assert::Backtrace> {
     template<typename TFormatContext>
     [[nodiscard]] constexpr auto
     format(const hyperion::assert::Backtrace& trace, TFormatContext& context) {
-        return fmt::format_to(context.out(), "{}", to_string(trace));
+        return fmt::format_to(context.out(), "{}", boost::stacktrace::to_string(trace));
     }
 };
 
