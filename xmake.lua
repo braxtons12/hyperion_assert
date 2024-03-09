@@ -75,14 +75,31 @@ local hyperion_assert_sources = {
 
 local setup_boost_config = function(target)
     if target:is_plat("windows") then
+        local stacktrace_lib = "libboost_stacktrace_windbg"
         if target:has_tool("cxx", "gcc", "clang") then
             target:add("defines", "BOOST_STACKTRACE_USE_WINDBG", { public = true })
-            target:add("links", "boost_stacktrace_windbg", {public = true})
         else
             target:add("defines", "BOOST_STACKTRACE_USE_WINDBG_CACHED", { public = true })
-            target:add("links", "boost_stacktrace_windbg_cached", {public = true})
+            stacktrace_lib = stacktrace_lib .. "_cached"
         end
 
+        if target:get("config", "multi") then
+            stacktrace_lib = stacktrace_lib .. "-mt"
+        end
+
+        local no_runtime_set = not target:has_runtime("MT")
+                           and not target:has_runtime("MTd")
+                           and not target:has_runtime("MD")
+                           and not target:has_runtime("MDd")
+        if target:has_runtime("MT") or no_runtime_set then
+            stacktrace_lib = stacktrace_lib .. "-s"
+        elseif target:has_runtime("MTd") then
+            stacktrace_lib = stacktrace_lib .. "-sgd"
+        elseif target:has_runtime("MDd") then
+            stacktrace_lib = stacktrace_lib .. "-gd"
+        end
+
+        target:add("links", stacktrace_lib, {public = true})
         target:add("links", "ole32", "dbgeng", { public = true })
     else
         target:add("defines", "BOOST_STACKTRACE_USE_BACKTRACE", { public = true })
