@@ -1,5 +1,6 @@
 #include <hyperion/platform/types.h>
 #include <hyperion/source_location.h>
+#include <hyperion/assert.h>
 
 using namespace hyperion;      // NOLINT(google-build-using-namespace)
 
