@@ -44,7 +44,14 @@ add_requires("fmt", {
         languages = "cxx20",
     }
 })
-add_requires("range-v3", {
+--add_requires("range-v3", {
+--    system = false,
+--    external = true,
+--    configs = {
+--        languages = "cxx20",
+--    }
+--})
+add_requires("flux main", {
     system = false,
     external = true,
     configs = {
@@ -78,11 +85,11 @@ local hyperion_assert_headers = {
     "$(projectdir)/include/hyperion/assert/panic.h",
 }
 local hyperion_assert_detail_headers = {
-    "$(projectdir)/include/hyperion/assert/detail/lexer.h",
+    "$(projectdir)/include/hyperion/assert/detail/parser.h",
 }
 local hyperion_assert_sources = {
     "$(projectdir)/src/assert/panic.cpp",
-    "$(projectdir)/src/assert/detail/lexer.cpp",
+    "$(projectdir)/src/assert/detail/parser.cpp",
 }
 
 local setup_boost_config = function(target)
@@ -139,7 +146,7 @@ target("hyperion_assert", function()
 
     add_options("hyperion_enable_tracy", { public = true })
 
-    add_packages("hyperion_platform", "hyperion_mpl", "boost", "fmt", "range-v3", { public = true })
+    add_packages("hyperion_platform", "hyperion_mpl", "boost", "fmt", "flux", { public = true })
     if not is_plat("windows") then
         add_packages("libbacktrace", { public = true })
         add_links("pthread", { public = true })

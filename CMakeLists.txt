@@ -46,11 +46,17 @@ if(${HYPERION_USE_FETCH_CONTENT})
         )
     FetchContent_MakeAvailable(fmt)
 
-    FetchContent_Declare(range-v3
-        GIT_REPOSITORY "https://github.com/ericniebler/range-v3"
-        GIT_TAG "0.12.0"
+    ##FetchContent_Declare(range-v3
+    ##    GIT_REPOSITORY "https://github.com/ericniebler/range-v3"
+    ##    GIT_TAG "0.12.0"
+    ##    )
+    ##FetchContent_MakeAvailable(range-v3)
+    FetchContent_Declare(flux
+        GIT_REPOSITORY "https://github.com/tcbrindle/flux"
+        GIT_TAG "main"
         )
-    FetchContent_MakeAvailable(range-v3)
+    FetchContent_MakeAvailable(flux)
+
 
     SET(BOOST_ENABLE_CMAKE ON)
     FetchContent_Declare(Boost
@@ -77,7 +83,8 @@ else()
     find_package(ut REQUIRED)
     find_package(fmt REQUIRED)
     find_package(Boost COMPONENTS stacktrace REQUIRED)
-    find_package(range-v3 REQUIRED)
+    #find_package(range-v3 REQUIRED)
+    find_package(flux REQUIRED)
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/hyperion_compiler_settings.cmake)
@@ -94,7 +101,7 @@ set(HYPERION_MPL_HEADERS
     "${HYPERION_MPL_INCLUDE_PATH}/source_location.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/backtrace.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/panic.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/lexer.h"
+    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/parser.h"
 )
 
 add_library(hyperion_assert STATIC)
@@ -109,7 +116,7 @@ target_sources(
     PUBLIC
     ${HYPERION_MPL_HEADERS}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/panic.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/lexer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/parser.cpp"
 )
 target_link_libraries(
     hyperion_assert
@@ -117,7 +124,8 @@ target_link_libraries(
     hyperion::platform
     hyperion::mpl
     fmt::fmt
-    range-v3::range-v3
+    #range-v3::range-v3
+    flux::flux
 )
 if(UNIX)
     target_link_libraries(

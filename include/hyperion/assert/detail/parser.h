@@ -1,8 +1,8 @@
-/// @file lexer.h
+/// @file parser.h
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
-/// @brief Rudimentary C++ lexer (to allow for rudimentary syntax highlighting)
+/// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-03-11
+/// @date 2024-03-12
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -58,7 +58,7 @@ _Pragma("GCC diagnostic pop");
 #include <variant>
 #include <vector>
 
-namespace hyperion::assert::detail {
+namespace hyperion::assert::detail::parser {
 
     struct Namespace { };
     struct Type { };
@@ -67,50 +67,49 @@ namespace hyperion::assert::detail {
     struct String { };
     struct Numeric { };
     struct Punctuation { };
+    struct Variable { };
 
-    using Identifier = std::variant<Namespace, Type, Function, Keyword>;
+    using Identifier = std::variant<Namespace, Type, Function, Variable>;
 
     struct Token {
-        using Kind = std::variant<Identifier, String, Numeric, Punctuation>;
+        using Kind = std::variant<Identifier, Keyword, String, Numeric, Punctuation>;
         std::string_view text = {};
         usize begin = 0;
         usize end = 0;
         Kind kind = Punctuation{};
     };
 
-    struct Lexer {
-        static constexpr auto punctuation = std::array<std::string_view, 48_usize>{
-            "~",  "!",   "+",  "-",  "*",  "/",   "%",   "^",   "&",  "|",  "=", "+=",
-            "-=", "*=",  "/=", "%=", "^=", "&=",  "|=",  "==",  "!=", "<",  ">", "<=",
-            ">=", "<=>", "&&", "||", "<<", ">>",  "<<=", ">>=", "++", "--", "?", "::",
-            ":",  "...", ".",  ".*", "->", "->*", "[",   "]",   "{",  "}",  "(", ")"};
-        static constexpr auto keywords = std::array<std::string_view, 89_usize>{
-            "alignas",    "constinit",    "public",        "alignof",
-            "const_cast", "float",        "register",      "try",
-            "asm",        "continue",     "for",           "reinterpret_cast",
-            "typedef",    "auto",         "co_await",      "friend",
-            "requires",   "typeid",       "bool",          "co_return",
-            "goto",       "return",       "typename",      "break",
-            "co_yield",   "if",           "short",         "union",
-            "case",       "decltype",     "inline",        "signed",
-            "unsigned",   "catch",        "default",       "int",
-            "sizeof",     "using",        "char",          "delete",
-            "long",       "static",       "virtual",       "char8_t",
-            "do",         "mutable",      "static_assert", "void",
-            "char16_t",   "double",       "namespace",     "static_cast",
-            "volatile",   "char32_t",     "dynamic_cast",  "new",
-            "struct",     "wchar_t",      "class",         "else",
-            "noexcept",   "switch",       "while",         "concept",
-            "enum",       "template",     "const",         "explicit",
-            "operator",   "this",         "consteval",     "export",
-            "private",    "thread_local", "constexpr",     "extern",
-            "protected",  "throw",        "and",           "or",
-            "xor",        "not",          "bitand",        "bitor",
-            "compl",      "and_eq",       "or_eq",         "xor_eq",
-            "not_eq"};
+    static inline constexpr auto punctuation = std::array<std::string_view, 48_usize>{
+        "~",  "!",   "+",  "-",  "*",  "/",   "%",   "^",   "&",  "|",  "=", "+=",
+        "-=", "*=",  "/=", "%=", "^=", "&=",  "|=",  "==",  "!=", "<",  ">", "<=",
+        ">=", "<=>", "&&", "||", "<<", ">>",  "<<=", ">>=", "++", "--", "?", "::",
+        ":",  "...", ".",  ".*", "->", "->*", "[",   "]",   "{",  "}",  "(", ")"};
+    static inline constexpr auto keywords = std::array<std::string_view, 89_usize>{
+        "alignas",    "constinit",    "public",        "alignof",
+        "const_cast", "float",        "register",      "try",
+        "asm",        "continue",     "for",           "reinterpret_cast",
+        "typedef",    "auto",         "co_await",      "friend",
+        "requires",   "typeid",       "bool",          "co_return",
+        "goto",       "return",       "typename",      "break",
+        "co_yield",   "if",           "short",         "union",
+        "case",       "decltype",     "inline",        "signed",
+        "unsigned",   "catch",        "default",       "int",
+        "sizeof",     "using",        "char",          "delete",
+        "long",       "static",       "virtual",       "char8_t",
+        "do",         "mutable",      "static_assert", "void",
+        "char16_t",   "double",       "namespace",     "static_cast",
+        "volatile",   "char32_t",     "dynamic_cast",  "new",
+        "struct",     "wchar_t",      "class",         "else",
+        "noexcept",   "switch",       "while",         "concept",
+        "enum",       "template",     "const",         "explicit",
+        "operator",   "this",         "consteval",     "export",
+        "private",    "thread_local", "constexpr",     "extern",
+        "protected",  "throw",        "and",           "or",
+        "xor",        "not",          "bitand",        "bitor",
+        "compl",      "and_eq",       "or_eq",         "xor_eq",
+        "not_eq"};
 
-        [[nodiscard]] static auto lex(std::string_view string) -> std::vector<Token>;
-    };
-} // namespace hyperion::assert::detail
+    [[nodiscard]] auto parse(std::string_view string) -> std::vector<Token>;
+} // namespace hyperion::assert::detail::parser
 
 #endif // HYPERION_ASSERT_DETAIL_PARSER_H
