@@ -26,8 +26,19 @@
 /// SOFTWARE.
 
 #include <hyperion/assert/detail/parser.h>
+#include <hyperion/platform/def.h>
+
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
+_Pragma("GCC diagnostic push");
+_Pragma("GCC diagnostic ignored \"-Wshadow\"");
+#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
 
 #include <flux.hpp>
+
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
+_Pragma("GCC diagnostic pop");
+#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
+
 #include <optional>
 
 namespace hyperion::assert::detail::parser {
