@@ -188,7 +188,7 @@ namespace hyperion::_test::source_location {
         "current"_test = [] {
             constexpr auto current = get_location();
 
-            expect(current.line() == 179_u32);
+            expect(current.line() == 174_u32);
             // when `source_location::current` is used as a standalone call, column can be one of:
             // - The beginning of the qualified name of the call to `source_location::current`
             // (e.g. the position of "h" `hyperion::source_location::current()`)
@@ -220,7 +220,7 @@ namespace hyperion::_test::source_location {
         "current_as_default_arg"_test = [] {
             constexpr auto current = _test::source_location::get_default();
 
-            expect(current.line() == 188_u32);
+            expect(current.line() == 183_u32);
             // when `source_location::current` is used as a default argument column can be one of:
             // - The beginning of the qualified name of the call to the function
             // (e.g. the first "_" in `test::source_location::get_default()`)
