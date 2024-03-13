@@ -186,10 +186,11 @@ jobs:
           echo "PATH=/usr/local/opt/llvm@16/bin:$PATH" >> $GITHUB_ENV
           echo "CC=$(brew --prefix llvm@16)/bin/clang" >> $GITHUB_ENV
           echo "CXX=$(brew --prefix llvm@16)/bin/clang++" >> $GITHUB_ENV
+          echo "LDFLAGS='-L/usr/local/opt/llvm@16/lib/c++ -Wl,-rpath,/usr/local/opt/llvm@16/lib/c++'" >> $GITHUB_ENV
 
       - name: Configure
         working-directory: ${{github.workspace}}
-        run: xmake f -c -y --toolchain=clang-16
+        run: xmake f -c -y --toolchain=envs
 
       - name: Build
         env:
@@ -216,7 +217,7 @@ jobs:
         run: |
           xrepo add-repo -y hyperion "https://github.com/braxtons12/hyperion_packages.git"
           xrepo update-repo -y
-          xrepo install -y --toolchain=clang-16 "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=clang-16 --configs="hyperion_enable_tracy=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=clang-16 --configs="hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=clang-16 --configs="hyperion_enable_tracy=true,hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=envs "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=envs --configs="hyperion_enable_tracy=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=envs --configs="hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=envs --configs="hyperion_enable_tracy=true,hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
