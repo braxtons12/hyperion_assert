@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-03-12
+/// @date 2024-03-13
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -28,30 +28,7 @@
 #ifndef HYPERION_ASSERT_DETAIL_PARSER_H
 #define HYPERION_ASSERT_DETAIL_PARSER_H
 
-#include <hyperion/platform.h>
-#include <hyperion/platform/def.h>
 #include <hyperion/platform/types.h>
-
-#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-_Pragma("GCC diagnostic push");
-_Pragma("GCC diagnostic ignored \"-Wshadow\"");
-
-    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
-_Pragma("GCC diagnostic ignored \"-Wzero-as-null-pointer-constant\"");
-    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
-#endif     // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
-HYPERION_IGNORE_RESERVED_MACRO_IDENTIFIERS_WARNING_START;
-
-#include <boost/stacktrace.hpp>
-
-HYPERION_IGNORE_RESERVED_MACRO_IDENTIFIERS_WARNING_STOP;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
-
-#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-_Pragma("GCC diagnostic pop");
-#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
 
 #include <array>
 #include <string_view>

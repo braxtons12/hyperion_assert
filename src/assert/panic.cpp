@@ -1,17 +1,11 @@
+#include <hyperion/assert/backtrace.h>
 #include <hyperion/assert/panic.h>
-#include <hyperion/platform/def.h>
-
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
-HYPERION_IGNORE_PADDING_WARNING_START;
-HYPERION_IGNORE_UNKNOWN_DOC_COMMAND_WARNING_START;
+#include <hyperion/source_location.h>
 
 #include <fmt/format.h>
 
-HYPERION_IGNORE_UNKNOWN_DOC_COMMAND_WARNING_STOP;
-HYPERION_IGNORE_PADDING_WARNING_STOP;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
-
 #include <atomic>
+#include <cstdio>
 #include <cstdlib>
 #include <string_view>
 

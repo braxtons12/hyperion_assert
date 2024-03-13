@@ -3,7 +3,7 @@
 /// @brief Implementation of `std::source_location` (or re-export of it,
 /// if it is available)
 /// @version 0.1
-/// @date 2024-03-08
+/// @date 2024-03-13
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -29,18 +29,11 @@
 #ifndef HYPERION_ASSERT_SOURCE_LOCATION_H
 #define HYPERION_ASSERT_SOURCE_LOCATION_H
 
+#include <hyperion/platform.h>
 #include <hyperion/platform/def.h>
 #include <hyperion/platform/types.h>
 
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
-HYPERION_IGNORE_PADDING_WARNING_START;
-HYPERION_IGNORE_UNKNOWN_DOC_COMMAND_WARNING_START;
-
 #include <fmt/format.h>
-
-HYPERION_IGNORE_UNKNOWN_DOC_COMMAND_WARNING_STOP;
-HYPERION_IGNORE_PADDING_WARNING_STOP;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
 
 #if HYPERION_STD_LIB_HAS_SOURCE_LOCATION \
     && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 16)
@@ -50,7 +43,9 @@ HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
 namespace hyperion {
     using std::source_location;
 } // namespace hyperion
+
 #else
+
 namespace hyperion {
 
     #define HYPERION_BUILTIN_LINE() __builtin_LINE()

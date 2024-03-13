@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief format implementation for `boost::stacktrace::stacktrace`
 /// @version 0.1
-/// @date 2024-03-08
+/// @date 2024-03-13
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -28,44 +28,8 @@
 #ifndef HYPERION_ASSERT_BACKTRACE_H
 #define HYPERION_ASSERT_BACKTRACE_H
 
-#include <hyperion/platform.h>
-#include <hyperion/platform/def.h>
-
-#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wshadow"
-#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-
-#if HYPERION_PLATFORM_COMPILER_IS_CLANG
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
-
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
-HYPERION_IGNORE_RESERVED_MACRO_IDENTIFIERS_WARNING_START;
-
 #include <boost/stacktrace.hpp>
-
-HYPERION_IGNORE_RESERVED_MACRO_IDENTIFIERS_WARNING_STOP;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
-
-#if HYPERION_PLATFORM_COMPILER_IS_CLANG
-    #pragma GCC diagnostic pop
-#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
-
-#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-    #pragma GCC diagnostic pop
-#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
-HYPERION_IGNORE_PADDING_WARNING_START;
-HYPERION_IGNORE_UNKNOWN_DOC_COMMAND_WARNING_START;
-
 #include <fmt/format.h>
-
-HYPERION_IGNORE_UNKNOWN_DOC_COMMAND_WARNING_STOP;
-HYPERION_IGNORE_PADDING_WARNING_STOP;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
 
 namespace hyperion::assert {
     /// @brief `Backtrace` provides a full backtrace of the current call stack at

@@ -4,7 +4,7 @@
 /// mechanism used to fail gracefully and report the associated error when an
 /// irrecoverable error has occurred.
 /// @version 0.1
-/// @date 2024-03-08
+/// @date 2024-03-13
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -35,15 +35,7 @@
 #include <hyperion/platform/def.h>
 #include <hyperion/source_location.h>
 
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
-HYPERION_IGNORE_PADDING_WARNING_START;
-HYPERION_IGNORE_UNKNOWN_DOC_COMMAND_WARNING_START;
-
 #include <fmt/format.h>
-
-HYPERION_IGNORE_UNKNOWN_DOC_COMMAND_WARNING_STOP;
-HYPERION_IGNORE_PADDING_WARNING_STOP;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
 
 #include <concepts>
 #include <string_view>

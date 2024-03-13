@@ -26,33 +26,15 @@
 /// SOFTWARE.
 
 #include <hyperion/assert/detail/parser.h>
-#include <hyperion/platform/def.h>
-
-#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-_Pragma("GCC diagnostic push");
-_Pragma("GCC diagnostic ignored \"-Wshadow\"");
-#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-
-#if HYPERION_PLATFORM_COMPILER_IS_MSVC
-_Pragma("warning( push )");
-_Pragma("warning( disable : 4459 )");
-#endif // HYPERION_PLATFORM_COMPILER_IS_MSVC
-
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
+#include <hyperion/platform/types.h>
 
 #include <flux.hpp>
 
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
-
-#if HYPERION_PLATFORM_COMPILER_IS_MSVC
-_Pragma("warning( pop )");
-#endif // HYPERION_PLATFORM_COMPILER_IS_MSVC
-
-#if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-_Pragma("GCC diagnostic pop");
-#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
-
 #include <optional>
+#include <string_view>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace hyperion::assert::detail::parser {
     namespace {
