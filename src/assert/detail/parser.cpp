@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-03-12
+/// @date 2024-03-13
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -33,7 +33,20 @@ _Pragma("GCC diagnostic push");
 _Pragma("GCC diagnostic ignored \"-Wshadow\"");
 #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
 
+#if HYPERION_PLATFORM_COMPILER_IS_MSVC
+_Pragma("warning( push )");
+_Pragma("warning( disable : 4459 )");
+#endif // HYPERION_PLATFORM_COMPILER_IS_MSVC
+
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
+
 #include <flux.hpp>
+
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
+
+#if HYPERION_PLATFORM_COMPILER_IS_MSVC
+_Pragma("warning( pop )");
+#endif // HYPERION_PLATFORM_COMPILER_IS_MSVC
 
 #if HYPERION_PLATFORM_COMPILER_IS_CLANG || HYPERION_PLATFORM_COMPILER_IS_GCC
 _Pragma("GCC diagnostic pop");
@@ -44,6 +57,7 @@ _Pragma("GCC diagnostic pop");
 namespace hyperion::assert::detail::parser {
     namespace {
 
+        // NOLINTNEXTLINE(readability-function-cognitive-complexity)
         [[nodiscard]] auto lex(std::string_view string) -> std::vector<Token> {
             constexpr auto split = [](const std::string_view& view, auto pred) noexcept {
                 return flux::ref(view).split(pred).map([](auto elem) {
