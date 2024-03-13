@@ -183,6 +183,7 @@ jobs:
       - name: Install LLVM 16
         run: |
           brew install llvm@16
+          xmake show -l toolchains
 
       - name: Configure
         working-directory: ${{github.workspace}}
