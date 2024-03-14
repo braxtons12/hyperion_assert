@@ -866,6 +866,69 @@ namespace hyperion::_test::assert::detail::parser {
                 expect(that % result.kind.index() == expectation.kind.index());
             }
         };
+
+        "template_type"_test = [] {
+            // NOLINTNEXTLINE(google-build-using-namespace)
+            using namespace hyperion::assert::detail::parser;
+
+            constexpr auto test_str = "std::vector<std::string>";
+            const auto expected = std::vector<Token>{
+                {"std",
+                 0_usize, 3_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 3_usize,
+                 5_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"vector",
+                 5_usize, 11_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Type>},
+                 }},
+                {
+                 "<", 11_usize,
+                 12_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"std",
+                 12_usize, 15_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 15_usize,
+                 17_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"string",
+                 17_usize, 23_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Type>},
+                 }},
+                {
+                 ">", 23_usize,
+                 24_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+            };
+
+            const auto results = parse(test_str);
+
+            expect(that % results.size() == expected.size());
+
+            for(auto index = 0_usize; index < results.size(); ++index) {
+                const auto& result = results.at(index);
+                const auto& expectation = expected.at(index);
+
+                expect(that % result.text == expectation.text);
+                expect(that % result.begin == expectation.begin);
+                expect(that % result.end == expectation.end);
+                expect(that % result.kind.index() == expectation.kind.index());
+            }
+        };
     };
 } // namespace hyperion::_test::assert::detail::parser
 
