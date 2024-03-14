@@ -94,8 +94,8 @@ namespace hyperion::assert::detail::parser {
                         const auto punc_end = punc_begin + punc.size();
                         punc_start = punc_end;
                         results.emplace_back(punc,
-                                             punc_begin + search_start,
-                                             punc_end + search_start,
+                                             punc_begin + begin,
+                                             punc_end + begin,
                                              Token::Kind{std::in_place_type<Punctuation>});
                     }
 
@@ -116,8 +116,8 @@ namespace hyperion::assert::detail::parser {
                         });
                         results.emplace_back(
                             ident,
-                            ident_begin + search_start,
-                            ident_end + search_start,
+                            ident_begin + begin,
+                            ident_end + begin,
                             is_string ?
                                 Token::Kind{std::in_place_type<String>} :
                                 (is_numeric ?
@@ -135,74 +135,66 @@ namespace hyperion::assert::detail::parser {
         }
     } // namespace
 
+    // NOLINTNEXTLINE(readability-function-cognitive-complexity)
     [[nodiscard]] auto parse(std::string_view string) -> std::vector<Token> {
         auto tokens = lex(string);
-
-        struct Paren { };
-        struct Angle { };
-        struct Brace { };
-        struct Bracket { };
-
         using Cursor = decltype(flux::first(tokens));
 
-        struct CallOrTemplate {
-            using StartPunc = std::variant<Paren, Angle, Brace, Bracket>;
-            StartPunc punctuation;
-            Cursor leading_ident;
-        };
-
-        auto to_match = std::optional<CallOrTemplate>{};
         auto prev_cursor = std::optional<Cursor>{};
+        auto prev_prev_cursor = std::optional<Cursor>{};
         for(auto cur = flux::first(tokens); !flux::is_last(tokens, cur); flux::inc(tokens, cur)) {
             auto& token = flux::read_at(tokens, cur);
-            if(std::holds_alternative<Keyword>(token.kind)) {
-                prev_cursor = cur;
-                continue;
-            }
-
             if(std::holds_alternative<Identifier>(token.kind)) {
                 if(prev_cursor.has_value()) {
-                    auto& prev_token = flux::read_at(tokens, cur);
-                    if(to_match.has_value()) {
-                    }
-                    else {
-                        // if the previous token is an identifier and this one is,
-                        // then we have a sequence of the form `Type name`
-                        if(std::holds_alternative<Identifier>(prev_token.kind)) {
-                            prev_token.kind = Identifier{std::in_place_type<Type>};
+                    auto& prev_token = flux::read_at(tokens, prev_cursor.value());
+                    // if the previous token is a keyword, then we have a
+                    // sequence of the form `Keyword variable`, `namespace Namespace`,
+                    // `Keyword Type`, or `Keyword function`.
+                    // For the latter two, we backtrack on the next token when we check
+                    // the above "if Identifier" branch or when we start to track a pair
+                    // of punctuation, respectively
+                    if(std::holds_alternative<Keyword>(prev_token.kind)) {
+                        if(prev_token.text == "namespace") {
+                            token.kind = Identifier{std::in_place_type<Namespace>};
+                        }
+                        else if(prev_token.text == "auto") {
                             token.kind = Identifier{std::in_place_type<Variable>};
                         }
-                        // if the previous token is a keyword, then we have a
-                        // sequence of the form `Keyword variable`, `namespace Namespace`,
-                        // `Keyword Type`, or `Keyword function`.
-                        // For the latter two, we backtrack on the next token when we check
-                        // the above "if Identifier" branch or when we start to track a pair
-                        // of punctuation (the `to_match.has_value()` outer branch),
-                        // respectively
-                        else if(std::holds_alternative<Keyword>(prev_token.kind)) {
-                            if(prev_token.text == "namespace") {
-                                token.kind = Identifier{std::in_place_type<Namespace>};
+                        else {
+                            token.kind = Identifier{std::in_place_type<Type>};
+                        }
+                    }
+                    // if the previous token is punctuation, then we (most likely)
+                    // have a sequence of the form `operator variable`.
+                    // Other variations, such as `function(Type|Variable...` or
+                    // `template<Type...` are also possible
+                    else if(std::holds_alternative<Punctuation>(prev_token.kind)) {
+                        if(prev_prev_cursor.has_value()) {
+                            const auto& prev_prev_token
+                                = flux::read_at(tokens, prev_prev_cursor.value());
+                            if(std::holds_alternative<Keyword>(prev_prev_token.kind)
+                               || prev_token.text == "(")
+                            {
+                                token.kind = Identifier{std::in_place_type<Type>};
                             }
                             else {
                                 token.kind = Identifier{std::in_place_type<Variable>};
                             }
                         }
-                        // if the previous token is punctuation, then we (most likely)
-                        // have a sequence of the form `operator variable`.
-                        // Other variations, such as `function(Type|Variable...` or
-                        // `template<Type...` are handled in the case where we are
-                        // tracking a pair of punctuation (the `to_match.has_value()`
-                        // outer branch)
-                        // NOLINTNEXTLINE(bugprone-branch-clone)
-                        else if(std::holds_alternative<Punctuation>(prev_token.kind)) {
-                            token.kind = Identifier{std::in_place_type<Variable>};
-                        }
-                        // if the previous token isn't an identifier, keyword, or punctuation,
-                        // and this token is an identifier, then we have invalid syntax.
-                        // We will default to `Variable` for this.
                         else {
                             token.kind = Identifier{std::in_place_type<Variable>};
                         }
+                    }
+                    // if the previous token isn't a keyword or punctuation,
+                    // Then either this token is a `Variable` or we have invalid syntax.
+                    else {
+                        // if the previous token was an identifier and this is an
+                        // identifier, then we have a sequence of `Type variable`
+                        // or `Type function`
+                        if(std::holds_alternative<Identifier>(prev_token.kind)) {
+                            prev_token.kind = Identifier{std::in_place_type<Type>};
+                        }
+                        token.kind = Identifier{std::in_place_type<Variable>};
                     }
                 }
                 // if we haven't tracked a previous token, assume this is a namespace
@@ -210,8 +202,41 @@ namespace hyperion::assert::detail::parser {
                 else {
                     token.kind = Identifier{std::in_place_type<Namespace>};
                 }
-                prev_cursor = cur;
             }
+            else if(std::holds_alternative<Punctuation>(token.kind)) {
+                if(prev_cursor.has_value()) {
+                    auto& prev_token = flux::read_at(tokens, prev_cursor.value());
+                    if(std::holds_alternative<Identifier>(prev_token.kind)) {
+                        if(prev_prev_cursor.has_value()) {
+                            const auto& prev_prev_token
+                                = flux::read_at(tokens, prev_prev_cursor.value());
+                            if(std::holds_alternative<Punctuation>(prev_prev_token.kind)) {
+                                if(prev_prev_token.text == "="
+                                   && (token.text == "{" || token.text == "("))
+                                {
+                                    prev_token.kind = Identifier{std::in_place_type<Type>};
+                                }
+                                else {
+                                    prev_token.kind = Identifier{std::in_place_type<Variable>};
+                                }
+                            }
+                            else if(std::holds_alternative<Keyword>(prev_prev_token.kind)
+                                    && token.text == "(")
+                            {
+                                prev_token.kind = Identifier{std::in_place_type<Function>};
+                            }
+                            else if(token.text == "::") {
+                                prev_token.kind = Identifier{std::in_place_type<Namespace>};
+                            }
+                        }
+                        else if(token.text == "::") {
+                            prev_token.kind = Identifier{std::in_place_type<Namespace>};
+                        }
+                    }
+                }
+            }
+            prev_prev_cursor = prev_cursor;
+            prev_cursor = cur;
         }
         return tokens;
     }
