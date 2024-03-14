@@ -147,6 +147,59 @@ namespace hyperion::_test::assert::detail::parser {
             }
         };
 
+        "namespaced_function_call"_test = [] {
+            // NOLINTNEXTLINE(google-build-using-namespace)
+            using namespace hyperion::assert::detail::parser;
+
+            constexpr auto test_str = "std::function_call(value)";
+            const auto expected = std::vector<Token>{
+                {"std",
+                 0_usize, 3_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 3_usize,
+                 5_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"function_call",
+                 5_usize, 18_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Function>},
+                 }},
+                {
+                 "(", 18_usize,
+                 19_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"value",
+                 19_usize, 24_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Variable>},
+                 }},
+                {
+                 ")", 24_usize,
+                 25_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+            };
+
+            const auto results = parse(test_str);
+
+            expect(that % results.size() == expected.size());
+
+            for(auto index = 0_usize; index < results.size(); ++index) {
+                const auto& result = results.at(index);
+                const auto& expectation = expected.at(index);
+
+                expect(that % result.text == expectation.text);
+                expect(that % result.begin == expectation.begin);
+                expect(that % result.end == expectation.end);
+                expect(that % result.kind.index() == expectation.kind.index());
+            }
+        };
+
         "basic_declaration"_test = [] {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
@@ -379,6 +432,298 @@ namespace hyperion::_test::assert::detail::parser {
             }
         };
 
+        "namespaced_basic_declaration"_test = [] {
+            // NOLINTNEXTLINE(google-build-using-namespace)
+            using namespace hyperion::assert::detail::parser;
+
+            constexpr auto test_str = "std::string name = std::function_call(value)";
+            const auto expected = std::vector<Token>{
+                {"std",
+                 0_usize, 3_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 3_usize,
+                 5_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"string",
+                 5_usize, 11_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Type>},
+                 }},
+                {"name",
+                 12_usize, 16_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Variable>},
+                 }},
+                {
+                 "=", 17_usize,
+                 18_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"std",
+                 19_usize, 22_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 22_usize,
+                 24_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"function_call",
+                 24_usize, 37_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Function>},
+                 }},
+                {
+                 "(", 37_usize,
+                 38_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"value",
+                 38_usize, 43_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Variable>},
+                 }},
+                {
+                 ")", 43_usize,
+                 44_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+            };
+
+            const auto results = parse(test_str);
+
+            expect(that % results.size() == expected.size());
+
+            for(auto index = 0_usize; index < results.size(); ++index) {
+                const auto& result = results.at(index);
+                const auto& expectation = expected.at(index);
+
+                expect(that % result.text == expectation.text);
+                expect(that % result.begin == expectation.begin);
+                expect(that % result.end == expectation.end);
+                expect(that % result.kind.index() == expectation.kind.index());
+            }
+        };
+
+        "namespaced_auto_declaration"_test = [] {
+            // NOLINTNEXTLINE(google-build-using-namespace)
+            using namespace hyperion::assert::detail::parser;
+
+            constexpr auto test_str = "auto name = std::function_call(value)";
+            const auto expected = std::vector<Token>{
+                {
+                 "auto", 0_usize,
+                 4_usize, Token::Kind{std::in_place_type<Keyword>},
+                 },
+                {"name",
+                 5_usize, 9_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Variable>},
+                 }},
+                {
+                 "=", 10_usize,
+                 11_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"std",
+                 12_usize, 15_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 15_usize,
+                 17_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"function_call",
+                 17_usize, 30_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Function>},
+                 }},
+                {
+                 "(", 30_usize,
+                 31_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"value",
+                 31_usize, 36_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Variable>},
+                 }},
+                {
+                 ")", 36_usize,
+                 37_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+            };
+
+            const auto results = parse(test_str);
+
+            expect(that % results.size() == expected.size());
+
+            for(auto index = 0_usize; index < results.size(); ++index) {
+                const auto& result = results.at(index);
+                const auto& expectation = expected.at(index);
+
+                expect(that % result.text == expectation.text);
+                expect(that % result.begin == expectation.begin);
+                expect(that % result.end == expectation.end);
+                expect(that % result.kind.index() == expectation.kind.index());
+            }
+        };
+
+        "namespaced_basic_braced_declaration"_test = [] {
+            // NOLINTNEXTLINE(google-build-using-namespace)
+            using namespace hyperion::assert::detail::parser;
+
+            constexpr auto test_str = "std::string name = std::AType{value}";
+            const auto expected = std::vector<Token>{
+                {"std",
+                 0_usize, 3_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 3_usize,
+                 5_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"string",
+                 5_usize, 11_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Type>},
+                 }},
+                {"name",
+                 12_usize, 16_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Variable>},
+                 }},
+                {
+                 "=", 17_usize,
+                 18_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"std",
+                 19_usize, 22_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 22_usize,
+                 24_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"AType",
+                 24_usize, 29_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Type>},
+                 }},
+                {
+                 "{", 29_usize,
+                 30_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"value",
+                 30_usize, 35_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Variable>},
+                 }},
+                {
+                 "}", 35_usize,
+                 36_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+            };
+
+            const auto results = parse(test_str);
+
+            expect(that % results.size() == expected.size());
+
+            for(auto index = 0_usize; index < results.size(); ++index) {
+                const auto& result = results.at(index);
+                const auto& expectation = expected.at(index);
+
+                expect(that % result.text == expectation.text);
+                expect(that % result.begin == expectation.begin);
+                expect(that % result.end == expectation.end);
+                expect(that % result.kind.index() == expectation.kind.index());
+            }
+        };
+
+        "namespaced_auto_braced_declaration"_test = [] {
+            // NOLINTNEXTLINE(google-build-using-namespace)
+            using namespace hyperion::assert::detail::parser;
+
+            constexpr auto test_str = "auto name = std::AType{value}";
+            const auto expected = std::vector<Token>{
+                {
+                 "auto", 0_usize,
+                 4_usize, Token::Kind{std::in_place_type<Keyword>},
+                 },
+                {"name",
+                 5_usize, 9_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Variable>},
+                 }},
+                {
+                 "=", 10_usize,
+                 11_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"std",
+                 12_usize, 15_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 15_usize,
+                 17_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"AType",
+                 17_usize, 22_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Type>},
+                 }},
+                {
+                 "{", 22_usize,
+                 23_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"value",
+                 23_usize, 28_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Variable>},
+                 }},
+                {
+                 "}", 28_usize,
+                 29_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+            };
+
+            const auto results = parse(test_str);
+
+            expect(that % results.size() == expected.size());
+
+            for(auto index = 0_usize; index < results.size(); ++index) {
+                const auto& result = results.at(index);
+                const auto& expectation = expected.at(index);
+
+                expect(that % result.text == expectation.text);
+                expect(that % result.begin == expectation.begin);
+                expect(that % result.end == expectation.end);
+                expect(that % result.kind.index() == expectation.kind.index());
+            }
+        };
+
         "binary_operation"_test = [] {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
@@ -458,6 +803,53 @@ namespace hyperion::_test::assert::detail::parser {
                      std::in_place_type<Identifier>,
                      Identifier{std::in_place_type<Variable>},
                  }},
+            };
+
+            const auto results = parse(test_str);
+
+            expect(that % results.size() == expected.size());
+
+            for(auto index = 0_usize; index < results.size(); ++index) {
+                const auto& result = results.at(index);
+                const auto& expectation = expected.at(index);
+
+                expect(that % result.text == expectation.text);
+                expect(that % result.begin == expectation.begin);
+                expect(that % result.end == expectation.end);
+                expect(that % result.kind.index() == expectation.kind.index());
+            }
+        };
+
+        "namespace declaration"_test = [] {
+            // NOLINTNEXTLINE(google-build-using-namespace)
+            using namespace hyperion::assert::detail::parser;
+
+            constexpr auto test_str = "namespace hyperion::assert {}";
+            const auto expected = std::vector<Token>{
+                {
+                 "namespace", 0_usize,
+                 9_usize, Token::Kind{std::in_place_type<Keyword>},
+                 },
+                {"hyperion",
+                 10_usize, 18_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "::", 18_usize,
+                 20_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
+                {"assert",
+                 20_usize, 26_usize,
+                 Token::Kind{
+                     std::in_place_type<Identifier>,
+                     Identifier{std::in_place_type<Namespace>},
+                 }},
+                {
+                 "{}", 27_usize,
+                 29_usize, Token::Kind{std::in_place_type<Punctuation>},
+                 },
             };
 
             const auto results = parse(test_str);
