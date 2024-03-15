@@ -40,19 +40,20 @@ namespace hyperion::assert::detail::highlight {
 
     struct Highlight {
         tokens::Token::Kind kind;
-        fmt::color color;
+        fmt::detail::color_type color;
     };
 
     [[nodiscard]] auto highlight(std::string_view str) -> std::string;
 
-    [[nodiscard]] auto set_color(const tokens::Token::Kind& kind, fmt::color color);
-    [[nodiscard]] auto set_color(tokens::Token::Kind&& kind, fmt::color color);
+    [[nodiscard]] auto set_color(const tokens::Token::Kind& kind, fmt::detail::color_type color);
+    [[nodiscard]] auto set_color(tokens::Token::Kind&& kind, fmt::detail::color_type color);
     [[nodiscard]] auto set_color(const Highlight& _highlight);
     [[nodiscard]] auto set_color(Highlight&& _highlight);
     [[nodiscard]] auto set_colors(const std::vector<Highlight>& colors);
     [[nodiscard]] auto set_colors(std::vector<Highlight>&& colors);
 
-    [[nodiscard]] auto get_color(const tokens::Token::Kind& kind) noexcept -> fmt::color;
+    [[nodiscard]] auto
+    get_color(const tokens::Token::Kind& kind) noexcept -> fmt::detail::color_type;
 
 } // namespace hyperion::assert::detail::highlight
 
