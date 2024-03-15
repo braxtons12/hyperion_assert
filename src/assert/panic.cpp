@@ -51,16 +51,22 @@ namespace hyperion::assert::detail {
         using hyperion::assert::detail::highlight::get_color;
         using hyperion::assert::detail::highlight::highlight;
         using hyperion::assert::detail::tokens::Numeric;
+        using hyperion::assert::detail::tokens::Punctuation;
         using hyperion::assert::detail::tokens::String;
         using hyperion::assert::detail::tokens::Token;
 
         const auto str_color = get_color(Token::Kind{std::in_place_type<String>});
         const auto num_color = get_color(Token::Kind{std::in_place_type<Numeric>});
+        const auto punc_color = get_color(Token::Kind{std::in_place_type<Punctuation>});
 
-        return fmt::format("[{}|{}:{}]: {}",
+        return fmt::format("{}{}{}{}{}{}{} {}",
+                           fmt::styled('[', fmt::fg(punc_color)),
                            fmt::styled(location.file_name(), fmt::fg(str_color)),
+                           fmt::styled('|', fmt::fg(punc_color)),
                            fmt::styled(location.line(), fmt::fg(num_color)),
+                           fmt::styled(':', fmt::fg(punc_color)),
                            fmt::styled(location.column(), fmt::fg(num_color)),
+                           fmt::styled("]:", fmt::fg(punc_color)),
                            highlight(location.function_name()));
     }
 

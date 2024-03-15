@@ -54,6 +54,7 @@ namespace hyperion::assert {
             using hyperion::assert::detail::tokens::Token;
             using hyperion::assert::detail::tokens::Numeric;
             using hyperion::assert::detail::tokens::String;
+            using hyperion::assert::detail::tokens::Punctuation;
 
             // number address [name in] [file:line]
             const auto name = frame.name();
@@ -62,31 +63,35 @@ namespace hyperion::assert {
 
             // if we're printing to stderr or a tty, syntax highlight the backtrace
             if(styled) {
+                const auto num_color = get_color(Token::Kind{std::in_place_type<Numeric>});
+                const auto str_color = get_color(Token::Kind{std::in_place_type<String>});
+                const auto punc_color = get_color(Token::Kind{std::in_place_type<Punctuation>});
+
                 str += fmt::format(
-                    "{:>2}# {}{:0>16X}",
-                    fmt::styled(index,
-                                fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))),
-                    fmt::styled("0x", fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))),
+                    "{:>2}{} {}{:0>16X}",
+                    fmt::styled(index, fmt::fg(num_color)),
+                    fmt::styled('#', fmt::fg(punc_color)),
+                    fmt::styled("0x", fmt::fg(num_color)),
                     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
-                    fmt::styled(reinterpret_cast<usize>(frame.address()),
-                                fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))));
+                    fmt::styled(reinterpret_cast<usize>(frame.address()), fmt::fg(num_color)));
 
                 if(!name.empty()) {
                     str += fmt::format(" {}", hyperion::assert::detail::highlight::highlight(name));
                 }
                 if(!file.empty()) {
-                    auto line_str
-                        = line == 0 ? std::string{} :
-                                      fmt::format(":{}",
-                                                  fmt::styled(line,
-                                                              fmt::fg(get_color(Token::Kind{
-                                                                  std::in_place_type<Numeric>}))));
-                    auto file_str = fmt::format(
-                        " in [{}{}]",
-                        fmt::styled(file,
-                                    fmt::fg(get_color(Token::Kind{std::in_place_type<String>}))),
-                        line_str);
-                    str += fmt::format("\n                      {}", file_str);
+                    auto line_str = line == 0 ? std::string{} :
+                                                fmt::format("{}{}",
+                                                            fmt::styled(':', fmt::fg(punc_color)),
+                                                            fmt::styled(line, fmt::fg(num_color)));
+                    auto file_str = fmt::format("\n                       {}{}{}{}",
+                                                fmt::styled("in [", fmt::fg(punc_color)),
+                                                fmt::styled(file, fmt::fg(str_color)),
+                                                line_str,
+                                                fmt::styled(']', fmt::fg(punc_color)));
+                    str += file_str;
+                }
+                if(name.empty() && file.empty()) {
+                    str += fmt::format(" {}", fmt::styled("[no info]", fmt::fg(punc_color)));
                 }
             }
             else {
@@ -102,6 +107,9 @@ namespace hyperion::assert {
                     auto line_str = line == 0 ? std::string{} : fmt::format(":{}", line);
                     auto file_str = fmt::format(" in [{}{}]", file, line_str);
                     str += fmt::format("\n                      {}", file_str);
+                }
+                if(name.empty() && file.empty()) {
+                    str += " [no info]";
                 }
             }
             str += '\n';
