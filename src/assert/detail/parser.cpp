@@ -40,7 +40,7 @@
 namespace hyperion::assert::detail::parser {
     namespace {
 
-        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+        [[nodiscard]] HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
         // NOLINTNEXTLINE(readability-function-cognitive-complexity)
         lex(std::string_view string) -> std::vector<tokens::Token> {
             constexpr auto split = [](const std::string_view& view, auto pred) noexcept {
@@ -123,15 +123,23 @@ namespace hyperion::assert::detail::parser {
                             ident,
                             ident_begin + begin,
                             ident_end + begin,
-                            is_string ?
-                                tokens::Token::Kind{std::in_place_type<tokens::String>} :
-                                (is_numeric ?
-                                     tokens::Token::Kind{std::in_place_type<tokens::Numeric>} :
-                                     (is_keyword ?
-                                          tokens::Token::Kind{std::in_place_type<tokens::Keyword>} :
-                                          tokens::Token::Kind{
-                                              std::in_place_type<tokens::Identifier>,
-                                              std::in_place_type<tokens::Namespace>})));
+                            [](bool _string, bool _numeric, bool _keyword) {
+                                if(_string) {
+                                    return tokens::Token::Kind{std::in_place_type<tokens::String>};
+                                }
+                                if(_numeric) {
+
+                                    return tokens::Token::Kind{std::in_place_type<tokens::Numeric>};
+                                }
+
+                                if(_keyword) {
+
+                                    return tokens::Token::Kind{std::in_place_type<tokens::Keyword>};
+                                }
+
+                                return tokens::Token::Kind{std::in_place_type<tokens::Identifier>,
+                                                           std::in_place_type<tokens::Namespace>};
+                            }(is_string, is_numeric, is_keyword));
                     }
                 }
             }
@@ -142,7 +150,7 @@ namespace hyperion::assert::detail::parser {
         }
     } // namespace
 
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    [[nodiscard]] HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
     // NOLINTNEXTLINE(readability-function-cognitive-complexity)
     parse(std::string_view string) -> std::vector<tokens::Token> {
         auto tokens = lex(string);
