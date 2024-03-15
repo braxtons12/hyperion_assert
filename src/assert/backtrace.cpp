@@ -39,6 +39,7 @@
 
 namespace hyperion::assert {
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    // NOLINTNEXTLINE(readability-function-cognitive-complexity)
     format_backtrace(const Backtrace& backtrace, const int desc) -> std::string {
 
         using hyperion::operator""_usize;
