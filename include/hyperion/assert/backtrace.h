@@ -28,23 +28,21 @@
 #ifndef HYPERION_ASSERT_BACKTRACE_H
 #define HYPERION_ASSERT_BACKTRACE_H
 
+#include <hyperion/assert/detail/cstdio_support.h>
+
 #include <boost/stacktrace.hpp>
 #include <fmt/format.h>
 
 namespace hyperion::assert {
-
-    namespace cstdio_support {
-        [[nodiscard]] auto isatty(int desc) noexcept -> bool;
-        [[nodiscard]] auto fileno(std::FILE* file) noexcept -> int;
-    } // namespace cstdio_support
 
     /// @brief `Backtrace` provides a full backtrace of the current call stack at
     /// the point of its constructor invocation
     /// @headerfile hyperion/assert/backtrace.h
     using Backtrace = boost::stacktrace::stacktrace;
 
-    [[nodiscard]] auto format_backtrace(const Backtrace& backtrace,
-                                        int desc = cstdio_support::fileno(stderr)) -> std::string;
+    [[nodiscard]] auto
+    format_backtrace(const Backtrace& backtrace, int desc = detail::cstdio_support::fileno(stderr))
+        -> std::string;
 } // namespace hyperion::assert
 
 /// @brief Specialization of `fmt::formatter` to provide `fmt` support for `hyperion::Backtrace`

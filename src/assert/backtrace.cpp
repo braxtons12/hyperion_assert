@@ -26,8 +26,8 @@
 /// SOFTWARE.
 
 #include <hyperion/assert/backtrace.h>
+#include <hyperion/assert/detail/cstdio_support.h>
 #include <hyperion/assert/detail/highlight.h>
-#include <hyperion/platform.h>
 #include <hyperion/platform/types.h>
 
 #include <fmt/format.h>
@@ -35,36 +35,8 @@
 #include <cstdio>
 #include <string>
 
-#if HYPERION_PLATFORM_IS_WINDOWS
-    #include <io.h>
-#else
-    #include <unistd.h>
-#endif
-
 namespace hyperion::assert {
-
-    namespace cstdio_support {
-        [[nodiscard]] auto isatty(int desc) noexcept -> bool {
-#if HYPERION_PLATFORM_IS_WINDOWS
-            return _isatty(desc) != 0;
-#else
-            return ::isatty(desc) != 0;
-#endif // HYPERION_PLATFORM_IS_WINDOWS
-        }
-
-        [[nodiscard]] auto fileno(std::FILE* file) noexcept -> int {
-#if HYPERION_PLATFORM_IS_WINDOWS
-            return _fileno(file);
-#else
-            return ::fileno(file);
-#endif // HYPERION_PLATFORM_IS_WINDOWS
-        }
-    } // namespace cstdio_support
-
     [[nodiscard]] auto format_backtrace(const Backtrace& backtrace, const int desc) -> std::string {
-        if(!cstdio_support::isatty(desc) && desc != cstdio_support::fileno(stderr)) {
-            return boost::stacktrace::to_string(backtrace);
-        }
 
         using hyperion::operator""_usize;
         std::string output;
@@ -73,7 +45,8 @@ namespace hyperion::assert {
         output.reserve(100_usize * backtrace.size());
         constexpr auto format_frame_to = [](std::string& str,
                                             const boost::stacktrace::frame& frame,
-                                            hyperion::usize index) {
+                                            hyperion::usize index,
+                                            const int _desc) {
             using hyperion::assert::detail::highlight::get_color;
             using hyperion::assert::detail::tokens::Token;
             using hyperion::assert::detail::tokens::Numeric;
@@ -84,34 +57,62 @@ namespace hyperion::assert {
             const auto file = frame.source_file();
             const auto line = frame.source_line();
 
-            str += fmt::format(
-                "{:>2}# {}{:0>16X}",
-                fmt::styled(index, fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))),
-                fmt::styled("0x", fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))),
-                // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
-                fmt::styled(reinterpret_cast<usize>(frame.address()),
-                            fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))));
-
-            if(!name.empty()) {
-                str += fmt::format(" {}", hyperion::assert::detail::highlight::highlight(name));
-            }
-            if(!file.empty()) {
+            // if we're printing to stderr or a tty, syntax highlight the backtrace
+            if(detail::cstdio_support::isatty(_desc)
+               || _desc == detail::cstdio_support::fileno(stderr))
+            {
                 str += fmt::format(
-                    " in {}",
-                    fmt::styled(file, fmt::fg(get_color(Token::Kind{std::in_place_type<String>}))));
-            }
-            if(line != 0) {
-                str += fmt::format(
-                    "{}",
-                    fmt::styled(line,
+                    "{:>2}# {}{:0>16X}",
+                    fmt::styled(index,
+                                fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))),
+                    fmt::styled("0x", fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))),
+                    // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
+                    fmt::styled(reinterpret_cast<usize>(frame.address()),
                                 fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))));
+
+                if(!name.empty()) {
+                    str += fmt::format(" {}", hyperion::assert::detail::highlight::highlight(name));
+                }
+                if(!file.empty()) {
+                    auto line_str
+                        = line == 0 ? std::string{} :
+                                      fmt::format(":{}",
+                                                  fmt::styled(line,
+                                                              fmt::fg(get_color(Token::Kind{
+                                                                  std::in_place_type<Numeric>}))));
+                    auto file_str = fmt::format(
+                        " in [{}{}]",
+                        fmt::styled(file,
+                                    fmt::fg(get_color(Token::Kind{std::in_place_type<String>}))),
+                        line_str);
+                    // for some reason, fmt isn't padding here when we try to do so w/ the format
+                    // specifier, so we do it manually
+                    str += fmt::format("\n                      {}", file_str);
+                }
+            }
+            else {
+                str += fmt::format("{:>2}# 0x{:0>16X}",
+                                   index,
+                                   // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
+                                   reinterpret_cast<usize>(frame.address()));
+
+                if(!name.empty()) {
+                    str += fmt::format(" {}", name);
+                }
+                if(!file.empty()) {
+                    auto line_str = line == 0 ? std::string{} : fmt::format(":{}", line);
+                    auto file_str = fmt::format(" in [{}{}]", file, line_str);
+                    // for some reason, fmt isn't padding here when we try to do so w/ the format
+                    // specifier, so we do it manually
+                    str += fmt::format("\n                      {}", file_str);
+                }
             }
             str += '\n';
         };
 
         for(auto index = 0_usize; index < backtrace.size(); ++index) {
             if(!backtrace[index].empty()) {
-                format_frame_to(output, backtrace[index], index);
+                format_frame_to(output, backtrace[index], index, desc);
             }
         }
 

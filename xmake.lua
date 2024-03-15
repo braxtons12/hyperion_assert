@@ -6,7 +6,7 @@ set_xmakever("2.8.7")
 
 set_languages("cxx20")
 
-add_rules("mode.debug", "mode.release")
+add_rules("mode.debug", "mode.check", "mode.coverage")
 add_moduledirs("xmake")
 add_repositories("hyperion https://github.com/braxtons12/hyperion_packages.git")
 
@@ -44,13 +44,6 @@ add_requires("fmt", {
         languages = "cxx20",
     }
 })
---add_requires("range-v3", {
---    system = false,
---    external = true,
---    configs = {
---        languages = "cxx20",
---    }
---})
 add_requires("flux main", {
     system = false,
     external = true,
@@ -87,6 +80,7 @@ local hyperion_assert_headers = {
 local hyperion_assert_detail_headers = {
     "$(projectdir)/include/hyperion/assert/detail/parser.h",
     "$(projectdir)/include/hyperion/assert/detail/highlight.h",
+    "$(projectdir)/include/hyperion/assert/detail/cstdio_support.h",
     "$(projectdir)/include/hyperion/assert/detail/tokens.h",
 }
 local hyperion_assert_sources = {
@@ -94,41 +88,22 @@ local hyperion_assert_sources = {
     "$(projectdir)/src/assert/backtrace.cpp",
     "$(projectdir)/src/assert/detail/parser.cpp",
     "$(projectdir)/src/assert/detail/highlight.cpp",
+    "$(projectdir)/src/assert/detail/cstdio_support.cpp",
 }
 
 local setup_boost_config = function(target)
     if target:is_plat("windows") then
-        local stacktrace_lib = "libboost_stacktrace_windbg"
         if target:has_tool("cxx", "gcc", "clang") then
             target:add("defines", "BOOST_STACKTRACE_USE_WINDBG", { public = true })
         else
             target:add("defines", "BOOST_STACKTRACE_USE_WINDBG_CACHED", { public = true })
-            stacktrace_lib = stacktrace_lib .. "_cached"
         end
 
-        if target:get("config", "multi") then
-            stacktrace_lib = stacktrace_lib .. "-mt"
-        end
-
-        local no_runtime_set = not target:has_runtime("MT")
-                           and not target:has_runtime("MTd")
-                           and not target:has_runtime("MD")
-                           and not target:has_runtime("MDd")
-        if target:has_runtime("MT") or no_runtime_set then
-            stacktrace_lib = stacktrace_lib .. "-s"
-        elseif target:has_runtime("MTd") then
-            stacktrace_lib = stacktrace_lib .. "-sgd"
-        elseif target:has_runtime("MDd") then
-            stacktrace_lib = stacktrace_lib .. "-gd"
-        end
-
-        target:add("links", stacktrace_lib, {public = true})
         target:add("links", "ole32", "dbgeng", { public = true })
     else
         target:add("defines", "BOOST_STACKTRACE_USE_BACKTRACE", { public = true })
         target:add("links", "dl", { public = true })
     end
-    target:add("defines", "BOOST_STACKTRACE_LINK", { public = true })
 end
 
 target("hyperion_assert", function()

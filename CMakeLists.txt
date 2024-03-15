@@ -50,11 +50,6 @@ if(${HYPERION_USE_FETCH_CONTENT})
         )
     FetchContent_MakeAvailable(fmt)
 
-    ##FetchContent_Declare(range-v3
-    ##    GIT_REPOSITORY "https://github.com/ericniebler/range-v3"
-    ##    GIT_TAG "0.12.0"
-    ##    )
-    ##FetchContent_MakeAvailable(range-v3)
     FetchContent_Declare(flux
         GIT_REPOSITORY "https://github.com/tcbrindle/flux"
         GIT_TAG "main"
@@ -88,7 +83,6 @@ else()
     find_package(ut REQUIRED)
     find_package(fmt REQUIRED)
     find_package(Boost COMPONENTS stacktrace REQUIRED)
-    #find_package(range-v3 REQUIRED)
     find_package(flux REQUIRED)
 endif()
 
@@ -108,6 +102,7 @@ set(HYPERION_MPL_HEADERS
     "${HYPERION_MPL_INCLUDE_PATH}/assert/panic.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/parser.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/highlight.h"
+    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/cstdio_support.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/tokens.h"
 )
 
@@ -126,6 +121,7 @@ target_sources(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/backtrace.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/parser.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/highlight.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/cstdio_support.cpp"
 )
 target_link_libraries(
     hyperion_assert
@@ -133,7 +129,6 @@ target_link_libraries(
     hyperion::platform
     hyperion::mpl
     fmt::fmt
-    #range-v3::range-v3
     flux::flux
 )
 if(UNIX)
@@ -191,10 +186,6 @@ else()
         BOOST_STACKTRACE_USE_BACKTRACE
     )
 endif()
-target_compile_definitions(hyperion_assert
-    PUBLIC
-    BOOST_STACKTRACE_LINK
-)
 
 hyperion_compile_settings(hyperion_assert)
 hyperion_enable_warnings(hyperion_assert)

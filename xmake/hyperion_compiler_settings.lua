@@ -1,6 +1,6 @@
 ---@diagnostic disable: undefined-global,undefined-field,lowercase-global
 local function _set_compile_definitions(target)
-    if is_mode("release") then
+    if is_mode("release") or is_mode("releasedbg") then
         target:add("defines", "NDEBUG")
     else
         target:add("defines", "DEBUG")
@@ -14,15 +14,24 @@ local function _set_compile_definitions(target)
 end
 
 local function _set_compile_options(target)
-    if is_mode("release") then
+    if is_mode("release") or is_mode("releasedbg") then
         target:set("optimize", "aggressive")
         target:add("vectorexts", "all")
-        target:set("strip", "all")
         if is_plat("macosx") then
             target:set("policy", "build.optimization.lto", false, {public = false})
         end
     else
         target:set("optimize", "none")
+    end
+
+    if is_mode("releasedbg") then
+        target:set("symbols", "debug")
+        target:set("strip", "none")
+    end
+
+    if is_mode("release") then
+        target:set("symbols", "hidden")
+        target:set("strip", "all")
     end
 
     target:add("cxflags", "--verbose")
