@@ -27,16 +27,45 @@
 
 #include <hyperion/assert/backtrace.h>
 #include <hyperion/assert/detail/highlight.h>
+#include <hyperion/platform.h>
 #include <hyperion/platform/types.h>
 
 #include <fmt/format.h>
 
-#include <cassert>
+#include <cstdio>
 #include <string>
+
+#if HYPERION_PLATFORM_IS_WINDOWS
+    #include <io.h>
+#else
+    #include <unistd.h>
+#endif
 
 namespace hyperion::assert {
 
-    [[nodiscard]] auto format_backtrace(const Backtrace& backtrace) -> std::string {
+    namespace cstdio_support {
+        [[nodiscard]] auto isatty(int desc) noexcept -> bool {
+#if HYPERION_PLATFORM_IS_WINDOWS
+            return _isatty(desc) != 0;
+#else
+            return ::isatty(desc) != 0;
+#endif // HYPERION_PLATFORM_IS_WINDOWS
+        }
+
+        [[nodiscard]] auto fileno(std::FILE* file) noexcept -> int {
+#if HYPERION_PLATFORM_IS_WINDOWS
+            return _fileno(file);
+#else
+            return ::fileno(file);
+#endif // HYPERION_PLATFORM_IS_WINDOWS
+        }
+    } // namespace cstdio_support
+
+    [[nodiscard]] auto format_backtrace(const Backtrace& backtrace, const int desc) -> std::string {
+        if(!cstdio_support::isatty(desc) && desc != cstdio_support::fileno(stderr)) {
+            return boost::stacktrace::to_string(backtrace);
+        }
+
         using hyperion::operator""_usize;
         std::string output;
         // rough estimate the number of chars we need
@@ -56,9 +85,11 @@ namespace hyperion::assert {
             const auto line = frame.source_line();
 
             str += fmt::format(
-                "{}# {}",
+                "{:>2}# {}{:0>16X}",
                 fmt::styled(index, fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))),
-                fmt::styled(frame.address(),
+                fmt::styled("0x", fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))),
+                // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
+                fmt::styled(reinterpret_cast<usize>(frame.address()),
                             fmt::fg(get_color(Token::Kind{std::in_place_type<Numeric>}))));
 
             if(!name.empty()) {

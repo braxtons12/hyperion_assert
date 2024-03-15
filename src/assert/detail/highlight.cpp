@@ -91,14 +91,14 @@ namespace hyperion::assert::detail::highlight {
         [[nodiscard]] auto get_colors() -> std::unordered_map<std::string_view, fmt::color>& {
             using namespace std::string_view_literals;
             static auto colors = std::unordered_map<std::string_view, fmt::color>{
-                {"Punctuation"sv,                   fmt::color::ivory},
+                {"Punctuation"sv,                   fmt::color::light_gray},
                 {    "Keyword"sv,                 fmt::color::magenta},
                 {     "String"sv,              fmt::color::pale_green},
                 {    "Numeric"sv,                  fmt::color::orange},
                 {  "Namespace"sv,               fmt::color::sea_green},
-                {       "Type"sv, fmt::color::light_golden_rod_yellow},
-                {   "Function"sv,                fmt::color::sky_blue},
-                {   "Variable"sv,                   fmt::color::ivory}
+                {       "Type"sv, fmt::color::yellow},
+                {   "Function"sv,                fmt::color::blue},
+                {   "Variable"sv,                   fmt::color::light_gray}
             };
 
             return colors;
@@ -217,13 +217,14 @@ namespace hyperion::assert::detail::highlight {
             auto seq = flux::adjacent_map<decltype(size)::value>(
                 std::move(tokens),
                 [&str, fmt_string](const auto&... _tokens) {
-                    const auto style = [&str](const auto& token) {
-                        // TODO(braxtons12): figure out why this is broken
-                        // return fmt::styled(str.substr(token.begin, token.end - token.begin),
-                        //                    fmt::fg(get_color(token.kind)));
-                        return str.substr(token.begin, token.end - token.begin);
+                    const auto get_data = [&str](const auto& token) {
+                        return std::make_pair(str.substr(token.begin, token.end - token.begin),
+                                              fmt::fg(get_color(token.kind)));
                     };
-                    return fmt::format(fmt::runtime(fmt_string), style(_tokens)...);
+                    constexpr auto style = [](const auto& pair) {
+                        return fmt::styled(pair.first, pair.second);
+                    };
+                    return fmt::format(fmt::runtime(fmt_string), style(get_data(_tokens))...);
                 });
 
             assert(flux::size(seq) == 1_usize);

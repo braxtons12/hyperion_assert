@@ -150,7 +150,12 @@ namespace hyperion::assert::detail::parser {
         auto prev_prev_cursor = std::optional<Cursor>{};
         for(auto cur = flux::first(tokens); !flux::is_last(tokens, cur); flux::inc(tokens, cur)) {
             auto& token = flux::read_at(tokens, cur);
-            if(std::holds_alternative<tokens::Identifier>(token.kind)) {
+            // special case operator because we treat it like a `Keyword`, but want it
+            // highlighted as a Function
+            if(token.text == "operator") {
+                token.kind = tokens::Identifier{std::in_place_type<tokens::Function>};
+            }
+            else if(std::holds_alternative<tokens::Identifier>(token.kind)) {
                 if(prev_cursor.has_value()) {
                     auto& prev_token = flux::read_at(tokens, prev_cursor.value());
                     // if the previous token is a keyword, then we have a
@@ -213,7 +218,12 @@ namespace hyperion::assert::detail::parser {
             else if(std::holds_alternative<tokens::Punctuation>(token.kind)) {
                 if(prev_cursor.has_value()) {
                     auto& prev_token = flux::read_at(tokens, prev_cursor.value());
-                    if(std::holds_alternative<tokens::Identifier>(prev_token.kind)) {
+                    // special case operator because we treat it like a `Keyword`, but want it
+                    // highlighted as a Function
+                    if(prev_token.text == "operator") {
+                        prev_token.kind = tokens::Identifier{std::in_place_type<tokens::Function>};
+                    }
+                    else if(std::holds_alternative<tokens::Identifier>(prev_token.kind)) {
                         if(token.text.starts_with("::")) {
                             prev_token.kind
                                 = tokens::Identifier{std::in_place_type<tokens::Namespace>};
