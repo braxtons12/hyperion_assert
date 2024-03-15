@@ -76,4 +76,16 @@ function(hyperion_enable_warnings TARGET)
             -Wno-extra-semi
         )
     endif()
+
+    # clang-tidy currently hangs on parser.cpp
+    # and there is no simple way to avoid this since
+    # clang-tidy only gives us  ways to _select_ files,
+    # not ignore them
+    #if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMILER_ID STREQUAL "clang")
+    #    SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
+    #endif()
+
+    #if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMILER_ID STREQUAL "clang")
+    #    set_target_properties(${TARGET} PROPERTIES CXX_CLANG_TIDY ${CMAKE_CXX_CLANG_TIDY})
+    #endif()
 endfunction()
