@@ -156,8 +156,8 @@ namespace hyperion::assert::detail::parser {
         template<typename TType>
         struct Option : std::variant<TType, None> {
             using base = std::variant<TType, None>;
-            Option() noexcept(std::is_nothrow_default_constructible_v<TType>)
-                : base{std::in_place_type<TType>} {}
+            constexpr Option() noexcept(std::is_nothrow_default_constructible_v<None>)
+                : base{std::in_place_type<None>} {}
 
             using base::base;
             using base::operator=;
