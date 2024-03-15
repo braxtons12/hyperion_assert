@@ -77,7 +77,8 @@ namespace hyperion::assert {
                     fmt::styled(reinterpret_cast<usize>(frame.address()), fmt::fg(num_color)));
 
                 if(!name.empty()) {
-                    str += fmt::format(" {}", hyperion::assert::detail::highlight::highlight(name));
+                    str += fmt::format(" {}",
+                                       hyperion::assert::detail::highlight::highlight(name, true));
                 }
                 if(!file.empty()) {
                     auto line_str = line == 0 ? std::string{} :

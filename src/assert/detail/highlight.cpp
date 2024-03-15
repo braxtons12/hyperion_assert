@@ -38,7 +38,6 @@
 #include <fmt/format.h>
 
 #include <cassert>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -197,7 +196,7 @@ namespace hyperion::assert::detail::highlight {
         };
     } // namespace
 
-    [[nodiscard]] auto highlight(std::string_view str) -> std::string {
+    [[nodiscard]] auto highlight(std::string_view str, bool for_backtrace) -> std::string {
         auto tokens = parser::parse(str);
 
         if(tokens.empty()) {
@@ -216,19 +215,26 @@ namespace hyperion::assert::detail::highlight {
             last_index = token.end;
         });
 
+        const auto get_data = [&str](const auto& token) {
+            return std::make_pair(str.substr(token.begin, token.end - token.begin),
+                                  fmt::fg(get_color(token.kind)));
+        };
+
+        constexpr auto style = [](const auto& pair) {
+            return fmt::styled(pair.first, pair.second);
+        };
+
+        if(tokens.size() == 1_usize && for_backtrace) {
+            tokens.front().kind = tokens::Identifier{std::in_place_type<tokens::Function>};
+            return fmt::format(fmt::runtime(fmt_string), style(get_data(tokens.front())));
+        }
+
         using hyperion::mpl::MetaValue;
 
-        const auto unpack = [&tokens, &str, fmt_string](MetaValue auto size) {
+        const auto unpack = [&tokens, &get_data, &style, &fmt_string](MetaValue auto size) {
             auto seq = flux::adjacent_map<decltype(size)::value>(
                 std::move(tokens),
-                [&str, fmt_string](const auto&... _tokens) {
-                    const auto get_data = [&str](const auto& token) {
-                        return std::make_pair(str.substr(token.begin, token.end - token.begin),
-                                              fmt::fg(get_color(token.kind)));
-                    };
-                    constexpr auto style = [](const auto& pair) {
-                        return fmt::styled(pair.first, pair.second);
-                    };
+                [&fmt_string, &get_data, &style](const auto&... _tokens) {
                     return fmt::format(fmt::runtime(fmt_string), style(get_data(_tokens))...);
                 });
 

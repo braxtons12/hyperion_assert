@@ -67,7 +67,7 @@ namespace hyperion::assert::detail {
                            fmt::styled(':', fmt::fg(punc_color)),
                            fmt::styled(location.column(), fmt::fg(num_color)),
                            fmt::styled("]:", fmt::fg(punc_color)),
-                           highlight(location.function_name()));
+                           highlight(location.function_name(), true));
     }
 
 } // namespace hyperion::assert::detail

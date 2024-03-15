@@ -45,7 +45,7 @@ namespace hyperion::assert::detail::highlight {
     };
 
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    highlight(std::string_view str) -> std::string;
+    highlight(std::string_view str, bool for_backtrace = false) -> std::string;
 
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     set_color(const tokens::Token::Kind& kind, fmt::detail::color_type color);
