@@ -77,12 +77,7 @@ namespace hyperion::assert::panic {
     namespace detail {
 
         namespace {
-            HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[noreturn]] auto
-            default_handler(std::string_view panic_message,
-                            const hyperion::source_location& location,
-                            const Backtrace& backtrace) noexcept -> void;
-
-            HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
+            [[noreturn]] HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
             default_handler(const std::string_view panic_message,
                             const hyperion::source_location& location,
                             const Backtrace& backtrace) noexcept -> void {
