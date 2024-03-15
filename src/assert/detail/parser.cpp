@@ -25,6 +25,7 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 /// SOFTWARE.
 
+#include <hyperion/assert/detail/def.h>
 #include <hyperion/assert/detail/parser.h>
 #include <hyperion/platform/types.h>
 
@@ -39,8 +40,9 @@
 namespace hyperion::assert::detail::parser {
     namespace {
 
+        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
         // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-        [[nodiscard]] auto lex(std::string_view string) -> std::vector<tokens::Token> {
+        lex(std::string_view string) -> std::vector<tokens::Token> {
             constexpr auto split = [](const std::string_view& view, auto pred) noexcept {
                 return flux::ref(view).split(pred).map([](auto elem) {
                     return std::string_view{flux::begin(elem), flux::end(elem)};
@@ -140,8 +142,9 @@ namespace hyperion::assert::detail::parser {
         }
     } // namespace
 
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-    [[nodiscard]] auto parse(std::string_view string) -> std::vector<tokens::Token> {
+    parse(std::string_view string) -> std::vector<tokens::Token> {
         auto tokens = lex(string);
 
         using Cursor = decltype(flux::first(tokens));

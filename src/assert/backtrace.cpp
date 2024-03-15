@@ -30,13 +30,16 @@
 #include <hyperion/assert/detail/highlight.h>
 #include <hyperion/platform/types.h>
 
+#include <fmt/color.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
 
 #include <cstdio>
 #include <string>
 
 namespace hyperion::assert {
-    [[nodiscard]] auto format_backtrace(const Backtrace& backtrace, const int desc) -> std::string {
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    format_backtrace(const Backtrace& backtrace, const int desc) -> std::string {
 
         using hyperion::operator""_usize;
         std::string output;
@@ -46,7 +49,7 @@ namespace hyperion::assert {
         constexpr auto format_frame_to = [](std::string& str,
                                             const boost::stacktrace::frame& frame,
                                             hyperion::usize index,
-                                            const int _desc) {
+                                            bool styled) {
             using hyperion::assert::detail::highlight::get_color;
             using hyperion::assert::detail::tokens::Token;
             using hyperion::assert::detail::tokens::Numeric;
@@ -58,9 +61,7 @@ namespace hyperion::assert {
             const auto line = frame.source_line();
 
             // if we're printing to stderr or a tty, syntax highlight the backtrace
-            if(detail::cstdio_support::isatty(_desc)
-               || _desc == detail::cstdio_support::fileno(stderr))
-            {
+            if(styled) {
                 str += fmt::format(
                     "{:>2}# {}{:0>16X}",
                     fmt::styled(index,
@@ -85,8 +86,6 @@ namespace hyperion::assert {
                         fmt::styled(file,
                                     fmt::fg(get_color(Token::Kind{std::in_place_type<String>}))),
                         line_str);
-                    // for some reason, fmt isn't padding here when we try to do so w/ the format
-                    // specifier, so we do it manually
                     str += fmt::format("\n                      {}", file_str);
                 }
             }
@@ -102,17 +101,20 @@ namespace hyperion::assert {
                 if(!file.empty()) {
                     auto line_str = line == 0 ? std::string{} : fmt::format(":{}", line);
                     auto file_str = fmt::format(" in [{}{}]", file, line_str);
-                    // for some reason, fmt isn't padding here when we try to do so w/ the format
-                    // specifier, so we do it manually
                     str += fmt::format("\n                      {}", file_str);
                 }
             }
             str += '\n';
         };
 
+        // if we're printing to stderr or a tty, syntax highlight the backtrace
+        const auto format_styled = desc == -1 ?
+                                       false :
+                                       detail::cstdio_support::isatty(desc)
+                                           || desc == detail::cstdio_support::fileno(stderr);
         for(auto index = 0_usize; index < backtrace.size(); ++index) {
             if(!backtrace[index].empty()) {
-                format_frame_to(output, backtrace[index], index, desc);
+                format_frame_to(output, backtrace[index], index, format_styled);
             }
         }
 

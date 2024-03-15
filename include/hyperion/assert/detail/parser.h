@@ -28,6 +28,7 @@
 #ifndef HYPERION_ASSERT_DETAIL_PARSER_H
 #define HYPERION_ASSERT_DETAIL_PARSER_H
 
+#include <hyperion/assert/detail/def.h>
 #include <hyperion/assert/detail/tokens.h>
 #include <hyperion/platform/types.h>
 
@@ -132,7 +133,8 @@ namespace hyperion::assert::detail::parser {
                                                  "xor_eq",
                                                  "not_eq"};
 
-    [[nodiscard]] auto parse(std::string_view string) -> std::vector<tokens::Token>;
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    parse(std::string_view string) -> std::vector<tokens::Token>;
 } // namespace hyperion::assert::detail::parser
 
 #if HYPERION_ENABLE_TESTING

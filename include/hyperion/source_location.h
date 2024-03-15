@@ -3,7 +3,7 @@
 /// @brief Implementation of `std::source_location` (or re-export of it,
 /// if it is available)
 /// @version 0.1
-/// @date 2024-03-13
+/// @date 2024-03-15
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -29,11 +29,14 @@
 #ifndef HYPERION_ASSERT_SOURCE_LOCATION_H
 #define HYPERION_ASSERT_SOURCE_LOCATION_H
 
+#include <hyperion/assert/detail/def.h>
 #include <hyperion/platform.h>
 #include <hyperion/platform/def.h>
 #include <hyperion/platform/types.h>
 
 #include <fmt/format.h>
+
+#include <string>
 
 #if HYPERION_STD_LIB_HAS_SOURCE_LOCATION \
     && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 16)
@@ -136,6 +139,13 @@ namespace hyperion {
 #endif // HYPERION_STD_LIB_HAS_SOURCE_LOCATION
        // && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 16)
 
+namespace hyperion::assert::detail {
+
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    format_source_location(const hyperion::source_location& location) -> std::string;
+
+} // namespace hyperion::assert::detail
+
 template<>
 struct fmt::formatter<hyperion::source_location> {
     // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
@@ -188,7 +198,7 @@ namespace hyperion::_test::source_location {
         "current"_test = [] {
             constexpr auto current = get_location();
 
-            expect(current.line() == 174_u32);
+            expect(current.line() == 184_u32);
             // when `source_location::current` is used as a standalone call, column can be one of:
             // - The beginning of the qualified name of the call to `source_location::current`
             // (e.g. the position of "h" `hyperion::source_location::current()`)
@@ -220,7 +230,7 @@ namespace hyperion::_test::source_location {
         "current_as_default_arg"_test = [] {
             constexpr auto current = _test::source_location::get_default();
 
-            expect(current.line() == 183_u32);
+            expect(current.line() == 193_u32);
             // when `source_location::current` is used as a default argument column can be one of:
             // - The beginning of the qualified name of the call to the function
             // (e.g. the first "_" in `test::source_location::get_default()`)

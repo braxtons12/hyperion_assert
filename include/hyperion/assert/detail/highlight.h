@@ -28,6 +28,7 @@
 #ifndef HYPERION_ASSERT_DETAIL_HIGHLIGHT_H
 #define HYPERION_ASSERT_DETAIL_HIGHLIGHT_H
 
+#include <hyperion/assert/detail/def.h>
 #include <hyperion/assert/detail/tokens.h>
 
 #include <fmt/color.h>
@@ -43,16 +44,23 @@ namespace hyperion::assert::detail::highlight {
         fmt::detail::color_type color;
     };
 
-    [[nodiscard]] auto highlight(std::string_view str) -> std::string;
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    highlight(std::string_view str) -> std::string;
 
-    [[nodiscard]] auto set_color(const tokens::Token::Kind& kind, fmt::detail::color_type color);
-    [[nodiscard]] auto set_color(tokens::Token::Kind&& kind, fmt::detail::color_type color);
-    [[nodiscard]] auto set_color(const Highlight& _highlight);
-    [[nodiscard]] auto set_color(Highlight&& _highlight);
-    [[nodiscard]] auto set_colors(const std::vector<Highlight>& colors);
-    [[nodiscard]] auto set_colors(std::vector<Highlight>&& colors);
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    set_color(const tokens::Token::Kind& kind, fmt::detail::color_type color);
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    set_color(tokens::Token::Kind&& kind, fmt::detail::color_type color);
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    set_color(const Highlight& _highlight);
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    set_color(Highlight&& _highlight);
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    set_colors(const std::vector<Highlight>& colors);
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
+    set_colors(std::vector<Highlight>&& colors);
 
-    [[nodiscard]] auto
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     get_color(const tokens::Token::Kind& kind) noexcept -> fmt::detail::color_type;
 
 } // namespace hyperion::assert::detail::highlight

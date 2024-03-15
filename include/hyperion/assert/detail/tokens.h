@@ -44,11 +44,12 @@ namespace hyperion::assert::detail::tokens {
     struct String { };
     struct Numeric { };
     struct Punctuation { };
+    struct Error { };
 
     using Identifier = std::variant<Namespace, Type, Function, Variable>;
 
     struct Token {
-        using Kind = std::variant<Identifier, Keyword, String, Numeric, Punctuation>;
+        using Kind = std::variant<Identifier, Keyword, String, Numeric, Punctuation, Error>;
         std::string_view text = {};
         usize begin = 0;
         usize end = 0;

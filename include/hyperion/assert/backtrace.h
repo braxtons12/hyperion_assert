@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief format implementation for `boost::stacktrace::stacktrace`
 /// @version 0.1
-/// @date 2024-03-14
+/// @date 2024-03-15
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -29,6 +29,7 @@
 #define HYPERION_ASSERT_BACKTRACE_H
 
 #include <hyperion/assert/detail/cstdio_support.h>
+#include <hyperion/assert/detail/def.h>
 
 #include <boost/stacktrace.hpp>
 #include <fmt/format.h>
@@ -40,7 +41,7 @@ namespace hyperion::assert {
     /// @headerfile hyperion/assert/backtrace.h
     using Backtrace = boost::stacktrace::stacktrace;
 
-    [[nodiscard]] auto
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     format_backtrace(const Backtrace& backtrace, int desc = detail::cstdio_support::fileno(stderr))
         -> std::string;
 } // namespace hyperion::assert
@@ -58,7 +59,7 @@ struct fmt::formatter<hyperion::assert::Backtrace> {
     template<typename TFormatContext>
     [[nodiscard]] constexpr auto
     format(const hyperion::assert::Backtrace& trace, TFormatContext& context) {
-        return fmt::format_to(context.out(), "{}", hyperion::assert::format_backtrace(trace));
+        return fmt::format_to(context.out(), "{}", hyperion::assert::format_backtrace(trace, -1));
     }
 };
 

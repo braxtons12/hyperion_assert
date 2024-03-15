@@ -25,9 +25,6 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 /// SOFTWARE.
 
-#include "flux/source/empty.hpp"
-#include "fmt/core.h"
-
 #include <hyperion/assert/detail/highlight.h>
 #include <hyperion/assert/detail/parser.h>
 #include <hyperion/assert/detail/tokens.h>
@@ -37,6 +34,7 @@
 
 #include <flux.hpp>
 #include <fmt/color.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
 
 #include <cassert>
@@ -65,6 +63,10 @@ namespace hyperion::assert::detail::highlight {
 
             if(std::holds_alternative<tokens::Numeric>(kind)) {
                 return "Numeric"sv;
+            }
+
+            if(std::holds_alternative<tokens::Error>(kind)) {
+                return "Error"sv;
             }
 
             if(const auto* ident = std::get_if<tokens::Identifier>(&kind); ident != nullptr) {
@@ -99,7 +101,8 @@ namespace hyperion::assert::detail::highlight {
                 {  "Namespace"sv, fmt::rgb(0x00997b_u32)},
                 {       "Type"sv, fmt::rgb(0xdbba75_u32)},
                 {   "Function"sv, fmt::rgb(0x61afef_u32)},
-                {   "Variable"sv, fmt::rgb(0x9daaaa_u32)}
+                {   "Variable"sv, fmt::rgb(0x9daaaa_u32)},
+                {      "Error"sv, fmt::rgb(0xc65156_u32)},
             };
 
             return colors;
