@@ -188,6 +188,13 @@ else()
     )
 endif()
 
+if(APPLE OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    target_compile_definitions(hyperion_assert
+        PUBLIC
+        BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED=1
+    )
+endif()
+
 hyperion_compile_settings(hyperion_assert)
 hyperion_enable_warnings(hyperion_assert)
 

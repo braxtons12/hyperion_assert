@@ -105,6 +105,9 @@ local setup_boost_config = function(target)
         target:add("defines", "BOOST_STACKTRACE_USE_BACKTRACE", { public = true })
         target:add("links", "dl", { public = true })
     end
+    if target:is_plat("macosx") or target:is_plat("iphoneos") or target:is_plat("watchos") then
+        target:add("defines", "BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED", { public = true })
+    end
 end
 
 target("hyperion_assert", function()
