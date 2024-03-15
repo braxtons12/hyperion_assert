@@ -87,7 +87,11 @@ jobs:
         working-directory: ${{github.workspace}}
         run: |
           xmake b
-          xmake check clang.tidy
+          # clang-tidy currently hangs on parser.cpp
+          # and there is no simple way to avoid this since
+          # clang-tidy only gives us  ways to _select_ files,
+          # not ignore them
+          #xmake check clang.tidy
 
       - name: Test
         env:

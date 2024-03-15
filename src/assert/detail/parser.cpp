@@ -31,6 +31,7 @@
 
 #include <flux.hpp>
 
+#include <optional>
 #include <string_view>
 #include <utility>
 #include <variant>
@@ -147,41 +148,6 @@ namespace hyperion::assert::detail::parser {
                        [](const auto& lhs, const auto& rhs) { return lhs.begin < rhs.begin; });
             return results;
         }
-
-        // clang-tidy 15 thru 17 hangs on use of `std::optional` in some cases
-        // (this being one of them), so use a minimal alternative built on variant here
-
-        struct None {};
-
-        template<typename TType>
-        struct Option : std::variant<TType, None> {
-            using base = std::variant<TType, None>;
-            constexpr Option() noexcept(std::is_nothrow_default_constructible_v<None>)
-                : base{std::in_place_type<None>} {}
-
-            using base::base;
-            using base::operator=;
-
-            [[nodiscard]] constexpr auto has_value() const noexcept -> bool {
-                return std::holds_alternative<TType>(*this);
-            }
-
-            [[nodiscard]] constexpr auto value() const& -> const TType& {
-                return std::get<TType>(*this);
-            }
-
-            [[nodiscard]] constexpr auto value() & -> TType& {
-                return std::get<TType>(*this);
-            }
-
-            [[nodiscard]] constexpr auto value() const&& -> const TType&& {
-                return std::get<TType>(std::move(*this));
-            }
-
-            [[nodiscard]] constexpr auto value() && -> TType&& {
-                return std::get<TType>(std::move(*this));
-            }
-        };
     } // namespace
 
     [[nodiscard]] HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
@@ -191,8 +157,8 @@ namespace hyperion::assert::detail::parser {
 
         using Cursor = decltype(flux::first(tokens));
 
-        auto prev_cursor = Option<Cursor>{};
-        auto prev_prev_cursor = Option<Cursor>{};
+        auto prev_cursor = std::optional<Cursor>{};
+        auto prev_prev_cursor = std::optional<Cursor>{};
         for(auto cur = flux::first(tokens); !flux::is_last(tokens, cur); flux::inc(tokens, cur)) {
             auto& token = flux::read_at(tokens, cur);
             // special case operator because we treat it like a `Keyword`, but want it

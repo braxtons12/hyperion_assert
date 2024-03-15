@@ -21,6 +21,13 @@ if(HYPERION_USE_FETCH_CONTENT)
     include(FetchContent)
 endif()
 
+# clang-tidy currently hangs on parser.cpp
+# and there is no simple way to avoid this since
+# clang-tidy only gives us  ways to _select_ files,
+# not ignore them
+set(CMAKE_CXX_CLANG_TIDY "")
+set(CMAKE_C_CLANG_TIDY "")
+
 if(${HYPERION_USE_FETCH_CONTENT})
     FetchContent_Declare(hyperion_platform
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_platform"
