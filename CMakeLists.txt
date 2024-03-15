@@ -107,6 +107,8 @@ set(HYPERION_MPL_HEADERS
     "${HYPERION_MPL_INCLUDE_PATH}/assert/backtrace.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/panic.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/parser.h"
+    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/highlight.h"
+    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/tokens.h"
 )
 
 add_library(hyperion_assert STATIC)
@@ -121,7 +123,9 @@ target_sources(
     PUBLIC
     ${HYPERION_MPL_HEADERS}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/panic.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/backtrace.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/parser.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/highlight.cpp"
 )
 target_link_libraries(
     hyperion_assert

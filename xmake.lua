@@ -86,10 +86,14 @@ local hyperion_assert_headers = {
 }
 local hyperion_assert_detail_headers = {
     "$(projectdir)/include/hyperion/assert/detail/parser.h",
+    "$(projectdir)/include/hyperion/assert/detail/highlight.h",
+    "$(projectdir)/include/hyperion/assert/detail/tokens.h",
 }
 local hyperion_assert_sources = {
     "$(projectdir)/src/assert/panic.cpp",
+    "$(projectdir)/src/assert/backtrace.cpp",
     "$(projectdir)/src/assert/detail/parser.cpp",
+    "$(projectdir)/src/assert/detail/highlight.cpp",
 }
 
 local setup_boost_config = function(target)
