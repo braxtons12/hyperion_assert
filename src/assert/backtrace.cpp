@@ -120,7 +120,8 @@ namespace hyperion::assert {
                                        false :
                                        detail::cstdio_support::isatty(desc)
                                            || desc == detail::cstdio_support::fileno(stderr);
-        for(auto index = 0_usize; index < backtrace.size(); ++index) {
+        // MSVC gets mad when we use the _usize literal operator here for some reason
+        for(auto index = static_cast<usize>(0UL); index < backtrace.size(); ++index) {
             if(!backtrace[index].empty()) {
                 format_frame_to(output, backtrace[index], index, format_styled);
             }
