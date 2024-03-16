@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Robust C++20 runtime asserts
 /// @version 0.1
-/// @date 2024-03-12
+/// @date 2024-03-15
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -28,7 +28,11 @@
 #ifndef HYPERION_ASSERT_H
 #define HYPERION_ASSERT_H
 
+#include <hyperion/assert/backtrace.h>
+#include <hyperion/assert/detail/decomposer.h>
+#include <hyperion/assert/detail/highlight.h>
 #include <hyperion/assert/detail/parser.h>
+#include <hyperion/assert/panic.h>
+#include <hyperion/source_location.h>
 
 #endif // HYPERION_ASSERT_H
-

@@ -1,8 +1,6 @@
+#include <hyperion/assert.h>
 #include <hyperion/platform/def.h>
-#include <hyperion/assert/panic.h>
 #include <hyperion/platform/types.h>
-#include <hyperion/source_location.h>
-#include <hyperion/assert/detail/parser.h>
 
 HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_START;
 HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;

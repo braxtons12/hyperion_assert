@@ -1,0 +1,1087 @@
+/// @file decomposer.h
+/// @author Braxton Salyer <braxtonsalyer@gmail.com>
+/// @brief Expression decomposition helper types
+/// @version 0.1
+/// @date 2024-03-16
+///
+/// MIT License
+/// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
+///
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+///
+/// The above copyright notice and this permission notice shall be included in all
+/// copies or substantial portions of the Software.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+/// SOFTWARE.
+
+#ifndef HYPERION_ASSERT_DETAIL_DECOMPOSER_H
+#define HYPERION_ASSERT_DETAIL_DECOMPOSER_H
+
+#include <hyperion/assert/detail/highlight.h>
+#include <hyperion/assert/detail/tokens.h>
+#include <hyperion/mpl/concepts.h>
+#include <hyperion/mpl/type.h>
+#include <hyperion/platform/def.h>
+
+#include <fmt/format.h>
+
+#include <concepts>
+#include <sstream>
+#include <string_view>
+#include <utility>
+
+namespace hyperion::assert::detail {
+
+    template<typename TType>
+    concept OutputStreamable
+        = requires(const TType& type, std::stringstream& stream) { stream << type; };
+
+    template<typename TExpr>
+    class UnaryExpression final {
+      public:
+        explicit constexpr UnaryExpression(const TExpr& expr) noexcept : m_expr(expr) {
+        }
+
+        explicit constexpr operator bool() const noexcept
+            requires(mpl::decltype_<const TExpr&>().is_convertible_to(mpl::decltype_<bool>()))
+        {
+            return static_cast<bool>(m_expr.get());
+        }
+
+        [[nodiscard]] constexpr auto expr() const noexcept -> const TExpr& {
+            return m_expr.get();
+        }
+
+      private:
+        // NOLINTNEXTLINE(*-avoid-const-or-ref-data-members)
+        const TExpr& m_expr;
+    };
+    template<typename TExpr>
+    UnaryExpression(const TExpr&) -> UnaryExpression<TExpr>;
+
+    template<usize TSize>
+        requires(TSize != 0)
+    struct FixedString final {
+        static constexpr auto k_size = TSize;
+        // NOLINTNEXTLINE(*-c-arrays)
+        char data[TSize + 1_usize] = {};
+
+        // NOLINTNEXTLINE(*-c-arrays, *-explicit-*)
+        constexpr explicit(false) FixedString(const char (&str)[TSize + 1_usize]) noexcept {
+            for(auto index = static_cast<usize>(0); index < TSize; ++index) {
+                HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
+                // NOLINTNEXTLINE(*-pro-bounds-constant-array-index)
+                data[index] = str[index];
+                HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
+            }
+        }
+
+        [[nodiscard]] constexpr auto size() const noexcept -> usize {
+            return TSize;
+        }
+
+        [[nodiscard]] constexpr auto empty() const noexcept -> bool {
+            return false;
+        }
+
+        // NOLINTNEXTLINE(*-explicit-*)
+        [[nodiscard]] constexpr explicit(false) operator std::string_view() const noexcept {
+            return {data, TSize};
+        }
+    };
+    template<usize TSize>
+    // NOLINTNEXTLINE(*-c-arrays)
+    FixedString(const char (&str)[TSize]) -> FixedString<TSize - 1>;
+
+    template<FixedString TOp>
+    struct Operator;
+
+#define HYPERION_DEFINE_OPERATOR_TYPE(oper) /** NOLINT(*-macro-usage) **/                       \
+    template<>                                                                                  \
+    struct Operator<#oper> final {                                                              \
+        static constexpr auto k_op = std::string_view{#oper};                                   \
+                                                                                                \
+        [[nodiscard]] static constexpr auto                                                     \
+        do_op(auto&& lhs,                                                                       \
+              auto&& rhs) noexcept(noexcept(std::forward<decltype(lhs)>(lhs)                    \
+                                                oper std::forward<decltype(rhs)>(rhs)))         \
+            -> decltype(std::forward<decltype(lhs)>(lhs) oper std::forward<decltype(rhs)>(rhs)) \
+            requires requires {                                                                 \
+                std::forward<decltype(lhs)>(lhs) oper std::forward<decltype(rhs)>(rhs);         \
+            }                                                                                   \
+        {                                                                                       \
+            return lhs oper rhs;                                                                \
+        }                                                                                       \
+                                                                                                \
+        [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {          \
+            return k_op;                                                                        \
+        }                                                                                       \
+    }
+
+    HYPERION_DEFINE_OPERATOR_TYPE(+);
+    HYPERION_DEFINE_OPERATOR_TYPE(-);
+    HYPERION_DEFINE_OPERATOR_TYPE(*);
+    HYPERION_DEFINE_OPERATOR_TYPE(/);
+    HYPERION_DEFINE_OPERATOR_TYPE(%);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(<<);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(>>);
+    HYPERION_DEFINE_OPERATOR_TYPE(<=>);
+    HYPERION_DEFINE_OPERATOR_TYPE(<);
+    HYPERION_DEFINE_OPERATOR_TYPE(<=);
+    HYPERION_DEFINE_OPERATOR_TYPE(>);
+    HYPERION_DEFINE_OPERATOR_TYPE(>=);
+    HYPERION_DEFINE_OPERATOR_TYPE(==);
+    HYPERION_DEFINE_OPERATOR_TYPE(!=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(&);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(|);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(^);
+    HYPERION_DEFINE_OPERATOR_TYPE(&&);
+    HYPERION_DEFINE_OPERATOR_TYPE(||);
+    HYPERION_DEFINE_OPERATOR_TYPE(=);
+    HYPERION_DEFINE_OPERATOR_TYPE(+=);
+    HYPERION_DEFINE_OPERATOR_TYPE(-=);
+    HYPERION_DEFINE_OPERATOR_TYPE(*=);
+    HYPERION_DEFINE_OPERATOR_TYPE(/=);
+    HYPERION_DEFINE_OPERATOR_TYPE(%=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(<<=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(>>=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(&=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(|=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_OPERATOR_TYPE(^=);
+
+    template<>
+    struct Operator<","> final {
+        static constexpr auto k_op = std::string_view{","};
+
+        [[nodiscard]] static constexpr auto
+        do_op(auto&& lhs, auto&& rhs) noexcept(noexcept(std::forward<decltype(lhs)>(lhs),
+                                                        std::forward<decltype(rhs)>(rhs)))
+            -> decltype(std::forward<decltype(lhs)>(lhs), std::forward<decltype(rhs)>(rhs))
+            requires requires {
+                std::forward<decltype(lhs)>(lhs), std::forward<decltype(rhs)>(rhs);
+            }
+        {
+            return lhs, rhs;
+        }
+
+        [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {
+            return k_op;
+        }
+    };
+
+#undef HYPERION_DEFINE_OPERATOR_TYPE
+
+    template<typename TLhs, typename TRhs, FixedString TOp>
+        requires requires {
+            Operator<TOp>::do_op(std::declval<TLhs>().do_op(), std::declval<const TRhs&>());
+        } or requires {
+            Operator<TOp>::do_op(std::declval<const TLhs&>(), std::declval<const TRhs&>());
+        }
+    class BinaryExpression final {
+      private:
+        // NOLINTNEXTLINE(*-avoid-const-or-ref-data-members)
+        const TLhs& m_lhs;
+        // NOLINTNEXTLINE(*-avoid-const-or-ref-data-members)
+        const TRhs& m_rhs;
+
+        [[nodiscard]] static constexpr auto call_operator(const TLhs& lhs, const TRhs& rhs)
+            requires requires { Operator<TOp>::do_op(lhs.do_op(), rhs); }
+        {
+            return Operator<TOp>::do_op(lhs.do_op(), rhs);
+        }
+
+        [[nodiscard]] static constexpr auto call_operator(const TLhs& lhs, const TRhs& rhs)
+            requires requires { Operator<TOp>::do_op(lhs, rhs); }
+        {
+            return Operator<TOp>::do_op(lhs, rhs);
+        }
+
+      public:
+        using result_type = decltype(call_operator(m_lhs, m_rhs));
+        using operator_type = Operator<TOp>;
+        static constexpr auto k_lhs_is_binary_expression = requires {
+            typename TLhs::result_type;
+            typename TLhs::operator_type;
+        };
+        static constexpr auto k_is_binary_expression = true;
+
+        constexpr BinaryExpression(const TLhs& lhs, const TRhs& rhs) noexcept
+            : m_lhs(lhs), m_rhs(rhs) {
+        }
+
+        [[nodiscard]] constexpr auto
+        do_op() const noexcept(noexcept(Operator<TOp>::do_op(m_lhs, m_rhs))) -> result_type
+            requires(not k_lhs_is_binary_expression)
+        {
+            return Operator<TOp>::do_op(m_lhs, m_rhs);
+        }
+
+        [[nodiscard]] constexpr auto
+        do_op() const noexcept(noexcept(Operator<TOp>::do_op(m_lhs.do_op(), m_rhs))) -> result_type
+            requires k_lhs_is_binary_expression
+        {
+            return Operator<TOp>::do_op(m_lhs.do_op(), m_rhs);
+        }
+
+        // NOLINTNEXTLINE(misc-unconventional-assign-operator, *-assignment-signature)
+        constexpr auto operator=(const auto& rhs) noexcept(
+            noexcept(std::declval<const BinaryExpression>().do_op()) and noexcept(
+                std::declval<const BinaryExpression>().do_op() = rhs))
+            -> BinaryExpression<BinaryExpression<TLhs, TRhs, TOp>,
+                                std::remove_cvref_t<decltype(rhs)>,
+                                "=">
+            requires requires { do_op() = rhs; }
+        {
+            return {*this, rhs};
+        }
+
+        [[nodiscard]] constexpr auto lhs() const noexcept -> const TLhs& {
+            return m_lhs;
+        }
+
+        [[nodiscard]] constexpr auto rhs() const noexcept -> const TRhs& {
+            return m_rhs;
+        }
+
+        [[nodiscard]] constexpr auto operator_() const noexcept -> std::string_view {
+            return Operator<TOp>::operator_();
+        }
+
+        [[nodiscard]] constexpr auto expr() const
+            noexcept(noexcept(std::declval<const BinaryExpression>().do_op())) -> result_type
+            requires requires { std::declval<const BinaryExpression>().do_op(); }
+        {
+            return do_op();
+        }
+    };
+
+#define HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(oper) /** NOLINT(*-macro-usage) **/     \
+    template<typename TLhs, typename TRhs, FixedString TOp>                                \
+    constexpr auto operator oper(const BinaryExpression<TLhs, TRhs, TOp>& lhs,             \
+                                 const auto& rhs) noexcept(noexcept(lhs.do_op() oper rhs)) \
+        -> BinaryExpression<BinaryExpression<TLhs, TRhs, TOp>,                             \
+                            std::remove_cvref_t<decltype(rhs)>,                            \
+                            #oper>                                                         \
+        requires requires { lhs.do_op() oper rhs; }                                        \
+    {                                                                                      \
+        return {lhs, rhs};                                                                 \
+    }
+
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(+);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(-);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(*);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(/);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(%);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(<<);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(>>);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(<=>);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(<);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(<=);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(>);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(>=);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(==);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(!=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(&);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(|);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(^);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(&&);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(||);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(+=);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(-=);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(*=);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(/=);
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(%=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(<<=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(>>=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(&=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(|=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(^=);
+
+#undef HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR
+
+    template<typename TType>
+    concept IsBinaryExpression = requires { TType::k_is_binary_expression; }
+                                 && requires { requires TType::k_is_binary_expression; };
+
+    template<typename TExpr>
+    class InitialExpression {
+      public:
+        // NOLINTNEXTLINE(*-explicit-*)
+        constexpr explicit(false) InitialExpression(const TExpr& expr) : m_expr(expr) {
+        }
+
+        // NOLINTNEXTLINE(*-explicit-*)
+        [[nodiscard]] explicit(false) constexpr operator UnaryExpression<TExpr>() const noexcept {
+            return {m_expr};
+        }
+
+        [[nodiscard]] constexpr auto expr() const noexcept -> const TExpr& {
+            return m_expr;
+        }
+
+      private:
+        // NOLINTNEXTLINE(*-avoid-const-or-ref-data-members)
+        const TExpr& m_expr;
+    };
+
+#define HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(oper) /** NOLINT(*-macro-usage) **/   \
+    template<typename TLhs>                                                               \
+    constexpr auto operator oper(const InitialExpression<TLhs>& lhs,                      \
+                                 const auto& rhs) noexcept(noexcept(lhs.expr() oper rhs)) \
+        -> BinaryExpression<TLhs, std::remove_cvref_t<decltype(rhs)>, #oper>              \
+        requires requires { lhs.expr() oper rhs; }                                        \
+    {                                                                                     \
+        return {lhs.expr(), rhs};                                                         \
+    }
+
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(+);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(-);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(*);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(/);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(%);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(<<);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(>>);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(<=>);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(<);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(<=);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(>);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(>=);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(==);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(!=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(&);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(|);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(^);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(&&);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(||);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(+=);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(-=);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(*=);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(/=);
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(%=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(<<=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(>>=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(&=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(|=);
+    // NOLINTNEXTLINE(*-signed-bitwise)
+    HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(^=);
+
+#undef HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR
+
+    struct ExpressionDecomposer {
+        friend constexpr auto
+        // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved)
+        operator->*([[maybe_unused]] ExpressionDecomposer && decomposer, const auto& lhs)
+            -> InitialExpression<std::remove_cvref_t<decltype(lhs)>> {
+            return {lhs};
+        }
+    };
+
+} // namespace hyperion::assert::detail
+
+template<typename TExpr>
+struct fmt::formatter<hyperion::assert::detail::UnaryExpression<TExpr>> {
+  private:
+    static inline constexpr auto k_formattable = is_formattable<TExpr>::value;
+
+  public:
+    using self = hyperion::assert::detail::UnaryExpression<TExpr>;
+
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+    [[nodiscard]] constexpr auto parse(format_parse_context& context) {
+        return context.begin();
+    }
+
+    template<typename TFormatContext>
+    [[nodiscard]] auto format(const self& expression, TFormatContext& context) {
+        using hyperion::assert::detail::IsBinaryExpression;
+        using hyperion::assert::detail::OutputStreamable;
+        using hyperion::assert::detail::highlight::highlight;
+
+        if constexpr(k_formattable) {
+            fmt::format_to(context.out(), "{}", highlight(expression.expr()));
+        }
+        else if constexpr(OutputStreamable<TExpr>) {
+            std::stringstream stream;
+            stream << expression.expr();
+            return fmt::format_to(context.out(), "{}", highlight(stream.str()));
+        }
+        else {
+            return fmt::format_to(context.out(), highlight("(NotFormattable)"));
+        }
+    }
+};
+
+template<typename TExpr>
+struct fmt::formatter<hyperion::assert::detail::InitialExpression<TExpr>> {
+  public:
+    using self = hyperion::assert::detail::InitialExpression<TExpr>;
+
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+    [[nodiscard]] constexpr auto parse(format_parse_context& context) {
+        return context.begin();
+    }
+
+    template<typename TFormatContext>
+    [[nodiscard]] auto format(const self& expression, TFormatContext& context) {
+        using hyperion::assert::detail::UnaryExpression;
+        return fmt::format_to(context.out(), "{}", static_cast<UnaryExpression<TExpr>>(expression));
+    }
+};
+
+template<typename TLhs, typename TRhs, hyperion::assert::detail::FixedString TOp>
+struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp>> {
+  private:
+    template<typename TType>
+    static inline constexpr auto formattable = is_formattable<TType>::value;
+
+  public:
+    using self = hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp>;
+
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+    [[nodiscard]] constexpr auto parse(format_parse_context& context) {
+        return context.begin();
+    }
+
+    template<typename TFormatContext>
+    [[nodiscard]] auto format(const self& expression, TFormatContext& context) {
+        using hyperion::assert::detail::IsBinaryExpression;
+        using hyperion::assert::detail::OutputStreamable;
+        using hyperion::assert::detail::highlight::get_color;
+        using hyperion::assert::detail::highlight::highlight;
+        using hyperion::assert::detail::tokens::Punctuation;
+        using hyperion::assert::detail::tokens::Token;
+
+        if constexpr(IsBinaryExpression<TLhs>) {
+            const auto punc_color = get_color(Token::Kind{std::in_place_type<Punctuation>});
+
+            if constexpr(formattable<TRhs>) {
+                return fmt::format_to(context.out(),
+                                      "{}{}{} {} {}",
+                                      fmt::styled('(', fmt::fg(punc_color)),
+                                      expression.lhs(),
+                                      fmt::styled(')', fmt::fg(punc_color)),
+                                      fmt::styled(expression.operator_(), fmt::fg(punc_color)),
+                                      highlight(fmt::format("{}", expression.rhs())));
+            }
+            else if constexpr(OutputStreamable<TRhs>) {
+                std::stringstream stream;
+                stream << expression.rhs();
+                return fmt::format_to(context.out(),
+                                      "{}{}{} {} {}",
+                                      fmt::styled('(', fmt::fg(punc_color)),
+                                      expression.lhs(),
+                                      fmt::styled(')', fmt::fg(punc_color)),
+                                      fmt::styled(expression.operator_(), fmt::fg(punc_color)),
+                                      highlight(stream.str()));
+            }
+            else {
+                return fmt::format_to(context.out(),
+                                      "{}{}{} {} {}",
+                                      fmt::styled('(', fmt::fg(punc_color)),
+                                      expression.lhs(),
+                                      fmt::styled(')', fmt::fg(punc_color)),
+                                      fmt::styled(expression.operator_(), fmt::fg(punc_color)),
+                                      highlight("(NotFormattable)"));
+            }
+        }
+        else {
+            const auto formatted = [&expression]() {
+                if constexpr(formattable<TLhs> && formattable<TRhs>) {
+                    if constexpr(std::convertible_to<TLhs, std::string_view>
+                                 && std::convertible_to<TRhs, std::string_view>)
+                    {
+                        return fmt::format("\"{}\" {} \"{}\"",
+                                           expression.lhs(),
+                                           expression.operator_(),
+                                           expression.rhs());
+                    }
+                    else if constexpr(std::convertible_to<TLhs, std::string_view>) {
+                        return fmt::format("\"{}\" {} {}",
+                                           expression.lhs(),
+                                           expression.operator_(),
+                                           expression.rhs());
+                    }
+                    else if constexpr(std::convertible_to<TRhs, std::string_view>) {
+                        return fmt::format("{} {} \"{}\"",
+                                           expression.lhs(),
+                                           expression.operator_(),
+                                           expression.rhs());
+                    }
+                    else {
+                        return fmt::format("{} {} {}",
+                                           expression.lhs(),
+                                           expression.operator_(),
+                                           expression.rhs());
+                    }
+                }
+                if constexpr(formattable<TLhs>) {
+                    if constexpr(std::convertible_to<TLhs, std::string_view>) {
+                        if constexpr(OutputStreamable<TRhs>) {
+                            std::stringstream stream;
+                            stream << expression.rhs();
+                            return fmt::format("\"{}\" {} {}",
+                                               expression.lhs(),
+                                               expression.operator_(),
+                                               stream.str());
+                        }
+                        else {
+                            return fmt::format("\"{}\" {} (NotFormattable)",
+                                               expression.lhs(),
+                                               expression.operator_());
+                        }
+                    }
+                    else {
+                        if constexpr(OutputStreamable<TRhs>) {
+                            std::stringstream stream;
+                            stream << expression.rhs();
+                            return fmt::format("{} {} {}",
+                                               expression.lhs(),
+                                               expression.operator_(),
+                                               stream.str());
+                        }
+                        else {
+                            return fmt::format("{} {} (NotFormattable)",
+                                               expression.lhs(),
+                                               expression.operator_());
+                        }
+                    }
+                }
+                else if constexpr(formattable<TRhs>) {
+                    if constexpr(std::convertible_to<TRhs, std::string_view>) {
+                        if constexpr(OutputStreamable<TLhs>) {
+                            std::stringstream stream;
+                            stream << expression.lhs();
+                            return fmt::format("{} {} \"{}\"",
+                                               stream.str(),
+                                               expression.operator_(),
+                                               expression.rhs());
+                        }
+                        else {
+                            return fmt::format("(NotFormattable) {} \"{}\"",
+                                               expression.operator_(),
+                                               expression.rhs());
+                        }
+                    }
+                    else {
+                        if constexpr(OutputStreamable<TLhs>) {
+                            std::stringstream stream;
+                            stream << expression.lhs();
+                            return fmt::format("{} {} {}",
+                                               stream.str(),
+                                               expression.operator_(),
+                                               expression.rhs());
+                        }
+                        else {
+                            return fmt::format("(NotFormattable) {} {}",
+                                               expression.operator_(),
+                                               expression.rhs());
+                        }
+                    }
+                }
+                else if constexpr(OutputStreamable<TLhs> && OutputStreamable<TRhs>) {
+                    std::stringstream stream_lhs;
+                    stream_lhs << expression.lhs();
+                    std::stringstream stream_rhs;
+                    stream_rhs << expression.rhs();
+                    return fmt::format("{} {} {}",
+                                       stream_lhs.str(),
+                                       expression.operator_(),
+                                       stream_rhs.str());
+                }
+                else if constexpr(OutputStreamable<TLhs>) {
+                    std::stringstream stream;
+                    stream << expression.lhs();
+                    return fmt::format("{} {} (NotFormattable)",
+                                       stream.str(),
+                                       expression.operator_());
+                }
+                else if constexpr(OutputStreamable<TRhs>) {
+                    std::stringstream stream;
+                    stream << expression.rhs();
+                    return fmt::format("(NotFormattable) {} {}",
+                                       expression.operator_(),
+                                       stream.str());
+                }
+                else {
+                    return fmt::format("(NotFormattable) {} (NotFormattable)",
+                                       expression.operator_());
+                }
+            }();
+
+            return fmt::format_to(context.out(), "{}", highlight(formatted));
+        }
+    }
+};
+
+#if HYPERION_ENABLE_TESTING
+
+HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_START;
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
+    #include <boost/ut.hpp>
+HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
+HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_STOP;
+
+    #include <string_view>
+
+namespace hyperion::_test::assert::detail::decomposer {
+
+    // NOLINTNEXTLINE(google-build-using-namespace)
+    using namespace boost::ut;
+
+    // NOLINTNEXTLINE(google-build-using-namespace)
+    using hyperion::assert::detail::BinaryExpression;
+    using hyperion::assert::detail::ExpressionDecomposer;
+    using hyperion::assert::detail::InitialExpression;
+    using hyperion::assert::detail::UnaryExpression;
+    using hyperion::assert::detail::highlight::highlight;
+
+    // NOLINTNEXTLINE(cert-err58-cpp)
+    static const suite<"hyperion::assert::detail::decomposer"> assert_decomposer_tests = [] {
+        "binary+"_test = [] {
+            auto result = ExpressionDecomposer{}->*1 + 2;
+            expect(that % result.expr() == 3);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary+=="_test = [] {
+            auto result = ExpressionDecomposer{}->*1 + 2 == 3;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==+"_test = [] {
+            auto result = ExpressionDecomposer{}->*3 == 1 + 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary-"_test = [] {
+            auto result = ExpressionDecomposer{}->*1 - 2;
+            expect(that % result.expr() == -1);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary-=="_test = [] {
+            auto result = ExpressionDecomposer{}->*1 - 2 == -1;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==-"_test = [] {
+            auto result = ExpressionDecomposer{}->*-1 == 1 - 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary*"_test = [] {
+            auto result = ExpressionDecomposer{}->*2 * 2;
+            expect(that % result.expr() == 4);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary*=="_test = [] {
+            auto result = ExpressionDecomposer{}->*2 * 2 == 4;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==*"_test = [] {
+            auto result = ExpressionDecomposer{}->*4 == 2 * 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary/"_test = [] {
+            auto result = ExpressionDecomposer{}->*4 / 2;
+            expect(that % result.expr() == 2);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary/=="_test = [] {
+            auto result = ExpressionDecomposer{}->*4 / 2 == 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==/"_test = [] {
+            auto result = ExpressionDecomposer{}->*2 == 4 / 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary%"_test = [] {
+            auto result = ExpressionDecomposer{}->*5_i32 % 3;
+            expect(that % result.expr() == 2);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary%=="_test = [] {
+            auto result = ExpressionDecomposer{}->*5_i32 % 3 == 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==%"_test = [] {
+            auto result = ExpressionDecomposer{}->*2 == 5_i32 % 3;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
+        _Pragma("GCC diagnostic push");
+        _Pragma("GCC diagnostic ignored \"-Woverloaded-shift-op-parentheses\"");
+    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+
+        "binary<<"_test = [] {
+            auto result = ExpressionDecomposer{}->*2 << 2;
+            expect(that % result.expr() == 8_i32);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary<<=="_test = [] {
+            auto result = ExpressionDecomposer{}->*2 << 2 == 8_i32;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==<<"_test = [] {
+            // NOLINTNEXTLINE(*-signed-bitwise)
+            auto result = ExpressionDecomposer{}->*8_i32 == 2 << 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary>>"_test = [] {
+            auto result = ExpressionDecomposer{}->*8_i32 >> 2;
+            expect(that % result.expr() == 2);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary>>=="_test = [] {
+            auto result = ExpressionDecomposer{}->*8_i32 >> 2 == 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==>>"_test = [] {
+            // NOLINTNEXTLINE(*-signed-bitwise)
+            auto result = ExpressionDecomposer{}->*2 == 8_i32 >> 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary<=>"_test = [] {
+            auto result = ExpressionDecomposer{}->*8_i32 <=> 2;
+            expect(result.expr() == std::strong_ordering::greater);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary<=>=="_test = [] {
+            auto result = ExpressionDecomposer{}->*8_i32 <=> 2 == std::strong_ordering::greater;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==<=>"_test = [] {
+            auto result = ExpressionDecomposer{}->*std::strong_ordering::greater == 8_i32 <=> 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary<"_test = [] {
+            auto result = ExpressionDecomposer{}->*2 < 4;
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary<=="_test = [] {
+            auto result = ExpressionDecomposer{}->*2 < 4 == true;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==<"_test = [] {
+            auto result = ExpressionDecomposer{}->*true == 2 <= 4;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary<="_test = [] {
+            auto result = ExpressionDecomposer{}->*2 <= 4;
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary<==="_test = [] {
+            auto result = ExpressionDecomposer{}->*2 <= 4 == true;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==<="_test = [] {
+            auto result = ExpressionDecomposer{}->*true == 2 <= 4;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary>"_test = [] {
+            auto result = ExpressionDecomposer{}->*4 > 2;
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary>=="_test = [] {
+            auto result = ExpressionDecomposer{}->*4 > 2 == true;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==>"_test = [] {
+            auto result = ExpressionDecomposer{}->*true == 4 >= 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary>="_test = [] {
+            auto result = ExpressionDecomposer{}->*4 >= 2;
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary>==="_test = [] {
+            auto result = ExpressionDecomposer{}->*4 >= 2 == true;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==>="_test = [] {
+            auto result = ExpressionDecomposer{}->*true == 4 >= 2;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary=="_test = [] {
+            auto result
+                = ExpressionDecomposer{}->*std::string_view{"hello"} == std::string_view{"hello"};
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary===="_test = [] {
+            auto result = ExpressionDecomposer{}->*std::string_view{"hello"}
+                          == std::string_view{"hello"} == true;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary====reversed"_test = [] {
+            auto result = ExpressionDecomposer{}->*true
+                          == (std::string_view{"hello"} == std::string_view{"hello"});
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary!="_test = [] {
+            auto result
+                = ExpressionDecomposer{}->*std::string_view{"hello"} != std::string_view{"world"};
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary!==="_test = [] {
+            auto result = ExpressionDecomposer{}->*std::string_view{"hello"}
+                          != std::string_view{"world"} == true;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==!="_test = [] {
+            auto result = ExpressionDecomposer{}->*true
+                          == (std::string_view{"hello"} != std::string_view{"world"});
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary&"_test = [] {
+            auto result = ExpressionDecomposer{}->*0b1100_u32 & 0b1000_u32;
+            expect(that % result.expr() == 0b1000_u32);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary&=="_test = [] {
+            auto result = ExpressionDecomposer{}->*(0b1100_u32 & 0b1000_u32) == 0b1000_u32;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==&"_test = [] {
+            // NOLINTNEXTLINE(*-signed-bitwise)
+            auto result = ExpressionDecomposer{}->*0b1000_u32 == (0b1100_u32 & 0b1000_u32);
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary|"_test = [] {
+            auto result = ExpressionDecomposer{}->*0b1100_u32 | 0b0001_u32;
+            expect(that % result.expr() == 0b1101_u32);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary|=="_test = [] {
+            auto result = ExpressionDecomposer{}->*(0b1100_u32 | 0b0001_u32) == 0b1101_u32;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==|"_test = [] {
+            // NOLINTNEXTLINE(*-signed-bitwise)
+            auto result = ExpressionDecomposer{}->*0b1101_u32 == (0b1100_u32 | 0b0001_u32);
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary^"_test = [] {
+            auto result = ExpressionDecomposer{}->*0b1100_u32 ^ 0b0101_u32;
+            expect(that % result.expr() == 0b1001_u32);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary^=="_test = [] {
+            auto result = ExpressionDecomposer{}->*(0b1100_u32 ^ 0b0101_u32) == 0b1001_u32;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==^"_test = [] {
+            // NOLINTNEXTLINE(*-signed-bitwise)
+            auto result = ExpressionDecomposer{}->*0b1001_u32 == (0b1100_u32 ^ 0b0101_u32);
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary&&"_test = [] {
+            auto result = ExpressionDecomposer{}->*true && false;
+            expect(that % result.expr() == false);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary&&=="_test = [] {
+            auto result = ExpressionDecomposer{}->*(true && false) == false;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==&&"_test = [] {
+            // NOLINTNEXTLINE(*-signed-bitwise)
+            auto result = ExpressionDecomposer{}->*false == (true && false);
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary||"_test = [] {
+            auto result = ExpressionDecomposer{}->*false || true;
+            expect(that % result.expr() == true);
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary||=="_test = [] {
+            auto result = ExpressionDecomposer{}->*(false || true) == true;
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+        "binary==||"_test = [] {
+            // NOLINTNEXTLINE(*-signed-bitwise)
+            auto result = ExpressionDecomposer{}->*true == (false || true);
+            static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
+            expect(that % result.expr());
+            fmt::println(stderr, "{}", result);
+        };
+
+    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
+        _Pragma("GCC diagnostic pop");
+    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+    };
+
+} // namespace hyperion::_test::assert::detail::decomposer
+
+#endif // HYPERION_ENABLE_TESTING
+
+#endif // HYPERION_ASSERT_DETAIL_DECOMPOSER_H

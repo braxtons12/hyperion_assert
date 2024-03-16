@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-03-16
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -118,7 +118,7 @@ namespace hyperion::assert::detail::parser {
                         const auto is_numeric
                             = flux::all(ident,
                                         [](const char& elem) { return elem >= '0' && elem <= '9'; })
-                              || ident.front() == '0';
+                              || ident.front() == '0' || ident == "true" || ident == "false";
                         results.emplace_back(
                             ident,
                             ident_begin + begin,
