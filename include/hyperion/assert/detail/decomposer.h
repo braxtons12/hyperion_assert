@@ -70,6 +70,8 @@ namespace hyperion::assert::detail {
     template<typename TExpr>
     UnaryExpression(const TExpr&) -> UnaryExpression<TExpr>;
 
+    HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
+
     template<usize TSize>
         requires(TSize != 0)
     struct FixedString final {
@@ -80,10 +82,8 @@ namespace hyperion::assert::detail {
         // NOLINTNEXTLINE(*-c-arrays, *-explicit-*)
         constexpr explicit(false) FixedString(const char (&str)[TSize + 1_usize]) noexcept {
             for(auto index = static_cast<usize>(0); index < TSize; ++index) {
-                HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
                 // NOLINTNEXTLINE(*-pro-bounds-constant-array-index)
                 data[index] = str[index];
-                HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
             }
         }
 
@@ -103,6 +103,8 @@ namespace hyperion::assert::detail {
     template<usize TSize>
     // NOLINTNEXTLINE(*-c-arrays)
     FixedString(const char (&str)[TSize]) -> FixedString<TSize - 1>;
+
+    HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
 
     template<FixedString TOp>
     struct Operator;
@@ -844,6 +846,11 @@ namespace hyperion::_test::assert::detail::decomposer {
             fmt::println(stderr, "{}", result);
         };
 
+    #if HYPERION_PLATFORM_COMPILER_IS_GCC
+        _Pragma("GCC diagnostic push");
+        _Pragma("GCC diagnostic ignored \"-Wparentheses\"");
+    #endif // HYPERION_PLATFORM_COMPILER_IS_GCC
+
         "binary<"_test = [] {
             auto result = ExpressionDecomposer{}->*2 < 4;
             expect(that % result.expr());
@@ -1074,6 +1081,10 @@ namespace hyperion::_test::assert::detail::decomposer {
             expect(that % result.expr());
             fmt::println(stderr, "{}", result);
         };
+
+    #if HYPERION_PLATFORM_COMPILER_IS_GCC
+        _Pragma("GCC diagnostic pop");
+    #endif // HYPERION_PLATFORM_COMPILER_IS_GCC
 
     #if HYPERION_PLATFORM_COMPILER_IS_CLANG
         _Pragma("GCC diagnostic pop");
