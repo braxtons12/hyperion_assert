@@ -119,26 +119,24 @@ namespace hyperion::assert::detail {
     template<FixedString TOp>
     struct Operator;
 
-#define HYPERION_DEFINE_OPERATOR_TYPE(oper) /** NOLINT(*-macro-usage) **/                       \
-    template<>                                                                                  \
-    struct Operator<#oper> final {                                                              \
-        static constexpr auto k_op = std::string_view{#oper};                                   \
-                                                                                                \
-        [[nodiscard]] static constexpr auto                                                     \
-        do_op(auto&& lhs,                                                                       \
-              auto&& rhs) noexcept(noexcept(std::forward<decltype(lhs)>(lhs)                    \
-                                                oper std::forward<decltype(rhs)>(rhs)))         \
-            -> decltype(std::forward<decltype(lhs)>(lhs) oper std::forward<decltype(rhs)>(rhs)) \
-            requires requires {                                                                 \
-                std::forward<decltype(lhs)>(lhs) oper std::forward<decltype(rhs)>(rhs);         \
-            }                                                                                   \
-        {                                                                                       \
-            return std::forward<decltype(lhs)>(lhs) oper std::forward<decltype(rhs)>(rhs);      \
-        }                                                                                       \
-                                                                                                \
-        [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {          \
-            return k_op;                                                                        \
-        }                                                                                       \
+#define HYPERION_DEFINE_OPERATOR_TYPE(oper) /** NOLINT(*-macro-usage) **/                          \
+    template<>                                                                                     \
+    struct Operator<#oper> final {                                                                 \
+        static constexpr auto k_op = std::string_view{#oper};                                      \
+                                                                                                   \
+        template<typename TLhs, typename TRhs>                                                     \
+        [[nodiscard]] static constexpr auto                                                        \
+        do_op(TLhs&& lhs,                                                                          \
+              TRhs&& rhs) noexcept(noexcept(std::forward<TLhs>(lhs) oper std::forward<TRhs>(rhs))) \
+            -> decltype(std::forward<TLhs>(lhs) oper std::forward<TRhs>(rhs))                      \
+            requires requires { std::forward<TLhs>(lhs) oper std::forward<TRhs>(rhs); }            \
+        {                                                                                          \
+            return std::forward<TLhs>(lhs) oper std::forward<TRhs>(rhs);                           \
+        }                                                                                          \
+                                                                                                   \
+        [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {             \
+            return k_op;                                                                           \
+        }                                                                                          \
     }
 
     HYPERION_DEFINE_OPERATOR_TYPE(+);
@@ -186,15 +184,14 @@ namespace hyperion::assert::detail {
     struct Operator<","> final {
         static constexpr auto k_op = std::string_view{","};
 
+        template<typename TLhs, typename TRhs>
         [[nodiscard]] static constexpr auto
-        do_op(auto&& lhs, auto&& rhs) noexcept(noexcept(std::forward<decltype(lhs)>(lhs),
-                                                        std::forward<decltype(rhs)>(rhs)))
-            -> decltype(std::forward<decltype(lhs)>(lhs), std::forward<decltype(rhs)>(rhs))
-            requires requires {
-                std::forward<decltype(lhs)>(lhs), std::forward<decltype(rhs)>(rhs);
-            }
+        do_op(TLhs&& lhs,
+              TRhs&& rhs) noexcept(noexcept(std::forward<TLhs>(lhs), std::forward<TRhs>(rhs)))
+            -> decltype(std::forward<TLhs>(lhs), std::forward<TRhs>(rhs))
+            requires requires { std::forward<TLhs>(lhs), std::forward<TRhs>(rhs); }
         {
-            return std::forward<decltype(lhs)>(lhs), std::forward<decltype(rhs)>(rhs);
+            return std::forward<TLhs>(lhs), std::forward<TRhs>(rhs);
         }
 
         [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {
@@ -433,11 +430,12 @@ namespace hyperion::assert::detail {
 #undef HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR
 
     struct ExpressionDecomposer {
+        template<typename TLhs>
         friend constexpr auto
         // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved)
-        operator->*([[maybe_unused]] ExpressionDecomposer && decomposer, auto&& lhs)
-            -> InitialExpression<decltype(lhs)> {
-            return {lhs};
+        operator->*([[maybe_unused]] ExpressionDecomposer && decomposer, TLhs && lhs)
+            -> InitialExpression<TLhs> {
+            return {std::forward<TLhs>(lhs)};
         }
     };
 
