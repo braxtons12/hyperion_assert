@@ -191,9 +191,19 @@ namespace hyperion::assert::detail {
             -> decltype((std::forward<TLhs>(lhs), std::forward<TRhs>(rhs)))
             requires requires { (std::forward<TLhs>(lhs), std::forward<TRhs>(rhs)); }
         {
-            HYPERION_IGNORE_UNUSED_VALUES_WARNING_START;
+#if HYPERION_PLATFORM_COMPILER_IS_MSVC
+            _Pragma("warning( push )");
+            _Pragma("warning( disable : 4834 )");
+#else
+            _Pragma("GCC diagnostic push");
+            _Pragma("GCC diagnostic ignored \"-Wunused-result\"");
+#endif // HYPERION_PLATFORM_COMPILER_IS_MSVC
             return (std::forward<TLhs>(lhs), std::forward<TRhs>(rhs));
-            HYPERION_IGNORE_UNUSED_VALUES_WARNING_STOP;
+#if HYPERION_PLATFORM_COMPILER_IS_MSVC
+            _Pragma("warning( pop )");
+#else
+            _Pragma("GCC diagnostic pop");
+#endif // HYPERION_PLATFORM_COMPILER_IS_MSVC
         }
 
         [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {

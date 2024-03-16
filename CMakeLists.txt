@@ -101,6 +101,7 @@ set(HYPERION_MPL_HEADERS
     "${HYPERION_MPL_INCLUDE_PATH}/assert/backtrace.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/panic.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/cstdio_support.h"
+    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/decomposer.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/def.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/highlight.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/parser.h"
