@@ -123,7 +123,7 @@ namespace hyperion::assert::detail {
                 std::forward<decltype(lhs)>(lhs) oper std::forward<decltype(rhs)>(rhs);         \
             }                                                                                   \
         {                                                                                       \
-            return lhs oper rhs;                                                                \
+            return std::forward<decltype(lhs)>(lhs) oper std::forward<decltype(rhs)>(rhs);      \
         }                                                                                       \
                                                                                                 \
         [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {          \
@@ -184,7 +184,7 @@ namespace hyperion::assert::detail {
                 std::forward<decltype(lhs)>(lhs), std::forward<decltype(rhs)>(rhs);
             }
         {
-            return lhs, rhs;
+            return std::forward<decltype(lhs)>(lhs), std::forward<decltype(rhs)>(rhs);
         }
 
         [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {
