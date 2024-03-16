@@ -47,28 +47,38 @@ namespace hyperion::assert::detail {
     concept OutputStreamable
         = requires(const TType& type, std::stringstream& stream) { stream << type; };
 
+    template<typename TType>
+    using storage_type
+        = std::conditional_t<mpl::decltype_<TType>().is_lvalue_reference()
+                                 && not mpl::decltype_<TType>().is_trivially_copy_constructible(),
+                             TType,
+                             std::remove_cvref_t<TType>>;
+    template<typename TType>
+    using reference_type
+        = std::conditional_t<mpl::decltype_<TType>().is_lvalue_reference(),
+                             TType,
+                             std::add_lvalue_reference_t<std::remove_cvref_t<TType>>>;
+
     template<typename TExpr>
     class UnaryExpression final {
       public:
-        explicit constexpr UnaryExpression(const TExpr& expr) noexcept : m_expr(expr) {
+        template<typename TType>
+            requires(static_cast<bool>(mpl::decltype_<storage_type<TExpr>>().is_constructible_from(
+                mpl::decltype_<TType>())))
+        explicit constexpr UnaryExpression(TType&& expr) noexcept(
+            mpl::decltype_<storage_type<TExpr>>().is_nothrow_constructible_from(
+                mpl::decltype_<TType>()))
+            : m_expr{std::forward<TType>(expr)} {
         }
 
-        explicit constexpr operator bool() const noexcept
-            requires(mpl::decltype_<const TExpr&>().is_convertible_to(mpl::decltype_<bool>()))
-        {
-            return static_cast<bool>(m_expr.get());
-        }
-
-        [[nodiscard]] constexpr auto expr() const noexcept -> const TExpr& {
-            return m_expr.get();
+        [[nodiscard]] constexpr auto expr() noexcept -> reference_type<TExpr> {
+            return m_expr;
         }
 
       private:
         // NOLINTNEXTLINE(*-avoid-const-or-ref-data-members)
-        const TExpr& m_expr;
+        storage_type<TExpr> m_expr;
     };
-    template<typename TExpr>
-    UnaryExpression(const TExpr&) -> UnaryExpression<TExpr>;
 
     HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
 
@@ -196,24 +206,28 @@ namespace hyperion::assert::detail {
 
     template<typename TLhs, typename TRhs, FixedString TOp>
         requires requires {
-            Operator<TOp>::do_op(std::declval<TLhs>().do_op(), std::declval<const TRhs&>());
+            Operator<TOp>::do_op(std::declval<TLhs>().do_op(),
+                                 std::declval<reference_type<TRhs>>());
         } or requires {
-            Operator<TOp>::do_op(std::declval<const TLhs&>(), std::declval<const TRhs&>());
+            Operator<TOp>::do_op(std::declval<reference_type<TLhs>>(),
+                                 std::declval<reference_type<TRhs>>());
         }
     class BinaryExpression final {
       private:
         // NOLINTNEXTLINE(*-avoid-const-or-ref-data-members)
-        const TLhs& m_lhs;
+        storage_type<TLhs> m_lhs;
         // NOLINTNEXTLINE(*-avoid-const-or-ref-data-members)
-        const TRhs& m_rhs;
+        storage_type<TRhs> m_rhs;
 
-        [[nodiscard]] static constexpr auto call_operator(const TLhs& lhs, const TRhs& rhs)
+        [[nodiscard]] static constexpr auto
+        call_operator(reference_type<TLhs> lhs, reference_type<TRhs> rhs)
             requires requires { Operator<TOp>::do_op(lhs.do_op(), rhs); }
         {
             return Operator<TOp>::do_op(lhs.do_op(), rhs);
         }
 
-        [[nodiscard]] static constexpr auto call_operator(const TLhs& lhs, const TRhs& rhs)
+        [[nodiscard]] static constexpr auto
+        call_operator(reference_type<TLhs> lhs, reference_type<TRhs> rhs)
             requires requires { Operator<TOp>::do_op(lhs, rhs); }
         {
             return Operator<TOp>::do_op(lhs, rhs);
@@ -228,66 +242,69 @@ namespace hyperion::assert::detail {
         };
         static constexpr auto k_is_binary_expression = true;
 
-        constexpr BinaryExpression(const TLhs& lhs, const TRhs& rhs) noexcept
-            : m_lhs(lhs), m_rhs(rhs) {
+        template<typename TArgLhs, typename TArgRhs>
+            requires(static_cast<bool>(mpl::decltype_<storage_type<TLhs>>().is_constructible_from(
+                        mpl::decltype_<TArgLhs>())))
+                        && (static_cast<bool>(
+                            mpl::decltype_<storage_type<TRhs>>().is_constructible_from(
+                                mpl::decltype_<TArgRhs>())))
+        constexpr BinaryExpression(TArgLhs&& lhs, TArgRhs&& rhs) noexcept
+            : m_lhs{std::forward<TArgLhs>(lhs)}, m_rhs{std::forward<TArgRhs>(rhs)} {
         }
 
         [[nodiscard]] constexpr auto
-        do_op() const noexcept(noexcept(Operator<TOp>::do_op(m_lhs, m_rhs))) -> result_type
+        do_op() noexcept(noexcept(Operator<TOp>::do_op(m_lhs, m_rhs))) -> result_type
             requires(not k_lhs_is_binary_expression)
         {
             return Operator<TOp>::do_op(m_lhs, m_rhs);
         }
 
         [[nodiscard]] constexpr auto
-        do_op() const noexcept(noexcept(Operator<TOp>::do_op(m_lhs.do_op(), m_rhs))) -> result_type
+        do_op() noexcept(noexcept(Operator<TOp>::do_op(m_lhs.do_op(), m_rhs))) -> result_type
             requires k_lhs_is_binary_expression
         {
             return Operator<TOp>::do_op(m_lhs.do_op(), m_rhs);
         }
 
+        template<typename TFarRhs>
         // NOLINTNEXTLINE(misc-unconventional-assign-operator, *-assignment-signature)
-        constexpr auto operator=(const auto& rhs) noexcept(
-            noexcept(std::declval<const BinaryExpression>().do_op()) and noexcept(
-                std::declval<const BinaryExpression>().do_op() = rhs))
-            -> BinaryExpression<BinaryExpression<TLhs, TRhs, TOp>,
-                                std::remove_cvref_t<decltype(rhs)>,
-                                "=">
-            requires requires { do_op() = rhs; }
+        constexpr auto operator=(TFarRhs&& rhs) noexcept(
+            noexcept(std::declval<BinaryExpression>().do_op()) and noexcept(
+                std::declval<BinaryExpression>().do_op() = std::forward<TFarRhs>(rhs)))
+            -> BinaryExpression<BinaryExpression<TLhs, TRhs, TOp>, TFarRhs, "=">
+            requires requires { do_op() = std::forward<TFarRhs>(rhs); }
         {
-            return {*this, rhs};
+            return {*this, std::forward<TFarRhs>(rhs)};
         }
 
-        [[nodiscard]] constexpr auto lhs() const noexcept -> const TLhs& {
+        [[nodiscard]] constexpr auto lhs() noexcept -> reference_type<TLhs> {
             return m_lhs;
         }
 
-        [[nodiscard]] constexpr auto rhs() const noexcept -> const TRhs& {
+        [[nodiscard]] constexpr auto rhs() noexcept -> reference_type<TRhs> {
             return m_rhs;
         }
 
-        [[nodiscard]] constexpr auto operator_() const noexcept -> std::string_view {
+        [[nodiscard]] constexpr auto operator_() noexcept -> std::string_view {
             return Operator<TOp>::operator_();
         }
 
-        [[nodiscard]] constexpr auto expr() const
-            noexcept(noexcept(std::declval<const BinaryExpression>().do_op())) -> result_type
-            requires requires { std::declval<const BinaryExpression>().do_op(); }
+        [[nodiscard]] constexpr auto
+        expr() noexcept(noexcept(std::declval<BinaryExpression>().do_op())) -> result_type
+            requires requires { std::declval<BinaryExpression>().do_op(); }
         {
             return do_op();
         }
     };
 
-#define HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(oper) /** NOLINT(*-macro-usage) **/     \
-    template<typename TLhs, typename TRhs, FixedString TOp>                                \
-    constexpr auto operator oper(const BinaryExpression<TLhs, TRhs, TOp>& lhs,             \
-                                 const auto& rhs) noexcept(noexcept(lhs.do_op() oper rhs)) \
-        -> BinaryExpression<BinaryExpression<TLhs, TRhs, TOp>,                             \
-                            std::remove_cvref_t<decltype(rhs)>,                            \
-                            #oper>                                                         \
-        requires requires { lhs.do_op() oper rhs; }                                        \
-    {                                                                                      \
-        return {lhs, rhs};                                                                 \
+#define HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(oper) /** NOLINT(*-macro-usage) **/             \
+    template<typename TLhs, typename TRhs, FixedString TOp, typename TFarRhs>                      \
+    constexpr auto operator oper(BinaryExpression<TLhs, TRhs, TOp>&& lhs, TFarRhs&& rhs) noexcept( \
+        noexcept(std::move(lhs).do_op() oper std::forward<TFarRhs>(rhs)))                          \
+        -> BinaryExpression<BinaryExpression<TLhs, TRhs, TOp>, TFarRhs, #oper>                     \
+        requires requires { std::move(lhs).do_op() oper std::forward<TFarRhs>(rhs); }              \
+    {                                                                                              \
+        return {std::move(lhs), std::forward<TFarRhs>(rhs)};                                       \
     }
 
     HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(+);
@@ -339,32 +356,38 @@ namespace hyperion::assert::detail {
     template<typename TExpr>
     class InitialExpression {
       public:
+        template<typename TType>
+            requires(static_cast<bool>(mpl::decltype_<storage_type<TExpr>>().is_constructible_from(
+                mpl::decltype_<TType>())))
         // NOLINTNEXTLINE(*-explicit-*)
-        constexpr explicit(false) InitialExpression(const TExpr& expr) : m_expr(expr) {
+        constexpr explicit(false) InitialExpression(TType&& expr) noexcept(
+            mpl::decltype_<storage_type<TExpr>>().is_noexcept_constructible_from(
+                mpl::decltype_<TType>()))
+            : m_expr{std::forward<TType>(expr)} {
         }
 
         // NOLINTNEXTLINE(*-explicit-*)
-        [[nodiscard]] explicit(false) constexpr operator UnaryExpression<TExpr>() const noexcept {
+        [[nodiscard]] explicit(false) constexpr operator UnaryExpression<TExpr>() noexcept {
             return {m_expr};
         }
 
-        [[nodiscard]] constexpr auto expr() const noexcept -> const TExpr& {
+        [[nodiscard]] constexpr auto expr() noexcept -> reference_type<TExpr> {
             return m_expr;
         }
 
       private:
         // NOLINTNEXTLINE(*-avoid-const-or-ref-data-members)
-        const TExpr& m_expr;
+        storage_type<TExpr> m_expr;
     };
 
-#define HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(oper) /** NOLINT(*-macro-usage) **/   \
-    template<typename TLhs>                                                               \
-    constexpr auto operator oper(const InitialExpression<TLhs>& lhs,                      \
-                                 const auto& rhs) noexcept(noexcept(lhs.expr() oper rhs)) \
-        -> BinaryExpression<TLhs, std::remove_cvref_t<decltype(rhs)>, #oper>              \
-        requires requires { lhs.expr() oper rhs; }                                        \
-    {                                                                                     \
-        return {lhs.expr(), rhs};                                                         \
+#define HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(oper) /** NOLINT(*-macro-usage) **/ \
+    template<typename TLhs, typename TRhs>                                              \
+    constexpr auto operator oper(InitialExpression<TLhs>&& lhs, TRhs&& rhs) noexcept(   \
+        noexcept(std::move(lhs).expr() oper std::forward<TRhs>(rhs)))                   \
+        -> BinaryExpression<TLhs, TRhs, #oper>                                          \
+        requires requires { std::move(lhs).expr() oper std::forward<TRhs>(rhs); }       \
+    {                                                                                   \
+        return {std::move(lhs).expr(), std::forward<TRhs>(rhs)};                        \
     }
 
     HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(+);
@@ -412,8 +435,8 @@ namespace hyperion::assert::detail {
     struct ExpressionDecomposer {
         friend constexpr auto
         // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved)
-        operator->*([[maybe_unused]] ExpressionDecomposer && decomposer, const auto& lhs)
-            -> InitialExpression<std::remove_cvref_t<decltype(lhs)>> {
+        operator->*([[maybe_unused]] ExpressionDecomposer && decomposer, auto&& lhs)
+            -> InitialExpression<decltype(lhs)> {
             return {lhs};
         }
     };
@@ -485,7 +508,7 @@ struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp
     }
 
     template<typename TFormatContext>
-    [[nodiscard]] auto format(const self& expression, TFormatContext& context) {
+    [[nodiscard]] auto format(self& expression, TFormatContext& context) {
         using hyperion::assert::detail::IsBinaryExpression;
         using hyperion::assert::detail::OutputStreamable;
         using hyperion::assert::detail::highlight::get_color;
@@ -532,19 +555,19 @@ struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp
                     if constexpr(std::convertible_to<TLhs, std::string_view>
                                  && std::convertible_to<TRhs, std::string_view>)
                     {
-                        return fmt::format("\"{}\" {} \"{}\"",
+                        return fmt::format(R"("{}" {} "{}")",
                                            expression.lhs(),
                                            expression.operator_(),
                                            expression.rhs());
                     }
                     else if constexpr(std::convertible_to<TLhs, std::string_view>) {
-                        return fmt::format("\"{}\" {} {}",
+                        return fmt::format(R"("{}" {} {})",
                                            expression.lhs(),
                                            expression.operator_(),
                                            expression.rhs());
                     }
                     else if constexpr(std::convertible_to<TRhs, std::string_view>) {
-                        return fmt::format("{} {} \"{}\"",
+                        return fmt::format(R"({} {} "{}")",
                                            expression.lhs(),
                                            expression.operator_(),
                                            expression.rhs());
@@ -561,13 +584,13 @@ struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp
                         if constexpr(OutputStreamable<TRhs>) {
                             std::stringstream stream;
                             stream << expression.rhs();
-                            return fmt::format("\"{}\" {} {}",
+                            return fmt::format(R"("{}" {} {})",
                                                expression.lhs(),
                                                expression.operator_(),
                                                stream.str());
                         }
                         else {
-                            return fmt::format("\"{}\" {} (NotFormattable)",
+                            return fmt::format(R"("{}" {} (NotFormattable))",
                                                expression.lhs(),
                                                expression.operator_());
                         }
@@ -593,13 +616,13 @@ struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp
                         if constexpr(OutputStreamable<TLhs>) {
                             std::stringstream stream;
                             stream << expression.lhs();
-                            return fmt::format("{} {} \"{}\"",
+                            return fmt::format(R"({} {} "{}")",
                                                stream.str(),
                                                expression.operator_(),
                                                expression.rhs());
                         }
                         else {
-                            return fmt::format("(NotFormattable) {} \"{}\"",
+                            return fmt::format(R"((NotFormattable) {} "{}")",
                                                expression.operator_(),
                                                expression.rhs());
                         }
