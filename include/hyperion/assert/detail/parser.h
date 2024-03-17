@@ -29,7 +29,7 @@
 #define HYPERION_ASSERT_DETAIL_PARSER_H
 
 #include <hyperion/assert/detail/def.h>
-#include <hyperion/assert/detail/tokens.h>
+#include <hyperion/assert/tokens.h>
 #include <hyperion/platform/types.h>
 
 #include <array>
@@ -140,11 +140,7 @@ namespace hyperion::assert::detail::parser {
 
 #if HYPERION_ENABLE_TESTING
 
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_START;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
     #include <boost/ut.hpp>
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_STOP;
 
 namespace hyperion::_test::assert::detail::parser {
 
@@ -157,7 +153,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "function_call(value)";
             const auto expected = std::vector<Token>{
@@ -210,7 +206,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "std::function_call(value)";
             const auto expected = std::vector<Token>{
@@ -273,7 +269,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "String name = function_call(value)";
             const auto expected = std::vector<Token>{
@@ -342,7 +338,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "auto name = function_call(value)";
             const auto expected = std::vector<Token>{
@@ -409,7 +405,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "String name = AType{value}";
             const auto expected = std::vector<Token>{
@@ -478,7 +474,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "auto name = AType{value}";
             const auto expected = std::vector<Token>{
@@ -545,7 +541,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "std::string name = std::function_call(value)";
             const auto expected = std::vector<Token>{
@@ -634,7 +630,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "auto name = std::function_call(value)";
             const auto expected = std::vector<Token>{
@@ -711,7 +707,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "std::string name = std::AType{value}";
             const auto expected = std::vector<Token>{
@@ -800,7 +796,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "auto name = std::AType{value}";
             const auto expected = std::vector<Token>{
@@ -877,7 +873,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "var1 || var2";
             const auto expected = std::vector<Token>{
@@ -926,7 +922,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "(var1 || var2) && var3";
             const auto expected = std::vector<Token>{
@@ -993,7 +989,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "namespace hyperion::assert {}";
             const auto expected = std::vector<Token>{
@@ -1050,7 +1046,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "std::vector<std::string>";
             const auto expected = std::vector<Token>{
@@ -1123,7 +1119,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             constexpr auto test_str = "hyperion::_test::assert::panic::panic_no_message()";
             const auto expected = std::vector<Token>{
@@ -1206,7 +1202,7 @@ namespace hyperion::_test::assert::detail::parser {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
             // NOLINTNEXTLINE(google-build-using-namespace)
-            using namespace hyperion::assert::detail::tokens;
+            using namespace hyperion::assert::tokens;
 
             // clang-format off
             constexpr auto test_str //

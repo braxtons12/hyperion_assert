@@ -4,7 +4,7 @@
 /// mechanism used to fail gracefully and report the associated error when an
 /// irrecoverable error has occurred.
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-03-16
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -36,13 +36,16 @@
 #include <hyperion/platform/def.h>
 #include <hyperion/source_location.h>
 
+#include <fmt/core.h>
 #include <fmt/format.h>
 
 #include <concepts>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 
 namespace hyperion::assert::panic {
+
     using Handler = void (*)(const std::string_view panic_message,
                              const hyperion::source_location& location,
                              const Backtrace& backtrace) noexcept;
@@ -67,17 +70,16 @@ namespace hyperion::assert::panic {
     HYPERION_IGNORE_UNUSED_TEMPLATES_WARNING_START;
 
     template<typename TArg>
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE static auto
+        requires fmt::is_formattable<TArg>::value
+                 || std::same_as<std::string_view, std::remove_cvref_t<TArg>>
+                 || std::convertible_to<TArg, std::string_view>
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
     execute(const hyperion::source_location& location,
             const Backtrace& backtrace,
             TArg&& arg) noexcept(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
-                                 || requires { std::string_view{std::forward<TArg>(arg)}; }) -> void
-        requires fmt::is_formattable<TArg>::value
-                 || std::same_as<std::string_view, std::remove_cvref_t<TArg>>
-                 || requires { std::string_view{std::forward<TArg>(arg)}; }
-    {
+                                 || std::is_nothrow_convertible_v<TArg, std::string_view>) -> void {
         if constexpr(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
-                     || requires { std::string_view{std::forward<TArg>(arg)}; })
+                     || std::convertible_to<TArg, std::string_view>)
         {
             panic::get_handler()(std::string_view{std::forward<TArg>(arg)}, location, backtrace);
         }
@@ -89,7 +91,7 @@ namespace hyperion::assert::panic {
 
     template<typename... TArgs>
         requires(fmt::is_formattable<TArgs>::value && ...)
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE static auto
+    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
     execute(const hyperion::source_location& location,
             const Backtrace& backtrace,
             fmt::format_string<TArgs...> format_string,
@@ -117,11 +119,7 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_STOP;
 
 #if HYPERION_ENABLE_TESTING
 
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_START;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
     #include <boost/ut.hpp>
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_STOP;
 
     #include <string>
 

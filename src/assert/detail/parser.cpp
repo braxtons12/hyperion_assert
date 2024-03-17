@@ -27,6 +27,7 @@
 
 #include <hyperion/assert/detail/def.h>
 #include <hyperion/assert/detail/parser.h>
+#include <hyperion/assert/tokens.h>
 #include <hyperion/platform/types.h>
 
 #include <flux.hpp>

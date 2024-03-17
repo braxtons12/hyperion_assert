@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ syntax highlighting
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-03-16
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -25,9 +25,9 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 /// SOFTWARE.
 
-#include <hyperion/assert/detail/highlight.h>
 #include <hyperion/assert/detail/parser.h>
-#include <hyperion/assert/detail/tokens.h>
+#include <hyperion/assert/highlight.h>
+#include <hyperion/assert/tokens.h>
 #include <hyperion/mpl/value.h>
 #include <hyperion/platform/def.h>
 #include <hyperion/platform/types.h>
@@ -42,7 +42,7 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace hyperion::assert::detail::highlight {
+namespace hyperion::assert::highlight {
 
     namespace {
         [[nodiscard]] constexpr auto
@@ -197,7 +197,7 @@ namespace hyperion::assert::detail::highlight {
     } // namespace
 
     [[nodiscard]] auto highlight(std::string_view str, bool for_backtrace) -> std::string {
-        auto tokens = parser::parse(str);
+        auto tokens = detail::parser::parse(str);
 
         if(tokens.empty()) {
             return std::string{str};
@@ -244,4 +244,4 @@ namespace hyperion::assert::detail::highlight {
 
         return indexed_call<mpl::Value<100_usize>>::call(tokens.size(), unpack);
     }
-} // namespace hyperion::assert::detail::highlight
+} // namespace hyperion::assert::highlight

@@ -4,7 +4,7 @@
 /// mechanism used to fail gracefully and report the associated error when an
 /// irrecoverable error has occurred.
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-03-16
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -30,9 +30,9 @@
 #include <hyperion/assert/backtrace.h>
 #include <hyperion/assert/detail/cstdio_support.h>
 #include <hyperion/assert/detail/def.h>
-#include <hyperion/assert/detail/highlight.h>
-#include <hyperion/assert/detail/tokens.h>
+#include <hyperion/assert/highlight.h>
 #include <hyperion/assert/panic.h>
+#include <hyperion/assert/tokens.h>
 #include <hyperion/source_location.h>
 
 #include <fmt/color.h>
@@ -48,12 +48,12 @@ namespace hyperion::assert::detail {
 
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     format_source_location(const hyperion::source_location& location) -> std::string {
-        using hyperion::assert::detail::highlight::get_color;
-        using hyperion::assert::detail::highlight::highlight;
-        using hyperion::assert::detail::tokens::Numeric;
-        using hyperion::assert::detail::tokens::Punctuation;
-        using hyperion::assert::detail::tokens::String;
-        using hyperion::assert::detail::tokens::Token;
+        using hyperion::assert::highlight::get_color;
+        using hyperion::assert::highlight::highlight;
+        using hyperion::assert::tokens::Numeric;
+        using hyperion::assert::tokens::Punctuation;
+        using hyperion::assert::tokens::String;
+        using hyperion::assert::tokens::Token;
 
         const auto str_color = get_color(Token::Kind{std::in_place_type<String>});
         const auto num_color = get_color(Token::Kind{std::in_place_type<Numeric>});
@@ -81,9 +81,9 @@ namespace hyperion::assert::panic {
             default_handler(const std::string_view panic_message,
                             const hyperion::source_location& location,
                             const Backtrace& backtrace) noexcept -> void {
-                using hyperion::assert::detail::highlight::get_color;
-                using hyperion::assert::detail::tokens::Error;
-                using hyperion::assert::detail::tokens::Token;
+                using hyperion::assert::highlight::get_color;
+                using hyperion::assert::tokens::Error;
+                using hyperion::assert::tokens::Token;
 
                 if(panic_message.empty()) {
                     fmt::print(stderr,

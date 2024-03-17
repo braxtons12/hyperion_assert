@@ -99,13 +99,13 @@ set(HYPERION_MPL_HEADERS
     "${HYPERION_MPL_INCLUDE_PATH}/assert.h"
     "${HYPERION_MPL_INCLUDE_PATH}/source_location.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/backtrace.h"
+    "${HYPERION_MPL_INCLUDE_PATH}/assert/highlight.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/panic.h"
+    "${HYPERION_MPL_INCLUDE_PATH}/assert/tokens.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/cstdio_support.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/decomposer.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/def.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/highlight.h"
     "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/parser.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/tokens.h"
 )
 
 add_library(hyperion_assert STATIC)
@@ -121,8 +121,8 @@ target_sources(
     ${HYPERION_MPL_HEADERS}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/panic.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/backtrace.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/highlight.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/cstdio_support.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/highlight.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/parser.cpp"
 )
 target_link_libraries(

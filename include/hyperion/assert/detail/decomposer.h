@@ -28,8 +28,8 @@
 #ifndef HYPERION_ASSERT_DETAIL_DECOMPOSER_H
 #define HYPERION_ASSERT_DETAIL_DECOMPOSER_H
 
-#include <hyperion/assert/detail/highlight.h>
-#include <hyperion/assert/detail/tokens.h>
+#include <hyperion/assert/highlight.h>
+#include <hyperion/assert/tokens.h>
 #include <hyperion/mpl/concepts.h>
 #include <hyperion/mpl/type.h>
 #include <hyperion/platform/def.h>
@@ -490,7 +490,7 @@ struct fmt::formatter<hyperion::assert::detail::UnaryExpression<TExpr>> {
     [[nodiscard]] auto format(const self& expression, TFormatContext& context) {
         using hyperion::assert::detail::IsBinaryExpression;
         using hyperion::assert::detail::OutputStreamable;
-        using hyperion::assert::detail::highlight::highlight;
+        using hyperion::assert::highlight::highlight;
 
         if constexpr(k_formattable) {
             fmt::format_to(context.out(), "{}", highlight(expression.expr()));
@@ -542,10 +542,10 @@ struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp
     [[nodiscard]] auto format(self& expression, TFormatContext& context) {
         using hyperion::assert::detail::IsBinaryExpression;
         using hyperion::assert::detail::OutputStreamable;
-        using hyperion::assert::detail::highlight::get_color;
-        using hyperion::assert::detail::highlight::highlight;
-        using hyperion::assert::detail::tokens::Punctuation;
-        using hyperion::assert::detail::tokens::Token;
+        using hyperion::assert::highlight::get_color;
+        using hyperion::assert::highlight::highlight;
+        using hyperion::assert::tokens::Punctuation;
+        using hyperion::assert::tokens::Token;
 
         if constexpr(IsBinaryExpression<TLhs>) {
             const auto punc_color = get_color(Token::Kind{std::in_place_type<Punctuation>});
@@ -712,11 +712,7 @@ struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp
 
 #if HYPERION_ENABLE_TESTING
 
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_START;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
     #include <boost/ut.hpp>
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_STOP;
 
     #include <string_view>
 
@@ -730,7 +726,6 @@ namespace hyperion::_test::assert::detail::decomposer {
     using hyperion::assert::detail::ExpressionDecomposer;
     using hyperion::assert::detail::InitialExpression;
     using hyperion::assert::detail::UnaryExpression;
-    using hyperion::assert::detail::highlight::highlight;
 
     // NOLINTNEXTLINE(cert-err58-cpp)
     static const suite<"hyperion::assert::detail::decomposer"> assert_decomposer_tests = [] {

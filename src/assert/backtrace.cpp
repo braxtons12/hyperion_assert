@@ -27,7 +27,8 @@
 
 #include <hyperion/assert/backtrace.h>
 #include <hyperion/assert/detail/cstdio_support.h>
-#include <hyperion/assert/detail/highlight.h>
+#include <hyperion/assert/highlight.h>
+#include <hyperion/assert/tokens.h>
 #include <hyperion/platform/types.h>
 
 #include <fmt/color.h>
@@ -51,11 +52,12 @@ namespace hyperion::assert {
                                             const boost::stacktrace::frame& frame,
                                             hyperion::usize index,
                                             bool styled) {
-            using hyperion::assert::detail::highlight::get_color;
-            using hyperion::assert::detail::tokens::Token;
-            using hyperion::assert::detail::tokens::Numeric;
-            using hyperion::assert::detail::tokens::String;
-            using hyperion::assert::detail::tokens::Punctuation;
+            using hyperion::assert::highlight::get_color;
+            using hyperion::assert::highlight::highlight;
+            using hyperion::assert::tokens::Token;
+            using hyperion::assert::tokens::Numeric;
+            using hyperion::assert::tokens::String;
+            using hyperion::assert::tokens::Punctuation;
 
             // number address [name in] [file:line]
             const auto name = frame.name();
@@ -77,8 +79,7 @@ namespace hyperion::assert {
                     fmt::styled(reinterpret_cast<usize>(frame.address()), fmt::fg(num_color)));
 
                 if(!name.empty()) {
-                    str += fmt::format(" {}",
-                                       hyperion::assert::detail::highlight::highlight(name, true));
+                    str += fmt::format(" {}", highlight(name, true));
                 }
                 if(!file.empty()) {
                     auto line_str = line == 0 ? std::string{} :

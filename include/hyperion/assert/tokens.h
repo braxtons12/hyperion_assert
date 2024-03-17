@@ -3,7 +3,7 @@
 /// @brief Token definitions for Rudimentary C++ parsing (to allow for rudimentary syntax
 /// highlighting)
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-03-16
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -26,15 +26,15 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 /// SOFTWARE.
 
-#ifndef HYPERION_ASSERT_DETAIL_TOKENS_H
-#define HYPERION_ASSERT_DETAIL_TOKENS_H
+#ifndef HYPERION_ASSERT_TOKENS_H
+#define HYPERION_ASSERT_TOKENS_H
 
 #include <hyperion/platform/types.h>
 
 #include <string_view>
 #include <variant>
 
-namespace hyperion::assert::detail::tokens {
+namespace hyperion::assert::tokens {
 
     struct Namespace { };
     struct Type { };
@@ -56,6 +56,6 @@ namespace hyperion::assert::detail::tokens {
         Kind kind = Punctuation{};
     };
 
-} // namespace hyperion::assert::detail::tokens
+} // namespace hyperion::assert::tokens
 
-#endif // HYPERION_ASSERT_DETAIL_TOKENS_H
+#endif // HYPERION_ASSERT_TOKENS_H

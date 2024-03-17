@@ -30,9 +30,10 @@
 
 #include <hyperion/assert/backtrace.h>
 #include <hyperion/assert/detail/decomposer.h>
-#include <hyperion/assert/detail/highlight.h>
 #include <hyperion/assert/detail/parser.h>
+#include <hyperion/assert/highlight.h>
 #include <hyperion/assert/panic.h>
+#include <hyperion/assert/tokens.h>
 #include <hyperion/platform.h>
 #include <hyperion/platform/def.h>
 #include <hyperion/platform/ignore.h>
@@ -52,11 +53,11 @@ namespace hyperion::assert::detail {
     create_assertion_message(std::string_view assertion_type,
                              std::string_view condition,
                              TDecomposition&& decomposition) -> std::string {
-        using hyperion::assert::detail::highlight::get_color;
-        using hyperion::assert::detail::highlight::highlight;
-        using hyperion::assert::detail::tokens::Error;
-        using hyperion::assert::detail::tokens::Punctuation;
-        using hyperion::assert::detail::tokens::Token;
+        using hyperion::assert::highlight::get_color;
+        using hyperion::assert::highlight::highlight;
+        using hyperion::assert::tokens::Error;
+        using hyperion::assert::tokens::Punctuation;
+        using hyperion::assert::tokens::Token;
 
         return fmt::format(
             R"({0} {1} {3}
@@ -81,11 +82,11 @@ namespace hyperion::assert::detail {
                              std::string_view condition,
                              TDecomposition&& decomposition,
                              std::string_view message) -> std::string {
-        using hyperion::assert::detail::highlight::get_color;
-        using hyperion::assert::detail::highlight::highlight;
-        using hyperion::assert::detail::tokens::Error;
-        using hyperion::assert::detail::tokens::Punctuation;
-        using hyperion::assert::detail::tokens::Token;
+        using hyperion::assert::highlight::get_color;
+        using hyperion::assert::highlight::highlight;
+        using hyperion::assert::tokens::Error;
+        using hyperion::assert::tokens::Punctuation;
+        using hyperion::assert::tokens::Token;
 
         return fmt::format(
             R"({0} {1} {3}
@@ -478,11 +479,7 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_STOP;
 
 #if HYPERION_ENABLE_TESTING
 
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_START;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
     #include <boost/ut.hpp>
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_STOP;
 
     #include <string>
 

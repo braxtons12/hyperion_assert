@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ syntax highlighting
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-03-16
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -25,11 +25,11 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 /// SOFTWARE.
 
-#ifndef HYPERION_ASSERT_DETAIL_HIGHLIGHT_H
-#define HYPERION_ASSERT_DETAIL_HIGHLIGHT_H
+#ifndef HYPERION_ASSERT_HIGHLIGHT_H
+#define HYPERION_ASSERT_HIGHLIGHT_H
 
 #include <hyperion/assert/detail/def.h>
-#include <hyperion/assert/detail/tokens.h>
+#include <hyperion/assert/tokens.h>
 
 #include <fmt/color.h>
 
@@ -37,7 +37,7 @@
 #include <string_view>
 #include <vector>
 
-namespace hyperion::assert::detail::highlight {
+namespace hyperion::assert::highlight {
 
     struct Highlight {
         tokens::Token::Kind kind;
@@ -63,6 +63,6 @@ namespace hyperion::assert::detail::highlight {
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     get_color(const tokens::Token::Kind& kind) noexcept -> fmt::detail::color_type;
 
-} // namespace hyperion::assert::detail::highlight
+} // namespace hyperion::assert::highlight
 
 #endif

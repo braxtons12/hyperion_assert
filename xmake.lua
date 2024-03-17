@@ -75,21 +75,21 @@ local hyperion_assert_main_headers = {
 }
 local hyperion_assert_headers = {
     "$(projectdir)/include/hyperion/assert/backtrace.h",
+    "$(projectdir)/include/hyperion/assert/highlight.h",
     "$(projectdir)/include/hyperion/assert/panic.h",
+    "$(projectdir)/include/hyperion/assert/tokens.h",
 }
 local hyperion_assert_detail_headers = {
     "$(projectdir)/include/hyperion/assert/detail/cstdio_support.h",
     "$(projectdir)/include/hyperion/assert/detail/decomposer.h",
     "$(projectdir)/include/hyperion/assert/detail/def.h",
-    "$(projectdir)/include/hyperion/assert/detail/highlight.h",
     "$(projectdir)/include/hyperion/assert/detail/parser.h",
-    "$(projectdir)/include/hyperion/assert/detail/tokens.h",
 }
 local hyperion_assert_sources = {
     "$(projectdir)/src/assert/panic.cpp",
     "$(projectdir)/src/assert/backtrace.cpp",
+    "$(projectdir)/src/assert/highlight.cpp",
     "$(projectdir)/src/assert/detail/cstdio_support.cpp",
-    "$(projectdir)/src/assert/detail/highlight.cpp",
     "$(projectdir)/src/assert/detail/parser.cpp",
 }
 

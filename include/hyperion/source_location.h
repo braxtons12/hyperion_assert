@@ -3,7 +3,7 @@
 /// @brief Implementation of `std::source_location` (or re-export of it,
 /// if it is available)
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-03-16
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -39,7 +39,7 @@
 #include <string>
 
 #if HYPERION_STD_LIB_HAS_SOURCE_LOCATION \
-    && (not HYPERION_PLATFORM_COMPILER_IS_CLANG || __clang_major__ >= 16)
+    && (not HYPERION_PLATFORM_COMPILER_IS_CLANG or __clang_major__ >= 16)
 
     #include <source_location>
 
@@ -167,11 +167,7 @@ struct fmt::formatter<hyperion::source_location> {
 
 #if HYPERION_ENABLE_TESTING
 
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_START;
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
     #include <boost/ut.hpp>
-HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
-HYPERION_IGNORE_RESERVED_IDENTIFIERS_WARNING_STOP;
 
     #include <string_view>
 
@@ -198,7 +194,7 @@ namespace hyperion::_test::source_location {
         "current"_test = [] {
             constexpr auto current = get_location();
 
-            expect(current.line() == 184_u32);
+            expect(current.line() == 180_u32);
             // when `source_location::current` is used as a standalone call, column can be one of:
             // - The beginning of the qualified name of the call to `source_location::current`
             // (e.g. the position of "h" `hyperion::source_location::current()`)
@@ -230,7 +226,7 @@ namespace hyperion::_test::source_location {
         "current_as_default_arg"_test = [] {
             constexpr auto current = _test::source_location::get_default();
 
-            expect(current.line() == 193_u32);
+            expect(current.line() == 189_u32);
             // when `source_location::current` is used as a default argument column can be one of:
             // - The beginning of the qualified name of the call to the function
             // (e.g. the first "_" in `test::source_location::get_default()`)
