@@ -115,12 +115,23 @@ namespace hyperion::assert::detail {
     // NOLINTNEXTLINE(*-special-member-functions)
     struct PostConditionInvoker : TCallable {
         using TCallable::operator();
+        using TCallable::operator=;
+        using TCallable::TCallable;
+
+        template<typename TFunc>
+            requires std::constructible_from<TCallable, TFunc>
+        PostConditionInvoker(TFunc&& func) noexcept(
+            std::is_nothrow_constructible_v<TCallable, TFunc>)
+            : TCallable{std::forward<TFunc>(func)} {
+        }
 
         // NOLINTNEXTLINE(*-noexcept-destructor)
         ~PostConditionInvoker() noexcept(std::is_nothrow_invocable_v<TCallable>) {
             std::move (*this)();
         }
     };
+    template<typename TCallable>
+    PostConditionInvoker(TCallable) -> PostConditionInvoker<TCallable>;
 
 } // namespace hyperion::assert::detail
 
@@ -512,82 +523,424 @@ namespace hyperion::_test::assert::assert {
 
     // NOLINTNEXTLINE(cert-err58-cpp)
     static const suite<"hyperion::assert::assert"> assert_tests = [] {
-        "no_message_contents"_test = [] {
-            auto value = 2;
-            auto lambda = []() {
-                return 4;
-            };
-
-            hyperion::assert::panic::set_handler(test_handler);
-            HYPERION_ASSERT_REQUIRE(value + lambda() == 7);
-            expect(test_str.find("Panic occurred at") != std::string::npos);
-            expect(test_str.find("Where:") != std::string::npos);
-            expect(test_str.find("Evaluated To:") != std::string::npos);
-        };
-
-        "with_message_contents"_test = [] {
-            auto value = 2;
-            auto lambda = []() {
-                return 4;
-            };
-
-            hyperion::assert::panic::set_handler(test_handler);
-            HYPERION_ASSERT_REQUIRE(value + lambda() == 7, "with context message");
-            expect(test_str.find("Panic occurred at") != std::string::npos);
-            expect(test_str.find("Where:") != std::string::npos);
-            expect(test_str.find("Evaluated To:") != std::string::npos);
-            expect(test_str.find("with context message") != std::string::npos);
-        };
-
-        "with_formatted_message_contents"_test = [] {
-            auto value = 2;
-            auto lambda = []() {
-                return 4;
-            };
-
-            hyperion::assert::panic::set_handler(test_handler);
-            HYPERION_ASSERT_REQUIRE(value + lambda() == 7, "with {} context messages", 42);
-            expect(test_str.find("Panic occurred at") != std::string::npos);
-            expect(test_str.find("Where:") != std::string::npos);
-            expect(test_str.find("Evaluated To:") != std::string::npos);
-            expect(test_str.find("with 42 context messages") != std::string::npos);
-        };
-
-            // ut only supports aborts tests on UNIX-likes for the moment
-    #if not HYPERION_PLATFORM_IS_WINDOWS
-        "no_message_failure"_test = [] {
-            hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
-            expect(aborts([] {
+        "require_tests"_test = [] {
+            "no_message_contents"_test = [] {
                 auto value = 2;
                 auto lambda = []() {
                     return 4;
                 };
+
+                hyperion::assert::panic::set_handler(test_handler);
                 HYPERION_ASSERT_REQUIRE(value + lambda() == 7);
-            }));
-        };
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Requirement") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+            };
 
-        "with_message_failure"_test = [] {
-            hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
-            expect(aborts([] {
+            "with_message_contents"_test = [] {
                 auto value = 2;
                 auto lambda = []() {
                     return 4;
                 };
+
+                hyperion::assert::panic::set_handler(test_handler);
                 HYPERION_ASSERT_REQUIRE(value + lambda() == 7, "with context message");
-            }));
-        };
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Requirement") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with context message") != std::string::npos);
+            };
 
-        "with_formatted_message_failure"_test = [] {
-            hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
-            expect(aborts([] {
+            "with_formatted_message_contents"_test = [] {
                 auto value = 2;
                 auto lambda = []() {
                     return 4;
                 };
+
+                hyperion::assert::panic::set_handler(test_handler);
                 HYPERION_ASSERT_REQUIRE(value + lambda() == 7, "with {} context messages", 42);
-            }));
-        };
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Requirement") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with 42 context messages") != std::string::npos);
+            };
+
+                // ut only supports aborts tests on UNIX-likes for the moment
+    #if not HYPERION_PLATFORM_IS_WINDOWS
+            "no_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+                    HYPERION_ASSERT_REQUIRE(value + lambda() == 7);
+                }));
+            };
+
+            "with_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+                    HYPERION_ASSERT_REQUIRE(value + lambda() == 7, "with context message");
+                }));
+            };
+
+            "with_formatted_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+                    HYPERION_ASSERT_REQUIRE(value + lambda() == 7, "with {} context messages", 42);
+                }));
+            };
     #endif // not HYPERION_PLATFORM_IS_WINDOWS
+        };
+
+        "fatal_tests"_test = [] {
+            "no_message_contents"_test = [] {
+                auto value = 2;
+                auto lambda = []() {
+                    return 4;
+                };
+
+                hyperion::assert::panic::set_handler(test_handler);
+                HYPERION_ASSERT_FATAL(value + lambda() == 7);
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Fatal") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+            };
+
+            "with_message_contents"_test = [] {
+                auto value = 2;
+                auto lambda = []() {
+                    return 4;
+                };
+
+                hyperion::assert::panic::set_handler(test_handler);
+                HYPERION_ASSERT_FATAL(value + lambda() == 7, "with context message");
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Fatal") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with context message") != std::string::npos);
+            };
+
+            "with_formatted_message_contents"_test = [] {
+                auto value = 2;
+                auto lambda = []() {
+                    return 4;
+                };
+
+                hyperion::assert::panic::set_handler(test_handler);
+                HYPERION_ASSERT_FATAL(value + lambda() == 7, "with {} context messages", 42);
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Fatal") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with 42 context messages") != std::string::npos);
+            };
+
+                // ut only supports aborts tests on UNIX-likes for the moment
+    #if not HYPERION_PLATFORM_IS_WINDOWS
+            "no_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+                    HYPERION_ASSERT_FATAL(value + lambda() == 7);
+                }));
+            };
+
+            "with_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+                    HYPERION_ASSERT_FATAL(value + lambda() == 7, "with context message");
+                }));
+            };
+
+            "with_formatted_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+                    HYPERION_ASSERT_FATAL(value + lambda() == 7, "with {} context messages", 42);
+                }));
+            };
+    #endif // not HYPERION_PLATFORM_IS_WINDOWS
+        };
+
+    #if HYPERION_PLATFORM_MODE_IS_DEBUG
+
+        "debug_tests"_test = [] {
+            "no_message_contents"_test = [] {
+                auto value = 2;
+                auto lambda = []() {
+                    return 4;
+                };
+
+                hyperion::assert::panic::set_handler(test_handler);
+                HYPERION_ASSERT_DEBUG(value + lambda() == 7);
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Debug") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+            };
+
+            "with_message_contents"_test = [] {
+                auto value = 2;
+                auto lambda = []() {
+                    return 4;
+                };
+
+                hyperion::assert::panic::set_handler(test_handler);
+                HYPERION_ASSERT_DEBUG(value + lambda() == 7, "with context message");
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Debug") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with context message") != std::string::npos);
+            };
+
+            "with_formatted_message_contents"_test = [] {
+                auto value = 2;
+                auto lambda = []() {
+                    return 4;
+                };
+
+                hyperion::assert::panic::set_handler(test_handler);
+                HYPERION_ASSERT_DEBUG(value + lambda() == 7, "with {} context messages", 42);
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Debug") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with 42 context messages") != std::string::npos);
+            };
+
+                    // ut only supports aborts tests on UNIX-likes for the moment
+        #if not HYPERION_PLATFORM_IS_WINDOWS
+            "no_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+                    HYPERION_ASSERT_DEBUG(value + lambda() == 7);
+                }));
+            };
+
+            "with_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+                    HYPERION_ASSERT_DEBUG(value + lambda() == 7, "with context message");
+                }));
+            };
+
+            "with_formatted_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+                    HYPERION_ASSERT_DEBUG(value + lambda() == 7, "with {} context messages", 42);
+                }));
+            };
+        #endif // not HYPERION_PLATFORM_IS_WINDOWS
+        };
+
+    #endif // HYPERION_PLATFORM_MODE_IS_DEBUG
+
+    #if HYPERION_PLATFORM_MODE_IS_DEBUG or not HYPERION_ASSERT_CONTRACT_ASSERTIONS_DEBUG_ONLY
+
+        "precondition_and_postcondition_tests"_test = [] {
+            "no_message_contents"_test = [] {
+                auto value = 2;
+                auto lambda = []() {
+                    return 4;
+                };
+
+                hyperion::assert::panic::set_handler(test_handler);
+                [&]() {
+                    HYPERION_ASSERT_PRECONDITION(value == 3);
+
+                    value = 4;
+                }();
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Pre-condition") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                [&]() {
+                    HYPERION_ASSERT_POSTCONDITION(value == 7);
+
+                    value = 2 + lambda();
+                }();
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Post-condition") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+            };
+
+            "with_message_contents"_test = [] {
+                auto value = 2;
+                auto lambda = []() {
+                    return 4;
+                };
+
+                hyperion::assert::panic::set_handler(test_handler);
+                [&]() {
+                    HYPERION_ASSERT_PRECONDITION(value == 3, "with context message");
+
+                    value = 4;
+                }();
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Pre-condition") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with context message") != std::string::npos);
+                [&]() {
+                    HYPERION_ASSERT_POSTCONDITION(value == 7, "with context message");
+
+                    value = 2 + lambda();
+                }();
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Post-condition") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with context message") != std::string::npos);
+            };
+
+            "with_formatted_message_contents"_test = [] {
+                auto value = 2;
+                auto lambda = []() {
+                    return 4;
+                };
+
+                hyperion::assert::panic::set_handler(test_handler);
+                [&]() {
+                    HYPERION_ASSERT_PRECONDITION(value == 3, "with {} context messages", 42);
+
+                    value = 4;
+                }();
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Pre-condition") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with 42 context messages") != std::string::npos);
+                [&]() {
+                    HYPERION_ASSERT_POSTCONDITION(value == 7, "with {} context messages", 42);
+
+                    value = 2 + lambda();
+                }();
+                expect(test_str.find("Panic occurred at") != std::string::npos);
+                expect(test_str.find("Post-condition") != std::string::npos);
+                expect(test_str.find("Where:") != std::string::npos);
+                expect(test_str.find("Evaluated To:") != std::string::npos);
+                expect(test_str.find("with 42 context messages") != std::string::npos);
+            };
+
+                    // ut only supports aborts tests on UNIX-likes for the moment
+        #if not HYPERION_PLATFORM_IS_WINDOWS
+            "no_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+
+                    [&]() {
+                        HYPERION_ASSERT_PRECONDITION(value == 3);
+
+                        value = 4;
+                    }();
+                }));
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+
+                    [&]() {
+                        HYPERION_ASSERT_POSTCONDITION(value == 7);
+
+                        value = 2 + lambda();
+                    }();
+                }));
+            };
+
+            "with_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+
+                    [&]() {
+                        HYPERION_ASSERT_PRECONDITION(value == 3, "with context message");
+
+                        value = 4;
+                    }();
+                }));
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+
+                    [&]() {
+                        HYPERION_ASSERT_POSTCONDITION(value == 7, "with context message");
+
+                        value = 2 + lambda();
+                    }();
+                }));
+            };
+
+            "with_formatted_message_failure"_test = [] {
+                hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+                expect(aborts([] {
+                    auto value = 2;
+
+                    [&]() {
+                        HYPERION_ASSERT_PRECONDITION(value == 3, "with {} context messages", 42);
+
+                        value = 4;
+                    }();
+                }));
+                expect(aborts([] {
+                    auto value = 2;
+                    auto lambda = []() {
+                        return 4;
+                    };
+
+                    [&]() {
+                        HYPERION_ASSERT_POSTCONDITION(value == 7, "with {} context messages", 42);
+
+                        value = 2 + lambda();
+                    }();
+                }));
+            };
+        #endif // not HYPERION_PLATFORM_IS_WINDOWS
+        };
+
+    #endif // HYPERION_PLATFORM_MODE_IS_DEBUG or not HYPERION_ASSERT_CONTRACT_ASSERTIONS_DEBUG_ONLY
     };
 
 } // namespace hyperion::_test::assert::assert
