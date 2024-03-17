@@ -20,7 +20,7 @@ other methods like :cmake:`add_subdirectory`\. Example for :cmake:`FetchContent`
     # Declare the dependency on hyperion-utils and make it available for use
     FetchContent_Declare(hyperion_assert
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_assert"
-        GIT_TAG "origin/main")
+        GIT_TAG "v0.1.0")
     FetchContent_MakeAvailable(hyperion_assert)
 
     # For this example, we create an executable target and link hyperion::assert to it

@@ -46,6 +46,99 @@
 #include <string_view>
 #include <utility>
 
+/// @defgroup assert Assertions Library
+/// Hyperion's runtime assertions library provides a full-featured set of
+/// assertions suitable for most tasks. These assertions have a vastly expanded
+/// feature-set compared to the standard `assert` from `#include <cassert>`,
+/// including:
+///
+/// - Detailed Source Location Information: The complete source location where
+/// the assertion was triggered is printed, including file, line, column (if available),
+/// and enclosing function information.
+/// - Expression Decomposition: The full expression passed to the assertion is
+/// decomposed into individual sub-expressions, and if the assertion fails,
+/// the expression is printed in both its textual form, and with the values of each
+/// step in its evaluation rendered in sequence as well.
+/// For example, the expression `value1 + value2 < 5` might result in the following
+/// being printed:
+/// @code {.cpp}
+/// Where: value1 + value2 < 5
+/// Evaluated To: (2 + 7) < 5
+/// @endcode
+/// When the result type of a leaf subexpression does not provide a formatting
+/// implementation compatible with libfmt, `(NotFormattable)` is rendered instead.
+/// - Backtrace: The backtrace of the callstack up to the point of the triggered
+/// assertion is printed, including all available location information:
+/// frame number (starting at 0, with 0 being the current frame), address,
+/// function name (if available), file name (if available), and line number (if available).
+/// Quality of backtrace depends on the target platform and availability of
+/// debug symbols/information. Backtrace functionality relies on Boost.Stacktrace and is
+/// subject to its support and limitations.
+/// - Syntax Highlighting: Full syntax highlighting of the assertion error message,
+/// including source locations, expressions, and function names. This uses a simple
+/// single-pass implementation for tokenization, and so syntax highlighting is not
+/// _guaranteed_ to be 100% accurate (for example, a type may be highlighted as a
+/// namespace or vice-versa), but is reasonably accurate for the intended purpose
+/// (see screenshots in the README and documentation site for examples of highlighting
+/// quality). Syntax highlighting is configurable by making calls to 
+/// `hyperion::assert::highlight::set_color` or `hyperion::assert::highlight::set_colors`
+/// at program startup. By default, highlighting uses the foreground colors of the
+/// "One Dark" theme.
+/// - Context Message Formatting: Assertions take an optional context message, along
+/// with optional parameters for the message, using the formatting capabilities of
+/// libfmt. The context message must adhere to libfmt's format string specifications
+/// and the additional parameters (if any) must supply a libfmt compatible formatting
+/// implementation that is in-scope.
+/// - Compiler Optimization Aids: All assertions are implemented in such as way that
+/// they inform the compiler that it is extremely unlikely that they will fire, which
+/// may aid in code generation and optimization performed by the compiler.
+///
+/// hyperion::assert provides a variety of assertions and assertion-like utilities:
+/// - Assumptions (`HYPERION_ASSERT_ASSUME`): Signals to the compiler that something
+/// is assumed to be true. Aids in optimization and code generation. The user must
+/// be able to guarantee that the assumption is always valid (otherwise, creates
+/// undefined behavior).
+/// - Expectations (`HYPERION_ASSERT_EXPECT` and `HYPERION_ASSERT_UNEXPECT`): Signals
+/// to the compiler that something is expected to be true (or not), but that it is
+/// not guaranteed. Aids in optimization and code generation. Similar to the C++20
+/// `[[likely]]` and `[[unlikely]]` attributes, but is not required required to
+/// be applied on a branch.
+/// - Debug Assertions (`HYPERION_ASSERT_DEBUG`): Typical Debug assertion, but with
+/// all of the enhancements mentioned above.
+/// - Precondition Assertions (`HYPERION_ASSERT_PRECONDITION`): Used to verify a
+/// precondition has been met at the beginning of a function call. Must be the first
+/// statement (or sequence of statements, for multiple preconditions) in the function.
+/// - Postcondition Assertions (`HYPERION_ASSERT_POSTCONDITION`): Used to verify a
+/// postcondition has been fulfilled by a function's operations. May be placed at
+/// any point within a function, as long as that location is at the function's
+/// outer-most scope. Checked at scope exit.
+/// - Fatal Assertions (`HYPERION_ASSERT_FATAL`): Used to verify that an irrecoverable
+/// error has _not_ occurred.
+/// - Requirement Assertions (`HYPERION_ASSERT_REQUIRE`): Used to verify that a condition
+/// that is itself not an error in the state of the program, but otherwise implies that
+/// the program can not successfully proceed, has _not_ occurred
+/// (examples include Out of Memory or inability to access the network)
+///
+/// All categories except for Assumptions and Expectations provide the feature-set
+/// mentioned above.
+///
+/// # Example
+/// @code{.cpp}
+///
+/// auto function() -> int;
+///
+/// auto example() -> void {
+///     auto value = 2;
+///     auto some_context = some_call_that_influences_function();
+///
+///     HYPERION_ASSERT_DEBUG(value + function() == 42,
+///                           "Example did not equal the meaning of life",
+///                           some_context);
+/// }
+/// @endcode
+///
+/// @headerfile hyperion/assert.h
+
 namespace hyperion::assert::detail {
 
     template<typename TDecomposition>
