@@ -59,14 +59,19 @@ namespace hyperion::assert::detail {
         using hyperion::assert::detail::tokens::Token;
 
         return fmt::format(
-            R"({0} {1} {2}
-    Where: {2}
-    Evaluated To: {3}
+            R"({0} {1} {3}
+    {2} {3}
+    {4} {5}
                 )",
-            fmt::styled(assertion_type, fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+            fmt::styled(assertion_type,
+                        fmt::emphasis::bold
+                            | fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
             fmt::styled("Assertion Failed:",
-                        fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+                        fmt::emphasis::bold
+                            | fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+            fmt::styled("Where:", fmt::emphasis::bold),
             highlight(condition),
+            fmt::styled("Evaluated To:", fmt::emphasis::bold),
             std::forward<TDecomposition>(decomposition));
     }
 
@@ -83,18 +88,24 @@ namespace hyperion::assert::detail {
         using hyperion::assert::detail::tokens::Token;
 
         return fmt::format(
-            R"({0} {1} {2}
-    Where: {2}
-    Evaluated To: {3}
+            R"({0} {1} {3}
+    {2} {3}
+    {4} {5}
 
-    Context Message:
-        {4}
+    {6}
+        {7}
                 )",
-            fmt::styled(assertion_type, fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+            fmt::styled(assertion_type,
+                        fmt::emphasis::bold
+                            | fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
             fmt::styled("Assertion Failed:",
-                        fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+                        fmt::emphasis::bold
+                            | fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+            fmt::styled("Where:", fmt::emphasis::bold),
             highlight(condition),
+            fmt::styled("Evaluated To:", fmt::emphasis::bold),
             std::forward<TDecomposition>(decomposition),
+            fmt::styled("Context Message:", fmt::emphasis::bold),
             message);
     }
 

@@ -86,26 +86,30 @@ namespace hyperion::assert::panic {
                 using hyperion::assert::detail::tokens::Token;
 
                 if(panic_message.empty()) {
-                    fmt::print(
-                        stderr,
-                        "{0} {1}:\n\n"
-                        "Backtrace:\n{2}\n",
-                        fmt::styled("Panic occurred at",
-                                    fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
-                        assert::detail::format_source_location(location),
-                        hyperion::assert::format_backtrace(backtrace));
+                    fmt::print(stderr,
+                               "{0} {1}:\n\n"
+                               "{2}\n{3}\n",
+                               fmt::styled("Panic occurred at",
+                                           fmt::emphasis::bold
+                                               | fmt::fg(get_color(
+                                                   Token::Kind{std::in_place_type<Error>}))),
+                               assert::detail::format_source_location(location),
+                               fmt::styled("Backtrace:", fmt::emphasis::bold),
+                               hyperion::assert::format_backtrace(backtrace));
                 }
                 else {
-                    fmt::print(
-                        stderr,
-                        "{0} {1}:\n\n"
-                        "{2}\n\n"
-                        "Backtrace:\n{3}\n",
-                        fmt::styled("Panic occurred at",
-                                    fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
-                        assert::detail::format_source_location(location),
-                        panic_message,
-                        hyperion::assert::format_backtrace(backtrace));
+                    fmt::print(stderr,
+                               "{0} {1}:\n\n"
+                               "{2}\n\n"
+                               "{3}\n{4}\n",
+                               fmt::styled("Panic occurred at",
+                                           fmt::emphasis::bold
+                                               | fmt::fg(get_color(
+                                                   Token::Kind{std::in_place_type<Error>}))),
+                               assert::detail::format_source_location(location),
+                               panic_message,
+                               fmt::styled("Backtrace:", fmt::emphasis::bold),
+                               hyperion::assert::format_backtrace(backtrace));
                 }
                 HYPERION_ASSERT_DEBUG_BREAK();
                 std::abort();
