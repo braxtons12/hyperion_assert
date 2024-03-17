@@ -90,7 +90,7 @@ namespace hyperion::assert::panic {
                         stderr,
                         "{0} {1}:\n\n"
                         "Backtrace:\n{2}\n",
-                        fmt::styled("panic occurred at",
+                        fmt::styled("Panic occurred at",
                                     fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
                         assert::detail::format_source_location(location),
                         hyperion::assert::format_backtrace(backtrace));
@@ -101,7 +101,7 @@ namespace hyperion::assert::panic {
                         "{0} {1}:\n\n"
                         "{2}\n\n"
                         "Backtrace:\n{3}\n",
-                        fmt::styled("panic occurred at",
+                        fmt::styled("Panic occurred at",
                                     fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
                         assert::detail::format_source_location(location),
                         panic_message,

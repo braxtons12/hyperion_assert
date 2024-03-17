@@ -149,13 +149,13 @@ namespace hyperion::_test::assert::panic {
                              const hyperion::source_location& location,
                              const hyperion::assert::Backtrace& backtrace) noexcept -> void {
         if(panic_message.empty()) {
-            test_str = fmt::format("panic occurred at {0}:\n\n"
+            test_str = fmt::format("Panic occurred at {0}:\n\n"
                                    "Backtrace:\n{1}\n",
                                    location,
                                    backtrace);
         }
         else {
-            test_str = fmt::format("panic occurred at {0}:\n\n"
+            test_str = fmt::format("Panic occurred at {0}:\n\n"
                                    "{1}\n\n"
                                    "Backtrace:\n{2}\n",
                                    location,
@@ -169,7 +169,7 @@ namespace hyperion::_test::assert::panic {
         "no_message_contents"_test = [] {
             hyperion::assert::panic::set_handler(test_handler);
             panic_no_message();
-            expect(test_str.find("panic occurred at") != std::string::npos);
+            expect(test_str.find("Panic occurred at") != std::string::npos);
             expect(test_str.find("panic_no_message") != std::string::npos);
         };
 

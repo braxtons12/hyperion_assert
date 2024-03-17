@@ -58,6 +58,12 @@ namespace hyperion::assert::detail::parser {
             };
 
             auto results = std::vector<tokens::Token>{};
+            // 5 characters per token is a reasonable average to assume to minimize
+            // reallocations.
+            // Found by meeting roughly in the middle between the common
+            // length of an identifier or keyword (~8, anecdotally) and the average
+            // length of a punctuation "token" (~ 1 - 3)
+            results.reserve(string.size() / 5_usize);
 
             const auto whitespace_stripped = split(string, [](const char& elem) {
                 return elem == ' ' || elem == '\n' || elem == '\r' || elem == '\t' || elem == '\v';

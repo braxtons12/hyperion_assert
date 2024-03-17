@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Implementation detail macro definitions
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-03-16
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -58,36 +58,33 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
     #define HYPERION_ATTRIBUTE_NO_INLINE
 #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG or HYPERION_PLATFORM_COMPILER_IS_GCC
 
-/// @def HYPERION_DETAIL_ASSERT_EXPECT
+/// @def HYPERION_ASSERT_EXPECT
 /// @brief Marks a condition as expected
 /// @headerfile hyperion/assert/detail/def.h
 
 #if HYPERION_PLATFORM_COMPILER_IS_MSVC
-    #define HYPERION_DETAIL_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ (expr)
+    #define HYPERION_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ (expr)
 #elif defined(__has_builtin)
     #if __has_builtin(__builtin_expect_with_probability)
-        #define HYPERION_DETAIL_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ \
+        #define HYPERION_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ \
             __builtin_expect_with_probability((expr), true, 1)
     #elif __has_builtin(__builtin_expect)
-        #define HYPERION_DETAIL_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ \
+        #define HYPERION_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ \
             __builtin_expect((expr), true)
     #else
-        #define HYPERION_DETAIL_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ (expr)
+        #define HYPERION_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ (expr)
     #endif // __has_builtin(__builtin_expect_with_probability)
 #elif HYPERION_PLATFORM_COMPILER_IS_CLANG or HYPERION_PLATFORM_COMPILER_IS_GCC
-    #define HYPERION_DETAIL_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ \
+    #define HYPERION_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ \
         __builtin_expect((expr), true)
 #else
-    #define HYPERION_DETAIL_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ (expr)
+    #define HYPERION_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ (expr)
 #endif // HYPERION_PLATFOMR_COMPILER_IS_MSVC
-
-/// @brief Marks a condition as expected
-/// @headerfile hyperion/assert/detail/def.h
-#define HYPERION_ATTRIBUTE_LIKELY [[likely]]
 
 /// @brief Marks a condition as unexpected
 /// @headerfile hyperion/assert/detail/def.h
-#define HYPERION_ATTRIBUTE_UNLIKELY [[unlikely]]
+#define HYPERION_ASSERT_UNEXPECT(expr) /** NOLINT(*-macro-usage) **/ \
+    (!HYPERION_ASSERT_EXPECT(!(expr)))
 
 /// @def HYPERION_ASSERT_DEBUG_BREAK
 /// @brief Triggers a debugging break point
