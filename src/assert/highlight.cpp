@@ -30,6 +30,7 @@
 #include <hyperion/assert/tokens.h>
 #include <hyperion/mpl/value.h>
 #include <hyperion/platform/def.h>
+#include <hyperion/platform.h>
 #include <hyperion/platform/types.h>
 
 #include <flux.hpp>
@@ -174,24 +175,31 @@ namespace hyperion::assert::highlight {
                     }
                 }();
 
-                if(desired < TCurrent{}) {
-                    return indexed_call<decltype(TCurrent{} - TStep{}),
-                                        decltype(next_step),
-                                        TBound>::call(desired, std::forward<TFunction>(func));
+                // don't recurse endlessly if we're not getting anywhere
+                if constexpr(TStep{} == 0_value && next_step == 0_value) {
+                    HYPERION_UNREACHABLE();
                 }
+                else {
 
-                constexpr auto next = []() {
-                    if constexpr((TCurrent{} + TStep{}) < TBound{}) {
-                        return TCurrent{} + TStep{};
+                    if(desired < TCurrent{}) {
+                        return indexed_call<decltype(TCurrent{} - TStep{}),
+                                            decltype(next_step),
+                                            TBound>::call(desired, std::forward<TFunction>(func));
                     }
-                    else {
-                        return TBound{};
-                    }
-                }();
 
-                return indexed_call<decltype(next), decltype(next_step), TBound>::call(
-                    desired,
-                    std::forward<TFunction>(func));
+                    constexpr auto next = []() {
+                        if constexpr((TCurrent{} + TStep{}) < TBound{}) {
+                            return TCurrent{} + TStep{};
+                        }
+                        else {
+                            return TBound{};
+                        }
+                    }();
+
+                    return indexed_call<decltype(next), decltype(next_step), TBound>::call(
+                        desired,
+                        std::forward<TFunction>(func));
+                }
             }
         };
     } // namespace
