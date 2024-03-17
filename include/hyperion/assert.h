@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Robust C++20 runtime asserts
 /// @version 0.1
-/// @date 2024-03-16
+/// @date 2024-03-17
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -80,7 +80,7 @@
 /// _guaranteed_ to be 100% accurate (for example, a type may be highlighted as a
 /// namespace or vice-versa), but is reasonably accurate for the intended purpose
 /// (see screenshots in the README and documentation site for examples of highlighting
-/// quality). Syntax highlighting is configurable by making calls to 
+/// quality). Syntax highlighting is configurable by making calls to
 /// `hyperion::assert::highlight::set_color` or `hyperion::assert::highlight::set_colors`
 /// at program startup. By default, highlighting uses the foreground colors of the
 /// "One Dark" theme.
@@ -595,6 +595,15 @@ namespace hyperion::_test::assert::assert {
     // NOLINTNEXTLINE(cert-err58-cpp, *-avoid-non-const-global-variables)
     static std::string test_str;
 
+    // used in the last "complex expression" test
+    namespace invoke {
+        struct invoker {
+            constexpr auto invoke(auto&& func) {
+                return std::forward<decltype(func)>(func)();
+            }
+        };
+    } // namespace invoke
+
     static auto test_handler(const std::string_view panic_message,
                              const hyperion::source_location& location,
                              const hyperion::assert::Backtrace& backtrace) noexcept -> void {
@@ -1034,6 +1043,17 @@ namespace hyperion::_test::assert::assert {
         };
 
     #endif // HYPERION_PLATFORM_MODE_IS_DEBUG or not HYPERION_ASSERT_CONTRACT_ASSERTIONS_DEBUG_ONLY
+
+            // ut only supports aborts tests on UNIX-likes for the moment
+    #if not HYPERION_PLATFORM_IS_WINDOWS
+        "complex_expression"_test = [] {
+            hyperion::assert::panic::set_handler(hyperion::assert::panic::default_handler());
+            expect(aborts([] {
+                auto value = 2;
+                HYPERION_ASSERT_REQUIRE(value + invoke::invoker{}.invoke([]() { return 4; }) == 7);
+            }));
+        };
+    #endif // not HYPERION_PLATFORM_IS_WINDOWS
     };
 
 } // namespace hyperion::_test::assert::assert
