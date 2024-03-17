@@ -435,6 +435,31 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 #define HYPERION_ASSERT_FATAL(condition, ...) /** NOLINT(*-macro-usage) **/ \
     HYPERION_DETAIL_ASSERT_HANDLER(condition, "Fatal" __VA_OPT__(, __VA_ARGS__))
 
+#if HYPERION_ASSERT_DEFINE_SHORT_ASSERT_NAMES
+
+    #define ASSUME(condition) /** NOLINT(*-macro-usage) **/ HYPERION_ASSERT_ASSUME(condition)
+
+    #define EXPECT(condition) /** NOLINT(*-macro-usage) **/ HYPERION_ASSERT_EXPECT(condition)
+
+    #define UNEXPECT(condition) /** NOLINT(*-macro-usage) **/ HYPERION_ASSERT_UNEXPECT(condition)
+
+    #define ASSERT(condition, ...) /** NOLINT(*-macro-usage) **/ \
+        HYPERION_ASSERT_DEBUG(condition __VA_OPT__(, __VA_ARGS__)))
+
+    #define PRECONDITION(condition, ...) /** NOLINT(*-macro-usage) **/ \
+        HYPERION_ASSERT_PRECONDITION(condition __VA_OPT__(, __VA_ARGS__)))
+
+    #define POSTCONDITION(condition, ...) /** NOLINT(*-macro-usage) **/ \
+        HYPERION_ASSERT_POSTCONDITION(condition __VA_OPT__(, __VA_ARGS__)))
+
+    #define REQUIRE(condition, ...) /** NOLINT(*-macro-usage) **/ \
+        HYPERION_ASSERT_REQUIRE(condition __VA_OPT__(, __VA_ARGS__)))
+
+    #define ASSERT_FATAL(condition, ...) /** NOLINT(*-macro-usage) **/ \
+        HYPERION_ASSERT_FATAL(condition __VA_OPT__(, __VA_ARGS__)))
+
+#endif // HYPERION_ASSERT_DEFINE_SHORT_ASSERT_NAMES
+
 HYPERION_IGNORE_UNUSED_MACROS_WARNING_STOP;
 
 #if HYPERION_ENABLE_TESTING
