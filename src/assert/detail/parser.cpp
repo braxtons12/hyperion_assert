@@ -168,8 +168,8 @@ namespace hyperion::assert::detail::parser {
         auto prev_prev_cursor = std::optional<Cursor>{};
         for(auto cur = flux::first(tokens); !flux::is_last(tokens, cur); flux::inc(tokens, cur)) {
             auto& token = flux::read_at(tokens, cur);
-            // special case operator because we treat it like a `Keyword`, but want it
-            // highlighted as a Function
+            // special case "operator" because we treat it like a `Keyword`, but want it
+            // highlighted as a `Function`
             if(token.text == "operator") {
                 token.kind = tokens::Identifier{std::in_place_type<tokens::Function>};
             }
@@ -179,9 +179,9 @@ namespace hyperion::assert::detail::parser {
                     // if the previous token is a keyword, then we have a
                     // sequence of the form `Keyword variable`, `namespace Namespace`,
                     // `Keyword Type`, or `Keyword function`.
-                    // For the latter two, we backtrack on the next token when we check
-                    // the above "if Identifier" branch or when we start to track a pair
-                    // of punctuation, respectively
+                    // For the latter two, we assume `Type` for now and revert to `Function`, if
+                    // necessary, in the `Punctuation` branch when we check the next token on the
+                    // next iteration
                     if(std::holds_alternative<tokens::Keyword>(prev_token.kind)) {
                         if(prev_token.text == "namespace") {
                             token.kind = tokens::Identifier{std::in_place_type<tokens::Namespace>};
@@ -193,14 +193,18 @@ namespace hyperion::assert::detail::parser {
                             token.kind = tokens::Identifier{std::in_place_type<tokens::Type>};
                         }
                     }
-                    // if the previous token is punctuation, then we (most likely)
-                    // have a sequence of the form `operator variable`.
-                    // Other variations, such as `function(Type|Variable...` or
-                    // `template<Type...` are also possible
+                    // if the previous token is punctuation, then we have myriad possibilities,
+                    // for example: `operator Variable`, `function|constructor(Type|Variable)`,
+                    // `template<Type...`, `::Type`, `::Namespace`, and `::(Type keyword)`, (often
+                    // appears in `std::source_location.function_name()` when used in lambdas),
+                    // are probably the most common categories of sequences
                     else if(std::holds_alternative<tokens::Punctuation>(prev_token.kind)) {
                         if(prev_token.text == "::(") {
                             token.kind = tokens::Identifier{std::in_place_type<tokens::Type>};
                         }
+                        // we assume `Namespace` for now, and revert to `Function` or `Type`,
+                        // if necessary, in the `Punctuation` branch, when we check the next token
+                        // on the next iteration
                         else if(prev_token.text.starts_with("::")) {
                             token.kind = tokens::Identifier{std::in_place_type<tokens::Namespace>};
                         }
@@ -218,8 +222,9 @@ namespace hyperion::assert::detail::parser {
                             }
                         }
                     }
-                    // if the previous token isn't a keyword or punctuation,
-                    // Then either this token is a `Variable` or we have invalid syntax.
+                    // if this token is an identifier but the previous token isn't a keyword or
+                    // punctuation, then either this token is a `Variable` or we have invalid
+                    // syntax.
                     else {
                         // if the previous token was an identifier and this is an
                         // identifier, then we have a sequence of `Type variable`
@@ -227,6 +232,8 @@ namespace hyperion::assert::detail::parser {
                         if(std::holds_alternative<tokens::Identifier>(prev_token.kind)) {
                             prev_token.kind = tokens::Identifier{std::in_place_type<tokens::Type>};
                         }
+                        // we assume `Variable` here and revert to `Function`, if necessary, in the
+                        // `Punctuation` branch, when we check the next token on the next iteration
                         token.kind = tokens::Identifier{std::in_place_type<tokens::Variable>};
                     }
                 }
@@ -245,6 +252,8 @@ namespace hyperion::assert::detail::parser {
                         prev_token.kind = tokens::Identifier{std::in_place_type<tokens::Function>};
                     }
                     else if(std::holds_alternative<tokens::Identifier>(prev_token.kind)) {
+                        // hack, assume that for all sequences of the form `first::second`,
+                        // `first` is always a `Namespace`
                         if(token.text.starts_with("::")) {
                             prev_token.kind
                                 = tokens::Identifier{std::in_place_type<tokens::Namespace>};
@@ -256,7 +265,8 @@ namespace hyperion::assert::detail::parser {
                         else if(token.text.starts_with("{") && token.begin == prev_token.end) {
                             prev_token.kind = tokens::Identifier{std::in_place_type<tokens::Type>};
                         }
-                        // hack, assume all templates are type templates
+                        // hack, assume all templates are type templates and all template parameters
+                        // are types
                         else if(token.text == "<"
                                 || (token.text.starts_with(">")
                                     && (token.text != ">>"
@@ -265,10 +275,17 @@ namespace hyperion::assert::detail::parser {
                         {
                             prev_token.kind = tokens::Identifier{std::in_place_type<tokens::Type>};
                         }
+                        // assume that all identifiers immediately preceding an opening paren are
+                        // functions. This means that constructor calls get highlighted as
+                        // function calls, but some IDEs even get this wrong, so we won't lose any
+                        // sleep on that. (Constructor calls use brace-init will be highlighted
+                        // as types, though. See two branches above)
                         else if(token.text.front() == '(') {
                             prev_token.kind
                                 = tokens::Identifier{std::in_place_type<tokens::Function>};
                         }
+                        // assume that anything else not immediately preceding an `=`, `(`, `{`,
+                        // or `::` is a variable
                         else if(token.text != "=" && token.text.front() != '('
                                 && token.text.front() != '{' && !token.text.starts_with("::"))
                         {
