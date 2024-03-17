@@ -149,6 +149,9 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
             _Pragma("GCC diagnostic ignored \"-Woverloaded-shift-op-parentheses\"")
     #define HYPERION_ASSERT_IGNORE_SHIFT_OP_PARENS_WARNING_STOP /** NOLINT(*-macro-usage) **/ \
         _Pragma("GCC diagnostic pop")
+#else
+    #define HYPERION_ASSERT_IGNORE_SHIFT_OP_PARENS_WARNING_START
+    #define HYPERION_ASSERT_IGNORE_SHIFT_OP_PARENS_WARNING_STOP
 #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
 
 #define HYPERION_DETAIL_ASSERT_HANDLER(/** NOLINT(*-macro-usage) **/                          \
