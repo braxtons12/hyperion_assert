@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-03-16
+/// @date 2024-03-17
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -198,7 +198,10 @@ namespace hyperion::assert::detail::parser {
                     // Other variations, such as `function(Type|Variable...` or
                     // `template<Type...` are also possible
                     else if(std::holds_alternative<tokens::Punctuation>(prev_token.kind)) {
-                        if(prev_token.text.starts_with("::")) {
+                        if(prev_token.text == "::(") {
+                            token.kind = tokens::Identifier{std::in_place_type<tokens::Type>};
+                        }
+                        else if(prev_token.text.starts_with("::")) {
                             token.kind = tokens::Identifier{std::in_place_type<tokens::Namespace>};
                         }
                         else if(prev_prev_cursor.has_value()) {
@@ -254,7 +257,12 @@ namespace hyperion::assert::detail::parser {
                             prev_token.kind = tokens::Identifier{std::in_place_type<tokens::Type>};
                         }
                         // hack, assume all templates are type templates
-                        else if(token.text == "<" || token.text == ">") {
+                        else if(token.text == "<"
+                                || (token.text.starts_with(">")
+                                    && (token.text != ">>"
+                                        || !std::holds_alternative<tokens::Variable>(
+                                            std::get<tokens::Identifier>(prev_token.kind)))))
+                        {
                             prev_token.kind = tokens::Identifier{std::in_place_type<tokens::Type>};
                         }
                         else if(token.text.front() == '(') {

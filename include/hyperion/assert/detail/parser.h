@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-03-16
+/// @date 2024-03-17
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -38,11 +38,11 @@
 
 namespace hyperion::assert::detail::parser {
 
-    static inline constexpr auto punctuation = std::array<std::string_view, 48_usize>{
-        "~",  "!",   "+",  "-",  "*",  "/",   "%",   "^",   "&",  "|",  "=", "+=",
-        "-=", "*=",  "/=", "%=", "^=", "&=",  "|=",  "==",  "!=", "<",  ">", "<=",
-        ">=", "<=>", "&&", "||", "<<", ">>",  "<<=", ">>=", "++", "--", "?", "::",
-        ":",  "...", ".",  ".*", "->", "->*", "[",   "]",   "{",  "}",  "(", ")"};
+    static inline constexpr auto punctuation = std::array<std::string_view, 49_usize>{
+        "~",  "!",  "+",   "-",  "*",   "/",   "%",  "^",  "&", "|",  "=",  "+=",  "-=",
+        "*=", "/=", "%=",  "^=", "&=",  "|=",  "==", "!=", "<", ">",  "<=", ">=",  "<=>",
+        "&&", "||", "<<",  ">>", "<<=", ">>=", "++", "--", "?", "::", ":",  "...", ".",
+        ".*", "->", "->*", "[",  "]",   "{",   "}",  "(",  ")", ";"};
     static inline constexpr auto keywords = std::array<std::string_view, 88_usize>{
         "alignas",
         "constinit",
