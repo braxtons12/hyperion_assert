@@ -238,6 +238,7 @@ namespace hyperion::assert::detail {
         [[nodiscard]] static constexpr auto
         call_operator(reference_type<TLhs> lhs, reference_type<TRhs> rhs)
             requires requires { Operator<TOp>::do_op(lhs, rhs); }
+                     && (not requires { Operator<TOp>::do_op(lhs.do_op(), rhs); })
         {
             return Operator<TOp>::do_op(lhs, rhs);
         }
