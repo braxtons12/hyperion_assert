@@ -98,6 +98,14 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
         #define HYPERION_ASSERT_DEBUG_BREAK() /** NOLINT(*-macro-usage) **/ __builtin_debugtrap()
     #else
 
+        // on x86(_64) and ARM V8/64, use the respectively assembly instructions to
+        // cause a SIGTRAP. Otherwise, resign to `raise(SIGTRAP)` directly.
+        // We don't use `__builtin_trap()` because it inherently does the wrong thing.
+        // From compiler/optimizer POV, it is semantically equivalent to `abort()`.
+        // On x86 it generates `SIGILL`, on ARM it maps directly to `abort()`, etc.
+        // @see https://github.com/scottt/debugbreak
+        // and
+        // @see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=84595
         #if HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86) \
             || HYPERION_PLATFORM_IS_ARCHITECTURE(HYPERION_PLATFORM_X86_64)
 
