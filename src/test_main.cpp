@@ -26,6 +26,7 @@
 /// SOFTWARE.
 
 #include <hyperion/platform/def.h>
+#include <hyperion/platform/types.h>
 
 #if HYPERION_PLATFORM_COMPILER_IS_CLANG
 
@@ -41,12 +42,10 @@ auto boost::ut::cfg<boost::ut::override> = boost::ut::runner<boost::ut::reporter
 _Pragma("GCC diagnostic pop");
 
 #include <hyperion/assert.h>
-#include <hyperion/platform/types.h>
 
 #else
 
 #include <hyperion/assert.h>
-#include <hyperion/platform/types.h>
 
 #include <boost/ut.hpp>
 

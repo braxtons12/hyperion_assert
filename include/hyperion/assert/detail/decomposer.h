@@ -32,6 +32,7 @@
 #include <hyperion/assert/tokens.h>
 #include <hyperion/mpl/concepts.h>
 #include <hyperion/mpl/type.h>
+#include <hyperion/platform/compare.h>
 #include <hyperion/platform/def.h>
 
 #include <fmt/format.h>
@@ -148,13 +149,6 @@ namespace hyperion::assert::detail {
     HYPERION_DEFINE_OPERATOR_TYPE(<<);
     // NOLINTNEXTLINE(*-signed-bitwise)
     HYPERION_DEFINE_OPERATOR_TYPE(>>);
-    HYPERION_DEFINE_OPERATOR_TYPE(<=>);
-    HYPERION_DEFINE_OPERATOR_TYPE(<);
-    HYPERION_DEFINE_OPERATOR_TYPE(<=);
-    HYPERION_DEFINE_OPERATOR_TYPE(>);
-    HYPERION_DEFINE_OPERATOR_TYPE(>=);
-    HYPERION_DEFINE_OPERATOR_TYPE(==);
-    HYPERION_DEFINE_OPERATOR_TYPE(!=);
     // NOLINTNEXTLINE(*-signed-bitwise)
     HYPERION_DEFINE_OPERATOR_TYPE(&);
     // NOLINTNEXTLINE(*-signed-bitwise)
@@ -212,6 +206,70 @@ namespace hyperion::assert::detail {
     };
 
 #undef HYPERION_DEFINE_OPERATOR_TYPE
+
+#define HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(oper, oper_string) /** NOLINT(*-macro-usage) **/  \
+    template<>                                                                                     \
+    struct Operator<#oper> final {                                                                 \
+        static constexpr auto k_op = std::string_view{#oper};                                      \
+                                                                                                   \
+        template<typename TLhs, typename TRhs>                                                     \
+        [[nodiscard]] static constexpr auto                                                        \
+        do_op(TLhs&& lhs,                                                                          \
+              TRhs&& rhs) noexcept(noexcept(std::forward<TLhs>(lhs) oper std::forward<TRhs>(rhs))) \
+            -> decltype(std::forward<TLhs>(lhs) oper std::forward<TRhs>(rhs))                      \
+            requires requires { std::forward<TLhs>(lhs) oper std::forward<TRhs>(rhs); }            \
+        {                                                                                          \
+            using namespace hyperion::platform::compare;                                           \
+            return oper_string##_compare(std::forward<TLhs>(lhs), std::forward<TRhs>(rhs));        \
+        }                                                                                          \
+                                                                                                   \
+        [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {             \
+            return k_op;                                                                           \
+        }                                                                                          \
+    }
+
+    HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(<, less_than);
+    HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(<=, less_than_or_equal);
+    HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(>, greater_than);
+    HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(>=, greater_than_or_equal);
+    HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(==, equality);
+    HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(!=, inequality);
+
+    template<>                                                                                     \
+    struct Operator<"<=>"> final {                                                                 \
+        static constexpr auto k_op = std::string_view{"<=>"};                                      \
+                                                                                                   \
+        template<typename TLhs, typename TRhs>                                                     \
+        [[nodiscard]] static constexpr auto                                                        \
+        do_op(TLhs&& lhs,                                                                          \
+              TRhs&& rhs) noexcept(noexcept(std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs))) \
+            -> decltype(std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs))                      \
+            requires requires { std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs); }            \
+        {                                                                                          \
+            using ret_type = decltype(std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs));
+            using namespace hyperion::platform::compare;
+            if(less_than_compare(std::forward<TLhs>(lhs), std::forward<TRhs>(rhs))) {
+                return ret_type::less;
+            }
+
+            if(equality_compare(std::forward<TLhs>(lhs), std::forward<TRhs>(rhs))) {
+                return ret_type::equivalent;
+            }
+
+            if(greater_than_compare(std::forward<TLhs>(lhs), std::forward<TRhs>(rhs))) {
+                return ret_type::greater;
+            }
+
+            // fallback to built in op to avoid pulling in `#include <compare>`
+            return std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs);
+        }                                                                                          \
+                                                                                                   \
+        [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {             \
+            return k_op;                                                                           \
+        }                                                                                          \
+    };
+
+#undef HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE
 
     template<typename TLhs, typename TRhs, FixedString TOp>
         requires requires {
