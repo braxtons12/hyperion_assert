@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Basic usage example of hyperion::assert.
 /// @version 0.1
-/// @date 2024-03-16
+/// @date 2024-06-18
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -28,9 +28,12 @@
 #include <hyperion/assert.h>
 #include <hyperion/platform/types.h>
 
-using namespace hyperion; // NOLINT(google-build-using-namespace)
+#include <fmt/format.h>
 
+using namespace hyperion; // NOLINT(google-build-using-namespace)
+                          
 [[nodiscard]] auto
 main([[maybe_unused]] i32 argc, [[maybe_unused]] const char* const* argv) -> i32 {
+    HYPERION_ASSERT_DEBUG(0 > 1, "{} > {}", 0, 1);
     return 0_i32;
 }

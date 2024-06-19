@@ -5,13 +5,23 @@ on:
     branches: ["*"]
 
 jobs:
-  build-linux-gcc-13-x64:
+  linux-gcc-x64:
     runs-on: ubuntu-latest
     strategy:
+      matrix:
+        version: [13]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: seanmiddleditch/gha-setup-ninja@v4
+
+      - name: Install Toolchains PPA
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get -y update
+
+      - name: Install GCC
+        run: sudo apt-get -y install gcc-${{matrix.version}} g++-${{matrix.version}}
 
       - name: Install XMake
         run: |
@@ -21,7 +31,7 @@ jobs:
 
       - name: Configure
         working-directory: ${{github.workspace}}
-        run: xmake f -c -y --toolchain=gcc-13
+        run: xmake f -c -y --toolchain=gcc-${{matrix.version}} --hyperion_enable_tracy=y
 
       - name: Build
         env:
@@ -46,14 +56,16 @@ jobs:
         run: |
           xrepo add-repo -y hyperion "https://github.com/braxtons12/hyperion_packages.git"
           xrepo update-repo -y
-          xrepo install -y --toolchain=gcc-13 "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=gcc-13 --configs="hyperion_enable_tracy=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=gcc-13 --configs="hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=gcc-13 --configs="hyperion_enable_tracy=true,hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=gcc-${{matrix.version}} "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=gcc-${{matrix.version}} --configs="hyperion_enable_tracy=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=gcc-${{matrix.version}} --configs="hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=gcc-${{matrix.version}} --configs="hyperion_enable_tracy=true,hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
 
-  build-linux-clang-16-x64:
+  linux-clang-x64:
     runs-on: ubuntu-latest
     strategy:
+      matrix:
+        version: [16, 17, 18]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -69,17 +81,17 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 16
-          sudo apt-get -y install clang-tidy-16
+          sudo ./llvm.sh ${{matrix.version}}
+          sudo apt-get -y install clang-tidy-${{matrix.version}}
 
       - name: Replace clang-tidy
-        run: sudo cp /usr/bin/clang-tidy-16 /usr/bin/clang-tidy -f
+        run: sudo cp /usr/bin/clang-tidy-${{matrix.version}} /usr/bin/clang-tidy -f
 
       - name: Configure
         working-directory: ${{github.workspace}}
         run: |
           rm -rf build .xmake
-          xmake f -c -y --toolchain=clang-16
+          xmake f -c -y --toolchain=clang-${{matrix.version}} --hyperion_enable_tracy=y
 
       - name: Build
         env:
@@ -110,12 +122,12 @@ jobs:
         run: |
           xrepo add-repo -y hyperion "https://github.com/braxtons12/hyperion_packages.git"
           xrepo update-repo -y
-          xrepo install -y --toolchain=clang-16 "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=clang-16 --configs="hyperion_enable_tracy=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=clang-16 --configs="hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=clang-16 --configs="hyperion_enable_tracy=true,hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=clang-${{matrix.version}} "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=clang-${{matrix.version}} --configs="hyperion_enable_tracy=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=clang-${{matrix.version}} --configs="hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=clang-${{matrix.version}} --configs="hyperion_enable_tracy=true,hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
 
-  build-windows-msvc-x64:
+  windows-msvc-x64:
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -137,11 +149,15 @@ jobs:
           arch: x64
 
       - name: Install XMake
-        run: scoop install xmake
+        run: |
+          scoop install xmake
+          xmake update -sfy master
+          Start-Sleep -Seconds 2
+          xmake update -fy master
 
       - name: Configure
         working-directory: ${{github.workspace}}
-        run: xmake f -c -y --toolchain=msvc
+        run: xmake f -c -y --toolchain=msvc --hyperion_enable_tracy=y
           
       - name: Build
         env:
@@ -171,9 +187,11 @@ jobs:
           xrepo install -y --toolchain=msvc --configs="hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
           xrepo install -y --toolchain=msvc --configs="hyperion_enable_tracy=true,hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
 
-  build-macos-clang-16-x64:
+  macos-clang-x64:
     runs-on: macos-latest
     strategy:
+      matrix:
+        version: [16, 17, 18]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -184,17 +202,17 @@ jobs:
           brew update
           brew install xmake
 
-      - name: Install LLVM 16
+      - name: Install LLVM
         run: |
-          brew install llvm@16
-          echo "PATH=/usr/local/opt/llvm@16/bin:$PATH" >> $GITHUB_ENV
-          echo "CC=$(brew --prefix llvm@16)/bin/clang" >> $GITHUB_ENV
-          echo "CXX=$(brew --prefix llvm@16)/bin/clang++" >> $GITHUB_ENV
-          echo "LDFLAGS='-L/usr/local/opt/llvm@16/lib/c++ -Wl,-rpath,/usr/local/opt/llvm@16/lib/c++'" >> $GITHUB_ENV
+          brew install llvm@${{matrix.version}}
+          echo "PATH=$(brew --prefix llvm@${{matrix.version}})/bin:$PATH" >> $GITHUB_ENV
+          echo "CC=$(brew --prefix llvm@${{matrix.version}})/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$(brew --prefix llvm@${{matrix.version}})/bin/clang++" >> $GITHUB_ENV
+          echo "LDFLAGS='-L$(brew --prefix llvm@${{matrix.version}})/lib/c++ -Wl,-rpath,$(brew --prefix llvm@${{matrix.version}})/lib/c++'" >> $GITHUB_ENV
 
       - name: Configure
         working-directory: ${{github.workspace}}
-        run: xmake f -c -y --toolchain=clang
+        run: xmake f -c -y --toolchain=clang-${{matrix.version}} --hyperion_enable_tracy=y
 
       - name: Build
         env:
@@ -225,7 +243,7 @@ jobs:
         run: |
           xrepo add-repo -y hyperion "https://github.com/braxtons12/hyperion_packages.git"
           xrepo update-repo -y
-          xrepo install -y --toolchain=clang "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=clang --configs="hyperion_enable_tracy=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=clang --configs="hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
-          xrepo install -y --toolchain=clang --configs="hyperion_enable_tracy=true,hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=clang-${{matrix.version}} "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=clang-${{matrix.version}} --configs="hyperion_enable_tracy=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=clang-${{matrix.version}} --configs="hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"
+          xrepo install -y --toolchain=clang-${{matrix.version}} --configs="hyperion_enable_tracy=true,hyperion_enable_testing=true" "hyperion_assert ${{ steps.extract_branch.outputs.branch }}"

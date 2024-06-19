@@ -335,10 +335,10 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 #else // not HYPERION_PLATFORM_MODE_IS_DEBUG
 
     #define HYPERION_ASSERT_DEBUG(condition, ...) /** NOLINT(*-macro-usage) **/ \
-        {                                                                       \
+        do {                                                                       \
             HYPERION_ASSERT_ASSUME(condition);                                  \
             __VA_OPT__(hyperion::ignore(__VA_ARGS__);)                          \
-        }
+        } while(false)
 
 #endif // HYPERION_PLATFORM_MODE_IS_DEBUG
 

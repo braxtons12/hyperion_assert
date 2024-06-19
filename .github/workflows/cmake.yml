@@ -5,40 +5,52 @@ on:
     branches: ["*"]
 
 jobs:
-  build-linux-gcc-13-x64:
+  linux-gcc-13-x64:
     runs-on: ubuntu-latest
     strategy:
+      matrix:
+        version: [13]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: seanmiddleditch/gha-setup-ninja@v4
 
+      - name: Install Toolchains PPA
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get -y update
+
+      - name: Install GCC
+        run: sudo apt-get -y install gcc-${{matrix.version}} g++-${{matrix.version}}
+
       - name: Configure
         env:
-          CC: gcc-13
-          CXX: g++-13
+          CC: gcc-${{matrix.version}}
+          CXX: g++-${{matrix.version}}
         working-directory: ${{github.workspace}}
-        run: cmake --preset env-cc-release
+        run: cmake --preset env-cc-release -DHYPERION_ENABLE_TRACY
 
       - name: Build
         env:
-          CC: gcc-13
-          CXX: g++-13
+          CC: gcc-${{matrix.version}}
+          CXX: g++-${{matrix.version}}
           ACTIONS_STEP_DEBUG: true
         working-directory: ${{github.workspace}}
         run: cmake --build --preset env-cc-release
 
       - name: Test
         env:
-          CC: gcc-13
-          CXX: g++-13
+          CC: gcc-${{matrix.version}}
+          CXX: g++-${{matrix.version}}
           ACTIONS_STEP_DEBUG: true
         working-directory: ${{github.workspace}}
         run: ctest --preset env-cc-release --verbose
 
-  build-linux-clang-16-x64:
+  linux-clang-x64:
     runs-on: ubuntu-latest
     strategy:
+      matrix:
+        version: [16, 17, 18]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -48,38 +60,38 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 16
-          sudo apt-get -y install clang-tidy-16
+          sudo ./llvm.sh ${{matrix.version}}
+          sudo apt-get -y install clang-tidy-${{matrix.version}}
 
       - name: Replace clang-tidy
-        run: sudo cp /usr/bin/clang-tidy-16 /usr/bin/clang-tidy -f
+        run: sudo cp /usr/bin/clang-tidy-${{matrix.version}} /usr/bin/clang-tidy -f
 
       - name: Configure
         env:
-          CC: clang-16
-          CXX: clang++-16
+          CC: clang-${{matrix.version}}
+          CXX: clang++-${{matrix.version}}
         working-directory: ${{github.workspace}}
         run: |
           rm -rf build
-          cmake --preset env-cc-release
+          cmake --preset env-cc-release -DHYPERION_ENABLE_TRACY
 
       - name: Build
         env:
-          CC: clang-16
-          CXX: clang++-16
+          CC: clang-${{matrix.version}}
+          CXX: clang++-${{matrix.version}}
           ACTIONS_STEP_DEBUG: true
         working-directory: ${{github.workspace}}
         run: cmake --build --preset env-cc-release
 
       - name: Test
         env:
-          CC: clang-16
-          CXX: clang++-16
+          CC: clang-${{matrix.version}}
+          CXX: clang++-${{matrix.version}}
           ACTIONS_STEP_DEBUG: true
         working-directory: ${{github.workspace}}
         run: ctest --preset env-cc-release --verbose
 
-  build-windows-msvc-x64:
+  windows-msvc-x64:
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -102,7 +114,7 @@ jobs:
 
       - name: Configure
         working-directory: ${{github.workspace}}
-        run: cmake --preset msvc-release
+        run: cmake --preset msvc-release -DHYPERION_ENABLE_TRACY 
           
       - name: Build
         env:
@@ -116,27 +128,27 @@ jobs:
         working-directory: ${{github.workspace}}
         run: ctest --preset msvc-release --verbose
 
-  build-macos-clang-16-x64:
+  macos-clang-x64:
     runs-on: macos-latest
     strategy:
+      matrix:
+        version: [16, 17, 18]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: seanmiddleditch/gha-setup-ninja@v4
 
-      - name: Install LLVM 16
+      - name: Install LLVM
         run: |
-          brew install llvm@16
-
-      - name: Set CC and CXX
-        run: |
-          echo "CC=$(brew --prefix llvm@16)/bin/clang" >> $GITHUB_ENV
-          echo "CXX=$(brew --prefix llvm@16)/bin/clang++" >> $GITHUB_ENV
-          sudo ln -s "$(brew --prefix llvm@16)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
+          brew install llvm@${{matrix.version}}
+          echo "PATH=$(brew --prefix llvm@${{matrix.version}})/bin:$PATH" >> $GITHUB_ENV
+          echo "CC=$(brew --prefix llvm@${{matrix.version}})/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$(brew --prefix llvm@${{matrix.version}})/bin/clang++" >> $GITHUB_ENV
+          echo "LDFLAGS='-L$(brew --prefix llvm@${{matrix.version}})/lib/c++ -Wl,-rpath,$(brew --prefix llvm@${{matrix.version}})/lib/c++'" >> $GITHUB_ENV
 
       - name: Configure
         working-directory: ${{github.workspace}}
-        run: cmake --preset env-cc-release
+        run: cmake --preset env-cc-release -DHYPERION_ENABLE_TRACY
 
       - name: Build
         env:
