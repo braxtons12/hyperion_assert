@@ -34,6 +34,6 @@ using namespace hyperion; // NOLINT(google-build-using-namespace)
                           
 [[nodiscard]] auto
 main([[maybe_unused]] i32 argc, [[maybe_unused]] const char* const* argv) -> i32 {
-    HYPERION_ASSERT_DEBUG(0 > 1, "{} > {}", 0, 1);
+    HYPERION_ASSERT_DEBUG(1 > 0, "{} > {}", 1, 0);
     return 0_i32;
 }
