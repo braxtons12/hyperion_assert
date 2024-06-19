@@ -17,17 +17,17 @@ jobs:
         with:
           version: "1.10.0"
 
-      - name: Install Graphviz
-        run: sudo apt-get -y install graphviz
-
-      - name: Install LibGS
-        run: sudo apt-get -y install libgs9 libgs9-common
-
       - name: Install xmake
         run: |
           sudo add-apt-repository ppa:xmake-io/xmake
           sudo apt-get -y update
           sudo apt-get -y install xmake
+
+      - name: Install Graphviz
+        run: sudo apt-get -y install graphviz
+
+      - name: Install LibGS
+        run: sudo apt-get -y install libgs9 libgs9-common
 
       - name: Install Sphinx Tools
         run: |
