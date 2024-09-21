@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-03-17
+/// @date 2024-09-20
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -32,6 +32,7 @@
 
 #include <flux.hpp>
 
+#include <compare>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -152,7 +153,9 @@ namespace hyperion::assert::detail::parser {
             }
 
             flux::sort(results,
-                       [](const auto& lhs, const auto& rhs) { return lhs.begin < rhs.begin; });
+                       [](const tokens::Token& lhs, const tokens::Token& rhs) -> std::weak_ordering { 
+                           return lhs.begin <=> rhs.begin; 
+                       });
             return results;
         }
     } // namespace
