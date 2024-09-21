@@ -58,7 +58,7 @@ struct fmt::formatter<hyperion::assert::Backtrace> {
 
     template<typename TFormatContext>
     [[nodiscard]] constexpr auto
-    format(const hyperion::assert::Backtrace& trace, TFormatContext& context) {
+    format(const hyperion::assert::Backtrace& trace, TFormatContext& context) const {
         return fmt::format_to(context.out(), "{}", hyperion::assert::format_backtrace(trace, -1));
     }
 };

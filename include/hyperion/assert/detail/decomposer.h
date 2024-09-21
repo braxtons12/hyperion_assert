@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Expression decomposition helper types
 /// @version 0.1
-/// @date 2024-03-16
+/// @date 2024-06-18
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -546,7 +546,7 @@ struct fmt::formatter<hyperion::assert::detail::UnaryExpression<TExpr>> {
     }
 
     template<typename TFormatContext>
-    [[nodiscard]] auto format(const self& expression, TFormatContext& context) {
+    [[nodiscard]] auto format(const self& expression, TFormatContext& context) const {
         using hyperion::assert::detail::IsBinaryExpression;
         using hyperion::assert::detail::OutputStreamable;
         using hyperion::assert::highlight::highlight;
@@ -576,7 +576,7 @@ struct fmt::formatter<hyperion::assert::detail::InitialExpression<TExpr>> {
     }
 
     template<typename TFormatContext>
-    [[nodiscard]] auto format(self& expression, TFormatContext& context) {
+    [[nodiscard]] auto format(self& expression, TFormatContext& context) const {
         using hyperion::assert::detail::UnaryExpression;
         return fmt::format_to(context.out(), "{}", static_cast<UnaryExpression<TExpr>>(expression));
     }
@@ -598,7 +598,7 @@ struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp
 
     template<typename TFormatContext>
     // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-    [[nodiscard]] auto format(self& expression, TFormatContext& context) {
+    [[nodiscard]] auto format(self& expression, TFormatContext& context) const {
         using hyperion::assert::detail::IsBinaryExpression;
         using hyperion::assert::detail::OutputStreamable;
         using hyperion::assert::highlight::get_color;
@@ -791,101 +791,86 @@ namespace hyperion::_test::assert::detail::decomposer {
         "+"_test = [] {
             auto result = ExpressionDecomposer{}->*1 + 2;
             expect(that % result.expr() == 3);
-            fmt::println(stderr, "{}", result);
         };
 
         "+=="_test = [] {
             auto result = ExpressionDecomposer{}->*1 + 2 == 3;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==+"_test = [] {
             auto result = ExpressionDecomposer{}->*3 == 1 + 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "-"_test = [] {
             auto result = ExpressionDecomposer{}->*1 - 2;
             expect(that % result.expr() == -1);
-            fmt::println(stderr, "{}", result);
         };
 
         "-=="_test = [] {
             auto result = ExpressionDecomposer{}->*1 - 2 == -1;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==-"_test = [] {
             auto result = ExpressionDecomposer{}->*-1 == 1 - 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "*"_test = [] {
             auto result = ExpressionDecomposer{}->*2 * 2;
             expect(that % result.expr() == 4);
-            fmt::println(stderr, "{}", result);
         };
 
         "*=="_test = [] {
             auto result = ExpressionDecomposer{}->*2 * 2 == 4;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==*"_test = [] {
             auto result = ExpressionDecomposer{}->*4 == 2 * 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "/"_test = [] {
             auto result = ExpressionDecomposer{}->*4 / 2;
             expect(that % result.expr() == 2);
-            fmt::println(stderr, "{}", result);
         };
 
         "/=="_test = [] {
             auto result = ExpressionDecomposer{}->*4 / 2 == 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==/"_test = [] {
             auto result = ExpressionDecomposer{}->*2 == 4 / 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "%"_test = [] {
             auto result = ExpressionDecomposer{}->*5_i32 % 3;
             expect(that % result.expr() == 2);
-            fmt::println(stderr, "{}", result);
         };
 
         "%=="_test = [] {
             auto result = ExpressionDecomposer{}->*5_i32 % 3 == 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==%"_test = [] {
             auto result = ExpressionDecomposer{}->*2 == 5_i32 % 3;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
     #if HYPERION_PLATFORM_COMPILER_IS_CLANG
@@ -896,14 +881,12 @@ namespace hyperion::_test::assert::detail::decomposer {
         "<<"_test = [] {
             auto result = ExpressionDecomposer{}->*2 << 2;
             expect(that % result.expr() == 8_i32);
-            fmt::println(stderr, "{}", result);
         };
 
         "<<=="_test = [] {
             auto result = ExpressionDecomposer{}->*2 << 2 == 8_i32;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==<<"_test = [] {
@@ -911,20 +894,17 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*8_i32 == 2 << 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         ">>"_test = [] {
             auto result = ExpressionDecomposer{}->*8_i32 >> 2;
             expect(that % result.expr() == 2);
-            fmt::println(stderr, "{}", result);
         };
 
         ">>=="_test = [] {
             auto result = ExpressionDecomposer{}->*8_i32 >> 2 == 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==>>"_test = [] {
@@ -932,27 +912,23 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*2 == 8_i32 >> 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "<=>"_test = [] {
             auto result = ExpressionDecomposer{}->*8_i32 <=> 2;
             expect(result.expr() == std::strong_ordering::greater);
-            fmt::println(stderr, "{}", result);
         };
 
         "<=>=="_test = [] {
             auto result = ExpressionDecomposer{}->*8_i32 <=> 2 == std::strong_ordering::greater;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==<=>"_test = [] {
             auto result = ExpressionDecomposer{}->*std::strong_ordering::greater == 8_i32 <=> 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
     #if HYPERION_PLATFORM_COMPILER_IS_GCC
@@ -963,88 +939,75 @@ namespace hyperion::_test::assert::detail::decomposer {
         "<"_test = [] {
             auto result = ExpressionDecomposer{}->*2 < 4;
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "<=="_test = [] {
             auto result = ExpressionDecomposer{}->*2 < 4 == true;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==<"_test = [] {
             auto result = ExpressionDecomposer{}->*true == 2 <= 4;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "<="_test = [] {
             auto result = ExpressionDecomposer{}->*2 <= 4;
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "<==="_test = [] {
             auto result = ExpressionDecomposer{}->*2 <= 4 == true;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==<="_test = [] {
             auto result = ExpressionDecomposer{}->*true == 2 <= 4;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         ">"_test = [] {
             auto result = ExpressionDecomposer{}->*4 > 2;
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         ">=="_test = [] {
             auto result = ExpressionDecomposer{}->*4 > 2 == true;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==>"_test = [] {
             auto result = ExpressionDecomposer{}->*true == 4 >= 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         ">="_test = [] {
             auto result = ExpressionDecomposer{}->*4 >= 2;
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         ">==="_test = [] {
             auto result = ExpressionDecomposer{}->*4 >= 2 == true;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==>="_test = [] {
             auto result = ExpressionDecomposer{}->*true == 4 >= 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "=="_test = [] {
             auto result
                 = ExpressionDecomposer{}->*std::string_view{"hello"} == std::string_view{"hello"};
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "===="_test = [] {
@@ -1052,7 +1015,6 @@ namespace hyperion::_test::assert::detail::decomposer {
                           == std::string_view{"hello"} == true;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "====reversed"_test = [] {
@@ -1060,14 +1022,12 @@ namespace hyperion::_test::assert::detail::decomposer {
                           == (std::string_view{"hello"} == std::string_view{"hello"});
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "!="_test = [] {
             auto result
                 = ExpressionDecomposer{}->*std::string_view{"hello"} != std::string_view{"world"};
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "!==="_test = [] {
@@ -1075,7 +1035,6 @@ namespace hyperion::_test::assert::detail::decomposer {
                           != std::string_view{"world"} == true;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==!="_test = [] {
@@ -1083,20 +1042,17 @@ namespace hyperion::_test::assert::detail::decomposer {
                           == (std::string_view{"hello"} != std::string_view{"world"});
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "&"_test = [] {
             auto result = ExpressionDecomposer{}->*0b1100_u32 & 0b1000_u32;
             expect(that % result.expr() == 0b1000_u32);
-            fmt::println(stderr, "{}", result);
         };
 
         "&=="_test = [] {
             auto result = ExpressionDecomposer{}->*(0b1100_u32 & 0b1000_u32) == 0b1000_u32;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==&"_test = [] {
@@ -1104,20 +1060,17 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*0b1000_u32 == (0b1100_u32 & 0b1000_u32);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "|"_test = [] {
             auto result = ExpressionDecomposer{}->*0b1100_u32 | 0b0001_u32;
             expect(that % result.expr() == 0b1101_u32);
-            fmt::println(stderr, "{}", result);
         };
 
         "|=="_test = [] {
             auto result = ExpressionDecomposer{}->*(0b1100_u32 | 0b0001_u32) == 0b1101_u32;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==|"_test = [] {
@@ -1125,20 +1078,17 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*0b1101_u32 == (0b1100_u32 | 0b0001_u32);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "^"_test = [] {
             auto result = ExpressionDecomposer{}->*0b1100_u32 ^ 0b0101_u32;
             expect(that % result.expr() == 0b1001_u32);
-            fmt::println(stderr, "{}", result);
         };
 
         "^=="_test = [] {
             auto result = ExpressionDecomposer{}->*(0b1100_u32 ^ 0b0101_u32) == 0b1001_u32;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==^"_test = [] {
@@ -1146,13 +1096,11 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*0b1001_u32 == (0b1100_u32 ^ 0b0101_u32);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "&&"_test = [] {
             auto result = ExpressionDecomposer{}->*true && false;
             expect(that % result.expr() == false);
-            fmt::println(stderr, "{}", result);
         };
 
         "&&=="_test = [] {
@@ -1160,7 +1108,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(true && false) == false;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==&&"_test = [] {
@@ -1168,13 +1115,11 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*false == (true && false);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "||"_test = [] {
             auto result = ExpressionDecomposer{}->*false || true;
             expect(that % result.expr() == true);
-            fmt::println(stderr, "{}", result);
         };
 
         "||=="_test = [] {
@@ -1182,7 +1127,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(false || true) == true;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==||"_test = [] {
@@ -1190,14 +1134,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*true == (false || true);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "+="_test = [] {
             auto value = 2;
             auto result = ExpressionDecomposer{}->*value += 1;
             expect(that % result.expr() == 3);
-            fmt::println(stderr, "{}", result);
         };
 
         "+==="_test = [] {
@@ -1205,7 +1147,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value += 1) == 3;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==+="_test = [] {
@@ -1213,14 +1154,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*3 == (value += 1);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "-="_test = [] {
             auto value = 2;
             auto result = ExpressionDecomposer{}->*value -= 1;
             expect(that % result.expr() == 1);
-            fmt::println(stderr, "{}", result);
         };
 
         "-==="_test = [] {
@@ -1228,7 +1167,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value -= 1) == 1;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==-="_test = [] {
@@ -1236,14 +1174,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*1 == (value -= 1);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "*="_test = [] {
             auto value = 2;
             auto result = ExpressionDecomposer{}->*value *= 2;
             expect(that % result.expr() == 4);
-            fmt::println(stderr, "{}", result);
         };
 
         "*==="_test = [] {
@@ -1251,7 +1187,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value *= 2) == 4;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==*="_test = [] {
@@ -1259,14 +1194,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*4 == (value *= 2);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "/="_test = [] {
             auto value = 4;
             auto result = ExpressionDecomposer{}->*value /= 2;
             expect(that % result.expr() == 2);
-            fmt::println(stderr, "{}", result);
         };
 
         "/==="_test = [] {
@@ -1274,7 +1207,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value /= 2) == 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==/="_test = [] {
@@ -1282,14 +1214,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*2 == (value /= 2);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "%="_test = [] {
             auto value = 5_i32;
             auto result = ExpressionDecomposer{}->*value %= 3;
             expect(that % result.expr() == 2);
-            fmt::println(stderr, "{}", result);
         };
 
         "%==="_test = [] {
@@ -1297,7 +1227,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value %= 3) == 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==%="_test = [] {
@@ -1305,14 +1234,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*2 == (value %= 3);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "<<="_test = [] {
             auto value = 2;
             auto result = ExpressionDecomposer{}->*value <<= 2;
             expect(that % result.expr() == 8_i32);
-            fmt::println(stderr, "{}", result);
         };
 
         "<<==="_test = [] {
@@ -1321,7 +1248,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value <<= 2) == 8_i32;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==<<="_test = [] {
@@ -1330,14 +1256,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*8_i32 == (value <<= 2);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         ">>="_test = [] {
             auto value = 8_i32;
             auto result = ExpressionDecomposer{}->*value >>= 2;
             expect(that % result.expr() == 2);
-            fmt::println(stderr, "{}", result);
         };
 
         ">>==="_test = [] {
@@ -1346,7 +1270,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value >>= 2) == 2;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==>>="_test = [] {
@@ -1355,14 +1278,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*2 == (value >>= 2);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "&="_test = [] {
             auto value = 0b1100_u32;
             auto result = ExpressionDecomposer{}->*value &= 0b0110_u32;
             expect(that % result.expr() == 0b0100_u32);
-            fmt::println(stderr, "{}", result);
         };
 
         "&==="_test = [] {
@@ -1370,7 +1291,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value &= 0b0110_u32) == 0b0100_u32;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==&="_test = [] {
@@ -1378,14 +1298,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*0b0100_u32 == (value &= 0b0110_u32);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "|="_test = [] {
             auto value = 0b1100_u32;
             auto result = ExpressionDecomposer{}->*value |= 0b0110_u32;
             expect(that % result.expr() == 0b1110_u32);
-            fmt::println(stderr, "{}", result);
         };
 
         "|==="_test = [] {
@@ -1393,7 +1311,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value |= 0b0110_u32) == 0b1110_u32;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==|="_test = [] {
@@ -1401,14 +1318,12 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*0b1110_u32 == (value |= 0b0110_u32);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "^="_test = [] {
             auto value = 0b1100_u32;
             auto result = ExpressionDecomposer{}->*value ^= 0b0110_u32;
             expect(that % result.expr() == 0b1010_u32);
-            fmt::println(stderr, "{}", result);
         };
 
         "^==="_test = [] {
@@ -1416,7 +1331,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*(value ^= 0b0110_u32) == 0b1010_u32;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==^="_test = [] {
@@ -1424,20 +1338,17 @@ namespace hyperion::_test::assert::detail::decomposer {
             auto result = ExpressionDecomposer{}->*0b1010_u32 == (value ^= 0b0110_u32);
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         ","_test = [] {
             auto result = (ExpressionDecomposer{}->*2, 4);
             expect(that % result.expr() == 4);
-            fmt::println(stderr, "{}", result);
         };
 
         ",=="_test = [] {
             auto result = (ExpressionDecomposer{}->*2, 4) == 4;
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
         "==,"_test = [] {
@@ -1448,7 +1359,6 @@ namespace hyperion::_test::assert::detail::decomposer {
             static_assert(std::same_as<std::remove_cvref_t<decltype(result.expr())>, bool>);
             expect(that % value == 3);
             expect(that % result.expr());
-            fmt::println(stderr, "{}", result);
         };
 
     #if HYPERION_PLATFORM_COMPILER_IS_GCC

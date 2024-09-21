@@ -155,7 +155,7 @@ struct fmt::formatter<hyperion::source_location> {
 
     template<typename TFormatContext>
     [[nodiscard]] inline auto
-    format(const hyperion::source_location& location, TFormatContext& context) {
+    format(const hyperion::source_location& location, TFormatContext& context) const {
         return fmt::format_to(context.out(),
                               "[{}|{}:{}]: {}",
                               location.file_name(),

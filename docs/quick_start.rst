@@ -75,7 +75,7 @@ way to use Hyperion packages. Example:
 Note that with XMake, hyperion::assert requires the same dependencies as with the CMake build system,
 barring one exception. That exception is that with XMake, hyperion::assert will depend on
 libbacktrace on all non-Windows operating systems, including MacOS. This is because XMake provides
-a package for libbtrace, which allows us to extend its usage to operating systems that may not have
+a package for libbacktrace, which allows us to extend its usage to operating systems that may not have
 libbacktrace installed at the system level, like MacOS.
 Third-party dependencies will be pulled from xmake-repo, the package repository/registry for XMake,
 and dependencies on other hyperion libraries will be pulled from github via the 

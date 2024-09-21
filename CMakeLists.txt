@@ -38,14 +38,14 @@ if(${HYPERION_USE_FETCH_CONTENT})
 
     FetchContent_Declare(boost_ut
         GIT_REPOSITORY "https://github.com/boost-ext/ut"
-        GIT_TAG "v2.0.1"
+        GIT_TAG "v2.1.0"
         SYSTEM
         )
     FetchContent_MakeAvailable(boost_ut)
 
     FetchContent_Declare(fmt
         GIT_REPOSITORY "https://github.com/fmtlib/fmt"
-        GIT_TAG "10.2.1"
+        GIT_TAG "11.0.2"
         SYSTEM
         )
     FetchContent_MakeAvailable(fmt)
@@ -60,7 +60,7 @@ if(${HYPERION_USE_FETCH_CONTENT})
     SET(BOOST_ENABLE_CMAKE ON)
     FetchContent_Declare(Boost
         GIT_REPOSITORY "https://github.com/boostorg/boost"
-        GIT_TAG "boost-1.84.0"
+        GIT_TAG "boost-1.85.0"
         SYSTEM
         GIT_SUBMODULES
         libs/assert
@@ -89,23 +89,23 @@ endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/hyperion_compiler_settings.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/hyperion_enable_warnings.cmake)
 
-set(HYPERION_MPL_INCLUDE_DIRECTORIES
+set(HYPERION_ASSERT_INCLUDE_DIRECTORIES
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
-set(HYPERION_MPL_INCLUDE_PATH
+set(HYPERION_ASSERT_INCLUDE_PATH
     "${CMAKE_CURRENT_SOURCE_DIR}/include/hyperion"
 )
-set(HYPERION_MPL_HEADERS
-    "${HYPERION_MPL_INCLUDE_PATH}/assert.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/source_location.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/backtrace.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/highlight.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/panic.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/tokens.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/cstdio_support.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/decomposer.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/def.h"
-    "${HYPERION_MPL_INCLUDE_PATH}/assert/detail/parser.h"
+set(HYPERION_ASSERT_HEADERS
+    "${HYPERION_ASSERT_INCLUDE_PATH}/assert.h"
+    "${HYPERION_ASSERT_INCLUDE_PATH}/source_location.h"
+    "${HYPERION_ASSERT_INCLUDE_PATH}/assert/backtrace.h"
+    "${HYPERION_ASSERT_INCLUDE_PATH}/assert/highlight.h"
+    "${HYPERION_ASSERT_INCLUDE_PATH}/assert/panic.h"
+    "${HYPERION_ASSERT_INCLUDE_PATH}/assert/tokens.h"
+    "${HYPERION_ASSERT_INCLUDE_PATH}/assert/detail/cstdio_support.h"
+    "${HYPERION_ASSERT_INCLUDE_PATH}/assert/detail/decomposer.h"
+    "${HYPERION_ASSERT_INCLUDE_PATH}/assert/detail/def.h"
+    "${HYPERION_ASSERT_INCLUDE_PATH}/assert/detail/parser.h"
 )
 
 add_library(hyperion_assert STATIC)
@@ -113,12 +113,12 @@ add_library(hyperion::assert ALIAS hyperion_assert)
 target_include_directories(
     hyperion_assert
     PUBLIC
-    ${HYPERION_MPL_INCLUDE_DIRECTORIES}
+    ${HYPERION_ASSERT_INCLUDE_DIRECTORIES}
 )
 target_sources(
     hyperion_assert
     PUBLIC
-    ${HYPERION_MPL_HEADERS}
+    ${HYPERION_ASSERT_HEADERS}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/panic.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/backtrace.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/highlight.cpp"
@@ -230,20 +230,20 @@ hyperion_enable_warnings(hyperion_assert_tests)
 add_test(NAME hyperion_assert_tests
          COMMAND hyperion_assert_tests)
 
-set(HYPERION_MPL_DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/docs/_build/html")
-set(HYPERION_MPL_DOXYGEN_HTML "${HYPERION_MPL_DOXYGEN_OUTPUT_DIR}/index.html")
+ set(HYPERION_ASSERT_DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/docs/_build/html")
+ set(HYPERION_ASSERT_DOXYGEN_HTML "${HYPERION_ASSERT_DOXYGEN_OUTPUT_DIR}/index.html")
 
-set(HYPERION_MPL_DOCS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/docs")
-set(HYPERION_MPL_DOCS_FILES
-    "${HYPERION_MPL_DOCS_DIR}/index.rst"
-    "${HYPERION_MPL_DOCS_DIR}/quick_start.rst"
+ set(HYPERION_ASSERT_DOCS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/docs")
+ set(HYPERION_ASSERT_DOCS_FILES
+     "${HYPERION_ASSERT_DOCS_DIR}/index.rst"
+     "${HYPERION_ASSERT_DOCS_DIR}/quick_start.rst"
 )
 
 add_custom_command(
-    OUTPUT ${HYPERION_MPL_DOXYGEN_HTML}
-    DEPENDS ${HYPERION_MPL_HEADERS} ${DOCS_FILES}
+    OUTPUT ${HYPERION_ASSERT_DOXYGEN_HTML}
+    DEPENDS ${HYPERION_ASSERT_HEADERS} ${DOCS_FILES}
     COMMAND sphix-build -M html . _build
-    WORKING_DIRECTORY ${HYPERION_MPL_DOCS_DIR}
+    WORKING_DIRECTORY ${HYPERION_ASSERT_DOCS_DIR}
     MAIN_DEPENDENCY
     COMMENT "Generating documentation with doxygen, sphinx, and breathe"
     VERBATIM
@@ -252,6 +252,6 @@ add_custom_command(
 add_custom_target(hyperion_assert_doxygen DEPENDS ${DOXYGEN_HTML})
 
 include(GNUInstallDirs)
-install(DIRECTORY ${HYPERION_MPL_DOXYGEN_OUTPUT_DIR} DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(DIRECTORY ${HYPERION_ASSERT_DOXYGEN_OUTPUT_DIR} DESTINATION ${CMAKE_INSTALL_DOCDIR})
 install(DIRECTORY include/ DESTINATION include)
 install(TARGETS hyperion_assert DESTINATION lib)
