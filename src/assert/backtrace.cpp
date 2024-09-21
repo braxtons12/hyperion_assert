@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief format implementation for `boost::stacktrace::stacktrace`
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-09-20
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -31,9 +31,18 @@
 #include <hyperion/assert/tokens.h>
 #include <hyperion/platform/types.h>
 
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
+
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
+
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic pop
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
 
 #include <cstdio>
 #include <string>

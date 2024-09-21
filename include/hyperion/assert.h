@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Robust C++20 runtime asserts
 /// @version 0.1
-/// @date 2024-03-17
+/// @date 2024-09-20
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -39,7 +39,16 @@
 #include <hyperion/platform/ignore.h>
 #include <hyperion/source_location.h>
 
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
+
 #include <fmt/format.h>
+
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic pop
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
 
 #include <concepts>
 #include <string>

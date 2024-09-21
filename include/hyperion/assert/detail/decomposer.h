@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Expression decomposition helper types
 /// @version 0.1
-/// @date 2024-06-18
+/// @date 2024-09-20
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -35,7 +35,16 @@
 #include <hyperion/platform/compare.h>
 #include <hyperion/platform/def.h>
 
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
+
 #include <fmt/format.h>
+
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic pop
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
 
 #include <concepts>
 #include <sstream>

@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ syntax highlighting
 /// @version 0.1
-/// @date 2024-03-16
+/// @date 2024-09-20
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -34,9 +34,19 @@
 #include <hyperion/platform/types.h>
 
 #include <flux.hpp>
+
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
+
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
+
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic pop
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
 
 #include <cassert>
 #include <string>

@@ -4,7 +4,7 @@
 /// mechanism used to fail gracefully and report the associated error when an
 /// irrecoverable error has occurred.
 /// @version 0.1
-/// @date 2024-03-16
+/// @date 2024-09-20
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -36,8 +36,18 @@
 #include <hyperion/platform/def.h>
 #include <hyperion/source_location.h>
 
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
+
 #include <fmt/core.h>
 #include <fmt/format.h>
+
+#if HYPERION_PLATFORM_COMPILER_IS_GCC
+    #pragma GCC diagnostic pop
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC
+
 
 #include <concepts>
 #include <string_view>
