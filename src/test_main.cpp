@@ -30,30 +30,19 @@
 
 #if HYPERION_PLATFORM_COMPILER_IS_CLANG
 
-#include <boost/ut.hpp>
-
-_Pragma("GCC diagnostic push");
-_Pragma("GCC diagnostic ignored \"-Wmissing-variable-declarations\"");
-
-template<>
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables)
-auto boost::ut::cfg<boost::ut::override> = boost::ut::runner<boost::ut::reporter<boost::ut::printer>>{};
-
-_Pragma("GCC diagnostic pop");
-
-#include <hyperion/assert.h>
+    #include <boost/ut.hpp>
+    #include <hyperion/assert.h>
 
 #else
 
-#include <hyperion/assert.h>
+    #include <hyperion/assert.h>
 
-#include <boost/ut.hpp>
+    #include <boost/ut.hpp>
 
 #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
 
 using namespace hyperion; // NOLINT(google-build-using-namespace)
 
-[[nodiscard]] auto
-main([[maybe_unused]] i32 argc, [[maybe_unused]] const char* const* argv) -> i32 {
-    return static_cast<i32>(boost::ut::cfg<boost::ut::override>.run());
+[[nodiscard]] auto main([[maybe_unused]] i32 argc, [[maybe_unused]] const char** argv) -> i32 {
+    return static_cast<i32>(boost::ut::cfg<boost::ut::override>.run({.argc = argc, .argv = argv}));
 }
