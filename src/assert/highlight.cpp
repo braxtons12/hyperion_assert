@@ -147,6 +147,8 @@ namespace hyperion::assert::highlight {
     }
 
     namespace {
+        using hyperion::mpl::operator""_value;
+
         template<mpl::MetaValue TCurrent,
                  mpl::MetaValue TStep = decltype(TCurrent{} / mpl::Value<2_usize>{}),
                  mpl::MetaValue TBound = decltype(TCurrent{} * mpl::Value<2_usize>{})>
@@ -158,7 +160,6 @@ namespace hyperion::assert::highlight {
             // NOLINTNEXTLINE(misc-no-recursion)
             static constexpr auto call(usize desired, TFunction&& func) -> std::string {
                 using hyperion::mpl::MetaValue;
-                using hyperion::mpl::operator""_value;
 
                 if(desired == TCurrent{}) {
                     return std::forward<TFunction>(func)(TCurrent{});
