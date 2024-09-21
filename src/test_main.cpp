@@ -28,18 +28,23 @@
 #include <hyperion/platform/def.h>
 #include <hyperion/platform/types.h>
 
+#include <boost/ut.hpp>
+
 #if HYPERION_PLATFORM_COMPILER_IS_CLANG
-
-    #include <boost/ut.hpp>
-    #include <hyperion/assert.h>
-
-#else
-
-    #include <hyperion/assert.h>
-
-    #include <boost/ut.hpp>
-
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wmissing-variable-declarations"
 #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+
+template<>
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables)
+auto boost::ut::cfg<boost::ut::override>
+    = boost::ut::runner<boost::ut::reporter<boost::ut::printer>>{};
+
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG
+    #pragma GCC diagnostic pop
+#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+
+#include <hyperion/assert.h>
 
 using namespace hyperion; // NOLINT(google-build-using-namespace)
 
