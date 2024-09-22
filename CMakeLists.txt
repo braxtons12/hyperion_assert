@@ -24,14 +24,14 @@ endif()
 if(${HYPERION_USE_FETCH_CONTENT})
     FetchContent_Declare(hyperion_platform
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_platform"
-        GIT_TAG "v0.5.1"
+        GIT_TAG "v0.5.2"
         SYSTEM
     )
     FetchContent_MakeAvailable(hyperion_platform)
 
     FetchContent_Declare(hyperion_mpl
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_mpl"
-        GIT_TAG "v0.8.4"
+        GIT_TAG "v0.8.5"
         SYSTEM
     )
     FetchContent_MakeAvailable(hyperion_mpl)
