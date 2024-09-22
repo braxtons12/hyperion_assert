@@ -2,6 +2,7 @@
 
 #include <boost/ut.hpp>
 
+#include <iostream>
 #include <string>
 
 namespace hyperion::_test::assert::panic {
@@ -45,6 +46,7 @@ namespace hyperion::_test::assert::panic {
 
     // NOLINTNEXTLINE(cert-err58-cpp)
     static const suite<"hyperion::assert::panic"> panic_tests = [] {
+        std::cerr << "Running panic tests" << std::endl;
         "no_message_contents"_test = [] {
             hyperion::assert::panic::set_handler(test_handler);
             panic_no_message();
@@ -83,6 +85,7 @@ namespace hyperion::_test::assert::panic {
             expect(aborts([] { panic_with_formatted_message(); }));
         };
     #endif // not HYPERION_PLATFORM_IS_WINDOWS
+        std::cerr << "Finished running panic tests" << std::endl;
     };
 
 } // namespace hyperion::_test::assert::panic

@@ -2,6 +2,7 @@
 
 #include <boost/ut.hpp>
 
+#include <iostream>
 #include <string_view>
 
 namespace hyperion::_test::assert::detail::decomposer {
@@ -17,6 +18,7 @@ namespace hyperion::_test::assert::detail::decomposer {
 
     // NOLINTNEXTLINE(cert-err58-cpp)
     static const suite<"hyperion::assert::detail::decomposer"> assert_decomposer_tests = [] {
+        std::cerr << "Running decomposer tests" << std::endl;
         "+"_test = [] {
             auto result = ExpressionDecomposer{}->*1 + 2;
             expect(that % result.expr() == 3);
@@ -597,6 +599,7 @@ namespace hyperion::_test::assert::detail::decomposer {
     #if HYPERION_PLATFORM_COMPILER_IS_CLANG
         _Pragma("GCC diagnostic pop");
     #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+        std::cerr << "Finished running decomposer tests" << std::endl;
     };
 
 } // namespace hyperion::_test::assert::detail::decomposer
