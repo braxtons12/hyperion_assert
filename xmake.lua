@@ -60,7 +60,7 @@ if not is_plat("windows") then
     })
 end
 
-add_requires("boost 1.85", {
+add_requires("boost", {
     system = false,
     external = true,
     configs = {

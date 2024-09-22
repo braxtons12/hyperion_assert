@@ -24,43 +24,43 @@ endif()
 if(${HYPERION_USE_FETCH_CONTENT})
     FetchContent_Declare(hyperion_platform
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_platform"
-        GIT_TAG "v0.5.0"
+        GIT_TAG "v0.5.1"
         SYSTEM
-        )
+    )
     FetchContent_MakeAvailable(hyperion_platform)
 
     FetchContent_Declare(hyperion_mpl
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_mpl"
-        GIT_TAG "v0.8.3"
+        GIT_TAG "v0.8.4"
         SYSTEM
-        )
+    )
     FetchContent_MakeAvailable(hyperion_mpl)
 
     FetchContent_Declare(boost_ut
         GIT_REPOSITORY "https://github.com/boost-ext/ut"
         GIT_TAG "v2.1.0"
         SYSTEM
-        )
+    )
     FetchContent_MakeAvailable(boost_ut)
 
     FetchContent_Declare(fmt
         GIT_REPOSITORY "https://github.com/fmtlib/fmt"
         GIT_TAG "11.0.2"
         SYSTEM
-        )
+    )
     FetchContent_MakeAvailable(fmt)
 
     FetchContent_Declare(flux
         GIT_REPOSITORY "https://github.com/tcbrindle/flux"
         GIT_TAG "main"
         SYSTEM
-        )
+    )
     FetchContent_MakeAvailable(flux)
 
     SET(BOOST_ENABLE_CMAKE ON)
     FetchContent_Declare(Boost
         GIT_REPOSITORY "https://github.com/boostorg/boost"
-        GIT_TAG "boost-1.85.0"
+        GIT_TAG "boost-1.86.0"
         SYSTEM
         GIT_SUBMODULES
         libs/assert
@@ -75,7 +75,7 @@ if(${HYPERION_USE_FETCH_CONTENT})
         libs/throw_exception
         libs/winapi
         tools/cmake
-        )
+    )
     FetchContent_MakeAvailable(Boost)
 else()
     find_package(hyperion_platform REQUIRED)
