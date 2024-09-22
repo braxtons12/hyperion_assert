@@ -156,12 +156,19 @@ target("hyperion_assert_main", function()
     add_tests("hyperion_assert_main")
 end)
 
+local hyperion_assert_test_sources =  {
+    "$(projectdir)/src/test_main.cpp",
+    "$(projectdir)/src/test/assert.cpp",
+    "$(projectdir)/src/test/decomposer.cpp",
+    "$(projectdir)/src/test/panic.cpp",
+    "$(projectdir)/src/test/parser.cpp",
+}
 target("hyperion_assert_tests", function()
     set_kind("binary")
     set_languages("cxx20")
     set_default(true)
 
-    add_files("$(projectdir)/src/test_main.cpp")
+    add_files(hyperion_assert_test_sources)
     add_defines("HYPERION_ENABLE_TESTING=1")
 
     add_deps("hyperion_assert")

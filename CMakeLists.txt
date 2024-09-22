@@ -211,7 +211,14 @@ hyperion_enable_warnings(hyperion_assert_main)
 add_test(NAME hyperion_assert_main
          COMMAND hyperion_assert_main)
 
-add_executable(hyperion_assert_tests ${CMAKE_CURRENT_SOURCE_DIR}/src/test_main.cpp)
+set(HYPERION_ASSERT_TEST_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/test_main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/assert.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/decomposer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/panic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/parser.cpp
+)
+add_executable(hyperion_assert_tests ${HYPERION_ASSERT_TEST_SOURCES})
 target_link_libraries(hyperion_assert_tests
     PRIVATE
     hyperion::assert
