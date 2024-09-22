@@ -158,10 +158,6 @@ end)
 
 local hyperion_assert_test_sources =  {
     "$(projectdir)/src/test_main.cpp",
-    "$(projectdir)/src/test/assert.cpp",
-    "$(projectdir)/src/test/decomposer.cpp",
-    "$(projectdir)/src/test/panic.cpp",
-    "$(projectdir)/src/test/parser.cpp",
 }
 target("hyperion_assert_tests", function()
     set_kind("binary")

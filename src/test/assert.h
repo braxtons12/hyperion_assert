@@ -1,8 +1,8 @@
-/// @file test/assert.cpp
+/// @file assert.h
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Unit tests for hyperion::assert.
 /// @version 0.1
-/// @date 2024-09-21
+/// @date 2024-09-22
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -24,6 +24,9 @@
 /// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 /// SOFTWARE.
+
+#ifndef HYPERION_ASSERT_ASSERT_TESTS_H
+#define HYPERION_ASSERT_ASSERT_TESTS_H
 
 #include <hyperion/assert.h>
 
@@ -504,3 +507,5 @@ namespace hyperion::_test::assert::assert {
     };
 
 } // namespace hyperion::_test::assert::assert
+
+#endif // HYPERION_ASSERT_ASSERT_TESTS_H

@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Unit tests main for hyperion::assert.
 /// @version 0.1
-/// @date 2024-09-21
+/// @date 2024-09-22
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -36,8 +36,8 @@
 
 template<>
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables)
-auto boost::ut::cfg<boost::ut::override>
-    = boost::ut::runner<boost::ut::reporter<boost::ut::printer>>{};
+inline auto boost::ut::cfg<boost::ut::override>
+    = boost::ut::runner<boost::ut::reporter_junit<boost::ut::printer>>{};
 
 #if HYPERION_PLATFORM_COMPILER_IS_CLANG
     #pragma GCC diagnostic pop
@@ -45,9 +45,15 @@ auto boost::ut::cfg<boost::ut::override>
 
 #include <iostream>
 
+#include "test/assert.h"
+#include "test/decomposer.h"
+#include "test/panic.h"
+#include "test/parser.h"
+
 using namespace hyperion; // NOLINT(google-build-using-namespace)
 
 [[nodiscard]] auto main([[maybe_unused]] i32 argc, [[maybe_unused]] const char** argv) -> i32 {
     std::cerr << "Running tests" << std::endl;
-    return boost::ut::cfg<boost::ut::override>.run(boost::ut::run_cfg{.argc = argc, .argv = argv});
+    return static_cast<i32>(
+        boost::ut::cfg<boost::ut::override>.run(boost::ut::run_cfg{.argc = argc, .argv = argv}));
 }
