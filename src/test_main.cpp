@@ -25,6 +25,7 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 /// SOFTWARE.
 
+#include <hyperion/platform.h>
 #include <hyperion/platform/types.h>
 
 #include <boost/ut.hpp>
@@ -36,7 +37,7 @@
 
 template<>
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables)
-inline auto boost::ut::cfg<boost::ut::override>
+auto boost::ut::cfg<boost::ut::override>
     = boost::ut::runner<boost::ut::reporter_junit<boost::ut::printer>>{};
 
 #if HYPERION_PLATFORM_COMPILER_IS_CLANG
@@ -49,6 +50,7 @@ inline auto boost::ut::cfg<boost::ut::override>
 #include "test/decomposer.h"
 #include "test/panic.h"
 #include "test/parser.h"
+#include "test/source_location.h"
 
 using namespace hyperion; // NOLINT(google-build-using-namespace)
 
