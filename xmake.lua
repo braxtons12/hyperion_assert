@@ -165,7 +165,6 @@ target("hyperion_assert_tests", function()
     set_default(true)
 
     add_files(hyperion_assert_test_sources)
-    add_defines("HYPERION_ENABLE_TESTING=1")
 
     add_deps("hyperion_assert")
     add_packages("boost_ut")

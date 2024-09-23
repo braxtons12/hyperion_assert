@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(hyperion_assert LANGUAGES CXX)
+project(hyperion_assert LANGUAGES CXX VERSION 0.1.0)
 
 include(CTest)
 
@@ -224,7 +224,6 @@ target_compile_definitions(
     hyperion_assert_tests
     PUBLIC
     BOOST_UT_DISABLE_MODULE=1
-    HYPERION_ENABLE_TESTING=1
 )
 
 hyperion_compile_settings(hyperion_assert_tests)
