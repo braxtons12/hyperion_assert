@@ -3,7 +3,7 @@
 /// @brief Implementation of `std::source_location` (or re-export of it,
 /// if it is available)
 /// @version 0.1
-/// @date 2024-09-20
+/// @date 2024-09-22
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
