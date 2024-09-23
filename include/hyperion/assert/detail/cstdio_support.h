@@ -31,13 +31,17 @@
 #include <cstdio>
 
 namespace hyperion::assert::detail::cstdio_support {
-    /// Returns whether the given file descriptor identifies a TTY
+    /// @brief Returns whether the given file descriptor identifies a TTY
     /// @param file_descriptor The file descriptor to check
     /// @return Whether `file_descriptor` identifies a TTY
+    /// @ingroup cstdio_support
+    /// @headerfile hyperion/assert/detail/cstdio_support.h
     [[nodiscard]] auto isatty(int file_descriptor) noexcept -> bool;
-    /// Returns the file descriptor number of the given `FILE`
+    /// @brief Returns the file descriptor number of the given `FILE`
     /// @param file The `FILE` to get the descriptor for
     /// @return The file descriptor number of `file`
+    /// @ingroup cstdio_support
+    /// @headerfile hyperion/assert/detail/cstdio_support.h
     [[nodiscard]] auto fileno(std::FILE* file) noexcept -> int;
 } // namespace hyperion::assert::detail::cstdio_support
 

@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Expression decomposition helper types
 /// @version 0.1
-/// @date 2024-09-21
+/// @date 2024-09-22
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -53,25 +53,53 @@
 
 namespace hyperion::assert::detail {
 
+    /// @brief A type is `OutputStreamable` if it can be serialized into an output stream
+    /// @tparam TType the type to check
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     template<typename TType>
     concept OutputStreamable
         = requires(const TType& type, std::stringstream& stream) { stream << type; };
 
+    /// @brief Decomposers store trivially copyable types as copies of those types,
+    /// and non-trivially copyable types as references
+    /// @tparam TType the type to determine how it should be stored
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     template<typename TType>
     using storage_type
         = std::conditional_t<mpl::decltype_<TType>().is_lvalue_reference()
                                  && not mpl::decltype_<TType>().is_trivially_copy_constructible(),
                              TType,
                              std::remove_cvref_t<TType>>;
+    /// @brief Converts `TType` to the appropriate reference type for it
+    /// If `TType` is a reference, maps to `TType`.
+    /// Otherwise, maps to the lvalue reference type for `TType`
+    /// @tparam TType The type to map to its appropriate reference type
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     template<typename TType>
     using reference_type
         = std::conditional_t<mpl::decltype_<TType>().is_lvalue_reference(),
                              TType,
                              std::add_lvalue_reference_t<std::remove_cvref_t<TType>>>;
 
+    /// @brief Stores the result of a unary (operator) expression
+    /// @tparam TExpr The result type of the expression
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     template<typename TExpr>
     class UnaryExpression final {
       public:
+        /// @brief Construct a `UnaryExpression` from the result of an arbitrary unary expression
+        ///
+        /// # Requirements
+        /// - `storage_type<TExpr>` must be constructible from `TType`
+        ///
+        /// @tparam TType The result type of the expression
+        /// @param expr The result of the expression
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         template<typename TType>
             requires(static_cast<bool>(mpl::decltype_<storage_type<TExpr>>().is_constructible_from(
                 mpl::decltype_<TType>())))
@@ -81,6 +109,10 @@ namespace hyperion::assert::detail {
             : m_expr{std::forward<TType>(expr)} {
         }
 
+        /// @brief Returns the result of the constructing expression as a reference
+        /// @return The result of the expression
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         [[nodiscard]] constexpr auto expr() noexcept -> reference_type<TExpr> {
             return m_expr;
         }
@@ -92,6 +124,11 @@ namespace hyperion::assert::detail {
 
     HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_START;
 
+    /// @brief `FixedString` is a statically sized, constexpr string capable of being passed
+    /// as a non-type template parameter
+    /// @tparam TSize The size of the string
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     template<usize TSize>
         requires(TSize != 0)
     struct FixedString final {
@@ -99,6 +136,10 @@ namespace hyperion::assert::detail {
         // NOLINTNEXTLINE(*-c-arrays)
         char data[TSize + 1_usize] = {};
 
+        /// @brief Constructs a `FixedString` from a string literal
+        /// @param str The string literal
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         // NOLINTNEXTLINE(*-c-arrays, *-explicit-*)
         constexpr explicit(false) FixedString(const char (&str)[TSize + 1_usize]) noexcept {
             for(auto index = static_cast<usize>(0); index < TSize; ++index) {
@@ -107,14 +148,26 @@ namespace hyperion::assert::detail {
             }
         }
 
+        /// @brief Returns the size of this string
+        /// @return The size
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         [[nodiscard]] constexpr auto size() const noexcept -> usize {
             return TSize;
         }
 
+        /// @brief Returns whether this string is empty
+        /// @return Whether this is empty
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         [[nodiscard]] constexpr auto empty() const noexcept -> bool {
             return false;
         }
 
+        /// @brief Converts this string to a `std::string_view`
+        /// @return A `std::string_view` over the contents of this string
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         // NOLINTNEXTLINE(*-explicit-*)
         [[nodiscard]] constexpr explicit(false) operator std::string_view() const noexcept {
             return {data, TSize};
@@ -126,9 +179,19 @@ namespace hyperion::assert::detail {
 
     HYPERION_IGNORE_UNSAFE_BUFFER_WARNING_STOP;
 
+    /// @brief `Operator` represents and performs the binary operator matching `TOp`
+    /// @tparam TOp The string representing the operator to perform
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     template<FixedString TOp>
     struct Operator;
 
+/// @brief Stamps out a specialization of `Operator` for the given operator
+/// @param oper The operator to specialize `Operator` for, as a raw token
+/// (i.e. _not_ a string literal)
+/// @ingroup decomposer
+/// @headerfile hyperion/assert/detail/decomposer.h
+/// @note This macro is for mathematical and logical operators
 #define HYPERION_DEFINE_OPERATOR_TYPE(oper) /** NOLINT(*-macro-usage) **/                          \
     template<>                                                                                     \
     struct Operator<#oper> final {                                                                 \
@@ -216,6 +279,11 @@ namespace hyperion::assert::detail {
 
 #undef HYPERION_DEFINE_OPERATOR_TYPE
 
+/// @brief Stamps out a specialization of `Operator` for the given operator
+/// @param oper The operator to specialize `Operator` for, as a raw token
+/// (i.e. _not_ a string literal)
+/// @ingroup decomposer
+/// @headerfile hyperion/assert/detail/decomposer.h
 #define HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(oper, oper_string) /** NOLINT(*-macro-usage) **/  \
     template<>                                                                                     \
     struct Operator<#oper> final {                                                                 \
@@ -244,17 +312,17 @@ namespace hyperion::assert::detail {
     HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(==, equality);
     HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE(!=, inequality);
 
-    template<>                                                                                     \
-    struct Operator<"<=>"> final {                                                                 \
-        static constexpr auto k_op = std::string_view{"<=>"};                                      \
-                                                                                                   \
-        template<typename TLhs, typename TRhs>                                                     \
-        [[nodiscard]] static constexpr auto                                                        \
-        do_op(TLhs&& lhs,                                                                          \
-              TRhs&& rhs) noexcept(noexcept(std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs))) \
-            -> decltype(std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs))                      \
-            requires requires { std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs); }            \
-        {                                                                                          \
+    template<>
+    struct Operator<"<=>"> final {
+        static constexpr auto k_op = std::string_view{"<=>"};
+
+        template<typename TLhs, typename TRhs>
+        [[nodiscard]] static constexpr auto
+        do_op(TLhs&& lhs,
+              TRhs&& rhs) noexcept(noexcept(std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs)))
+            -> decltype(std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs))
+            requires requires { std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs); }
+        {
             using ret_type = decltype(std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs));
             using namespace hyperion::platform::compare;
             if(less_than_compare(std::forward<TLhs>(lhs), std::forward<TRhs>(rhs))) {
@@ -271,15 +339,21 @@ namespace hyperion::assert::detail {
 
             // fallback to built in op to avoid pulling in `#include <compare>`
             return std::forward<TLhs>(lhs) <=> std::forward<TRhs>(rhs);
-        }                                                                                          \
-                                                                                                   \
-        [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {             \
-            return k_op;                                                                           \
-        }                                                                                          \
+        }
+
+        [[nodiscard]] static constexpr auto operator_() noexcept -> std::string_view {
+            return k_op;
+        }
     };
 
 #undef HYPERION_DEFINE_COMPARISON_OPERATOR_TYPE
 
+    /// @brief Stores the result of a binary expression
+    /// @tparam TLhs The type of the left-hand argument of the expression
+    /// @tparam TRhs The type of the right-hand argument of the expression
+    /// @tparam TOp The binary operator used in the expression
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     template<typename TLhs, typename TRhs, FixedString TOp>
         requires requires {
             Operator<TOp>::do_op(std::declval<TLhs>().do_op(),
@@ -295,6 +369,14 @@ namespace hyperion::assert::detail {
         // NOLINTNEXTLINE(*-avoid-const-or-ref-data-members)
         storage_type<TRhs> m_rhs;
 
+        /// @brief Performs the binary operation on the stored arguments
+        ///
+        /// # Requirements
+        /// - This expression is the right hand side of a prior binary expression
+        ///
+        /// @param lhs The left-hand side of the operation
+        /// @param rhs The right-hand side of the operation
+        /// @return The result of performing the binary operator on the arguments
         [[nodiscard]] static constexpr auto
         call_operator(reference_type<TLhs> lhs, reference_type<TRhs> rhs)
             requires requires { Operator<TOp>::do_op(lhs.do_op(), rhs); }
@@ -302,6 +384,14 @@ namespace hyperion::assert::detail {
             return Operator<TOp>::do_op(lhs.do_op(), rhs);
         }
 
+        /// @brief Performs the binary operation on the stored arguments
+        ///
+        /// # Requirements
+        /// - This expression is _NOT_ the right hand side of a prior binary expression
+        ///
+        /// @param lhs The left-hand side of the operation
+        /// @param rhs The right-hand side of the operation
+        /// @return The result of performing the binary operator on the arguments
         [[nodiscard]] static constexpr auto
         call_operator(reference_type<TLhs> lhs, reference_type<TRhs> rhs)
             requires requires { Operator<TOp>::do_op(lhs, rhs); }
@@ -311,14 +401,29 @@ namespace hyperion::assert::detail {
         }
 
       public:
+        /// @brief The type of the result produced by performing the binary operation
         using result_type = decltype(call_operator(m_lhs, m_rhs));
+        /// @brief The `Operator` specialization for `TOp`
         using operator_type = Operator<TOp>;
+        /// @brief Whether this expression is the right-hand side of a prior binary expression
         static constexpr auto k_lhs_is_binary_expression = requires {
             typename TLhs::result_type;
             typename TLhs::operator_type;
         };
         static constexpr auto k_is_binary_expression = true;
 
+        /// @brief Constructs a `BinaryExpression` from the two arguments to the binary operator
+        ///
+        /// # Requirements
+        /// - `storage_type<TLhs>` must be constructible from `lhs`
+        /// - `storage_type<TRhs>` must be constructible from `rhs`
+        ///
+        /// @tparam TArgLhs The type of the left-hand argument to the operator
+        /// @tparam TArgRhs The type of the right-hand argument to the operator
+        /// @param lhs The left-hand argument to the operator
+        /// @param rhs The right-hand argument to the operator
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         template<typename TArgLhs, typename TArgRhs>
             requires(static_cast<bool>(mpl::decltype_<storage_type<TLhs>>().is_constructible_from(
                         mpl::decltype_<TArgLhs>())))
@@ -329,6 +434,16 @@ namespace hyperion::assert::detail {
             : m_lhs{std::forward<TArgLhs>(lhs)}, m_rhs{std::forward<TArgRhs>(rhs)} {
         }
 
+        /// @brief Performs the binary operation
+        ///
+        /// # Requirements
+        /// - This must _NOT_ be the right-hand side of a prior binary expression
+        ///
+        /// # Exception Safety
+        /// - May throw any exception throwable by performing the binary operation
+        /// @return The result of the binary operation
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         [[nodiscard]] constexpr auto
         do_op() noexcept(noexcept(Operator<TOp>::do_op(m_lhs, m_rhs))) -> result_type
             requires(not k_lhs_is_binary_expression)
@@ -336,6 +451,17 @@ namespace hyperion::assert::detail {
             return Operator<TOp>::do_op(m_lhs, m_rhs);
         }
 
+        /// @brief Performs the binary operation
+        ///
+        /// # Requirements
+        /// - This must be the right-hand side of a prior binary expression
+        ///
+        /// # Exception Safety
+        /// - May throw any exception throwable by performing this binary operation or any prior
+        /// (according to operator precedence rules) operation in the sequence
+        /// @return The result of the binary operation
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         [[nodiscard]] constexpr auto
         do_op() noexcept(noexcept(Operator<TOp>::do_op(m_lhs.do_op(), m_rhs))) -> result_type
             requires k_lhs_is_binary_expression
@@ -343,29 +469,60 @@ namespace hyperion::assert::detail {
             return Operator<TOp>::do_op(m_lhs.do_op(), m_rhs);
         }
 
+        /// @brief Returns a new `BinaryExpression` representing the assignment of `rhs` to the
+        /// result of evaluating this `BinaryExpression`
+        ///
+        /// # Requirements
+        /// - `rhs` must be assignable to the result of evaluating this binary expression
+        ///
+        /// @tparam TFarRhs the type to assign to the result of evaluating this
+        /// @param rhs The value to assign to the result of evaluating this
+        /// @return A binary expression representing the assignment of `rhs` to the result of
+        /// evaluating this one
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         template<typename TFarRhs>
         // NOLINTNEXTLINE(misc-unconventional-assign-operator, *-assignment-signature)
-        constexpr auto operator=(TFarRhs&& rhs) noexcept(
-            noexcept(std::declval<BinaryExpression>().do_op()) and noexcept(
-                std::declval<BinaryExpression>().do_op() = std::forward<TFarRhs>(rhs)))
+        constexpr auto operator=(TFarRhs&& rhs) noexcept
             -> BinaryExpression<BinaryExpression<TLhs, TRhs, TOp>, TFarRhs, "=">
             requires requires { do_op() = std::forward<TFarRhs>(rhs); }
         {
             return {*this, std::forward<TFarRhs>(rhs)};
         }
 
+        /// @brief Returns a reference to the left-hand side of this binary expression
+        /// @return The left-hand side of this
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         [[nodiscard]] constexpr auto lhs() noexcept -> reference_type<TLhs> {
             return m_lhs;
         }
 
+        /// @brief Returns a reference to the right-hand side of this binary expression
+        /// @return The right-hand side of this
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         [[nodiscard]] constexpr auto rhs() noexcept -> reference_type<TRhs> {
             return m_rhs;
         }
 
+        /// @brief Returns the operator this expression evaluates, as a `std::string_view`
+        /// @return The operator this expression evaluates
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         [[nodiscard]] constexpr auto operator_() noexcept -> std::string_view {
             return Operator<TOp>::operator_();
         }
 
+        /// @brief Returns the result of evaluating this expression
+        ///
+        /// # Exception Safety
+        /// - May throw any exception throwable by evaluating this expression, or any prior
+        /// expression in the sequence (according to operator precedence rules), if applicable.
+        ///
+        /// @return The result of evaluating this expression
+        /// @ingroup decomposer
+        /// @headerfile hyperion/assert/detail/decomposer.h
         [[nodiscard]] constexpr auto
         expr() noexcept(noexcept(std::declval<BinaryExpression>().do_op())) -> result_type
             requires requires { std::declval<BinaryExpression>().do_op(); }
@@ -374,6 +531,11 @@ namespace hyperion::assert::detail {
         }
     };
 
+/// @brief Stamps out an operator implementation for `BinaryExpression` for the given operator
+/// @param oper The operator to implement for `BinaryExpression`, as a raw token
+/// (i.e. _not_ a string literal)
+/// @ingroup decomposer
+/// @headerfile hyperion/assert/detail/decomposer.h
 #define HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR(oper) /** NOLINT(*-macro-usage) **/             \
     template<typename TLhs, typename TRhs, FixedString TOp, typename TFarRhs>                      \
     constexpr auto operator oper(BinaryExpression<TLhs, TRhs, TOp>&& lhs, TFarRhs&& rhs) noexcept( \
@@ -436,10 +598,18 @@ namespace hyperion::assert::detail {
 
 #undef HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR
 
+    /// @brief Requires that `TType` is a `BinaryExpression` specialization
+    /// @tparam TType The type to check
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     template<typename TType>
     concept IsBinaryExpression = requires { TType::k_is_binary_expression; }
                                  && requires { requires TType::k_is_binary_expression; };
 
+    /// @brief Represents the initial expression in an expression sequence
+    /// @tparam TExpr The result type of the expression
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     template<typename TExpr>
     class InitialExpression {
       public:
@@ -467,6 +637,11 @@ namespace hyperion::assert::detail {
         storage_type<TExpr> m_expr;
     };
 
+/// @brief Stamps out an operator implementation for `InitialExpression` for the given operator
+/// @param oper The operator to implement for `InitialExpression`, as a raw token
+/// (i.e. _not_ a string literal)
+/// @ingroup decomposer
+/// @headerfile hyperion/assert/detail/decomposer.h
 #define HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR(oper) /** NOLINT(*-macro-usage) **/ \
     template<typename TLhs, typename TRhs>                                              \
     constexpr auto operator oper(InitialExpression<TLhs>&& lhs, TRhs&& rhs) noexcept(   \
