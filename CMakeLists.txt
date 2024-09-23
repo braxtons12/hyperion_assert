@@ -15,7 +15,7 @@ set(HYPERION_USE_FETCH_CONTENT
     ${HYPERION_USE_FETCH_CONTENT}
     CACHE
     INTERNAL
-    "force depedencies's `HYPERION_USE_FETCH_CONTENT` to the value of this top-level project")
+    "force dependencies's `HYPERION_USE_FETCH_CONTENT` to the value of this top-level project")
 
 if(HYPERION_USE_FETCH_CONTENT)
     include(FetchContent)
@@ -244,7 +244,7 @@ add_test(NAME hyperion_assert_tests
 add_custom_command(
     OUTPUT ${HYPERION_ASSERT_DOXYGEN_HTML}
     DEPENDS ${HYPERION_ASSERT_HEADERS} ${DOCS_FILES}
-    COMMAND sphix-build -M html . _build
+    COMMAND sphinx-build -M html . _build
     WORKING_DIRECTORY ${HYPERION_ASSERT_DOCS_DIR}
     MAIN_DEPENDENCY
     COMMENT "Generating documentation with doxygen, sphinx, and breathe"
