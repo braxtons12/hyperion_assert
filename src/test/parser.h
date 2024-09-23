@@ -32,8 +32,6 @@
 
 #include <boost/ut.hpp>
 
-#include <iostream>
-
 namespace hyperion::_test::assert::detail::parser {
 
     // NOLINTNEXTLINE(google-build-using-namespace)
@@ -41,7 +39,6 @@ namespace hyperion::_test::assert::detail::parser {
 
     // NOLINTNEXTLINE(cert-err58-cpp,readability-function-cognitive-complexity)
     static const suite<"hyperion::assert::detail::parser"> assert_parser_tests = [] {
-        std::cerr << "Running parser tests" << std::endl;
         "function_call"_test = [] {
             // NOLINTNEXTLINE(google-build-using-namespace)
             using namespace hyperion::assert::detail::parser;
@@ -1245,7 +1242,6 @@ namespace hyperion::_test::assert::detail::parser {
                 }
             }
         };
-        std::cerr << "Finished running parser tests" << std::endl;
     };
 } // namespace hyperion::_test::assert::detail::parser
 

@@ -32,7 +32,6 @@
 
 #include <boost/ut.hpp>
 
-#include <iostream>
 #include <string>
 
 namespace hyperion::_test::assert::assert {
@@ -73,7 +72,6 @@ namespace hyperion::_test::assert::assert {
 
     // NOLINTNEXTLINE(cert-err58-cpp)
     static inline const suite<"hyperion::assert::assert"> assert_tests = [] {
-        std::cerr << "Running assert tests" << std::endl;
         "require_tests"_test = [] {
             "no_message_contents"_test = [] {
                 auto value = 2;
@@ -503,7 +501,6 @@ namespace hyperion::_test::assert::assert {
             }));
         };
 #endif // not HYPERION_PLATFORM_IS_WINDOWS
-        std::cerr << "Finished running assert tests" << std::endl;
     };
 
 } // namespace hyperion::_test::assert::assert

@@ -44,8 +44,6 @@ auto boost::ut::cfg<boost::ut::override>
     #pragma GCC diagnostic pop
 #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
 
-#include <iostream>
-
 #include "test/assert.h"
 #include "test/decomposer.h"
 #include "test/panic.h"
@@ -55,7 +53,6 @@ auto boost::ut::cfg<boost::ut::override>
 using namespace hyperion; // NOLINT(google-build-using-namespace)
 
 [[nodiscard]] auto main([[maybe_unused]] i32 argc, [[maybe_unused]] const char** argv) -> i32 {
-    std::cerr << "Running tests" << std::endl;
     return static_cast<i32>(
         boost::ut::cfg<boost::ut::override>.run(boost::ut::run_cfg{.argc = argc, .argv = argv}));
 }

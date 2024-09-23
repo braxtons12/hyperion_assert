@@ -60,7 +60,7 @@ if(${HYPERION_USE_FETCH_CONTENT})
     SET(BOOST_ENABLE_CMAKE ON)
     FetchContent_Declare(Boost
         GIT_REPOSITORY "https://github.com/boostorg/boost"
-        GIT_TAG "boost-1.86.0"
+        GIT_TAG "boost-1.84.0"
         SYSTEM
         GIT_SUBMODULES
         libs/assert
