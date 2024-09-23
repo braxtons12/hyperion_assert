@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Helper functions for determining properties about C file pointers
 /// @version 0.1
-/// @date 2024-03-15
+/// @date 2024-09-22
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -31,7 +31,13 @@
 #include <cstdio>
 
 namespace hyperion::assert::detail::cstdio_support {
-    [[nodiscard]] auto isatty(int desc) noexcept -> bool;
+    /// Returns whether the given file descriptor identifies a TTY
+    /// @param file_descriptor The file descriptor to check
+    /// @return Whether `file_descriptor` identifies a TTY
+    [[nodiscard]] auto isatty(int file_descriptor) noexcept -> bool;
+    /// Returns the file descriptor number of the given `FILE`
+    /// @param file The `FILE` to get the descriptor for
+    /// @return The file descriptor number of `file`
     [[nodiscard]] auto fileno(std::FILE* file) noexcept -> int;
 } // namespace hyperion::assert::detail::cstdio_support
 
