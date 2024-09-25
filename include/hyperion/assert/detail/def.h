@@ -34,7 +34,7 @@
 HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 
 /// @def HYPERION_ATTRIBUTE_COLD
-/// @brief Marks a function as as a "cold" codepath.
+/// @brief Marks a function as a "cold" code path.
 /// "cold" functions are not primed in the instruction cache,
 /// branches leading to them are considered "unlikely", and grouped
 /// into a section of the binary away from "hot" functions, to improve locality
@@ -82,7 +82,7 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
         __builtin_expect((expr), true)
 #else
     #define HYPERION_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ (expr)
-#endif // HYPERION_PLATFOMR_COMPILER_IS_MSVC
+#endif // HYPERION_PLATFORM_COMPILER_IS_MSVC
 
 /// @brief Marks a condition as unexpected
 /// @headerfile hyperion/assert/detail/def.h
@@ -103,7 +103,7 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
         #define HYPERION_ASSERT_DEBUG_BREAK() /** NOLINT(*-macro-usage) **/ __builtin_debugtrap()
     #else
 
-        // on x86(_64) and ARM V8/64, use the respectively assembly instructions to
+        // on x86(_64) and ARM V8/64, use the respective assembly instructions to
         // cause a SIGTRAP. Otherwise, resign to `raise(SIGTRAP)` directly.
         // We don't use `__builtin_trap()` because it inherently does the wrong thing.
         // From compiler/optimizer POV, it is semantically equivalent to `abort()`.
