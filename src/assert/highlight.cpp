@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ syntax highlighting
 /// @version 0.1
-/// @date 2024-09-20
+/// @date 2024-09-24
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -101,30 +101,30 @@ namespace hyperion::assert::highlight {
         }
 
         [[nodiscard]] auto
-        get_colors() -> std::unordered_map<std::string_view, fmt::detail::color_type>& {
+        get_colors() -> std::unordered_map<std::string_view, Color>& {
             using namespace std::string_view_literals;
-            static auto colors = std::unordered_map<std::string_view, fmt::detail::color_type>{
-                {"Punctuation"sv, fmt::rgb(0x9daaaa_u32)},
-                {    "Keyword"sv, fmt::rgb(0xc67ada_u32)},
-                {     "String"sv, fmt::rgb(0x83a76e_u32)},
-                {    "Numeric"sv, fmt::rgb(0xd29767_u32)},
-                {  "Namespace"sv, fmt::rgb(0x00997b_u32)},
-                {       "Type"sv, fmt::rgb(0xdbba75_u32)},
-                {   "Function"sv, fmt::rgb(0x61afef_u32)},
-                {   "Variable"sv, fmt::rgb(0x9daaaa_u32)},
-                {      "Error"sv, fmt::rgb(0xc65156_u32)},
+            static auto colors = std::unordered_map<std::string_view, Color>{
+                {"Punctuation"sv, RgbColor{0x9daaaa_u32}},
+                {    "Keyword"sv, RgbColor{0xc67ada_u32}},
+                {     "String"sv, RgbColor{0x83a76e_u32}},
+                {    "Numeric"sv, RgbColor{0xd29767_u32}},
+                {  "Namespace"sv, RgbColor{0x00997b_u32}},
+                {       "Type"sv, RgbColor{0xdbba75_u32}},
+                {   "Function"sv, RgbColor{0x61afef_u32}},
+                {   "Variable"sv, RgbColor{0x9daaaa_u32}},
+                {      "Error"sv, RgbColor{0xc65156_u32}},
             };
 
             return colors;
         }
     } // namespace
 
-    [[nodiscard]] auto set_color(const tokens::Token::Kind& kind, fmt::detail::color_type color) {
+    [[nodiscard]] auto set_color(const tokens::Token::Kind& kind, Color color) {
         get_colors()[to_string(kind)] = color;
     }
 
     // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved)
-    [[nodiscard]] auto set_color(tokens::Token::Kind&& kind, fmt::detail::color_type color) {
+    [[nodiscard]] auto set_color(tokens::Token::Kind&& kind, Color color) {
         get_colors()[to_string(kind)] = color;
     }
 
@@ -152,7 +152,7 @@ namespace hyperion::assert::highlight {
     }
 
     [[nodiscard]] auto
-    get_color(const tokens::Token::Kind& kind) noexcept -> fmt::detail::color_type {
+    get_color(const tokens::Token::Kind& kind) noexcept -> Color {
         return get_colors()[to_string(kind)];
     }
 

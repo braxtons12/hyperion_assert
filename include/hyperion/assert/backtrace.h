@@ -43,6 +43,29 @@
     #pragma GCC diagnostic pop
 #endif // HYPERION_PLATFORM_COMPILER_IS_GCC
 
+/// @ingroup assert
+/// @{
+/// @defgroup backtrace Backtrace Type
+/// Hyperion provides `Backtrace` as a convenient type for generating a backtrace.
+///
+/// # Example
+/// @code{.cpp}
+/// // calculate the backtrace up to this point
+/// auto backtrace = hyperion::Backtrace{};
+/// // no syntax highlighting
+/// fmt::print(stdout, "{}", backtrace);
+/// // with syntax highlighting
+/// fmt::print(stdout,
+///            "{}",
+///            hyperion::format_backtrace(backtrace,
+///                                       hyperion::backtrace::FormatStyle::Styled));
+/// @endcode
+/// @headerfile hyperion/mpl/list.h
+///
+/// @note `hyperion::Backtrace` is currently an alias for `boost::stacktrace::stacktrace`,
+/// but Hyperion reserves the right to change this at any time (with respect to semantic versioning)
+/// @}
+
 namespace hyperion::assert {
 
     /// @brief `Backtrace` provides a full backtrace of the current call stack at
