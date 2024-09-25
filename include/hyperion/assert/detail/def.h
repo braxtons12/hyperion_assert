@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Implementation detail macro definitions
 /// @version 0.1
-/// @date 2024-03-16
+/// @date 2024-09-24
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -39,6 +39,7 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 /// branches leading to them are considered "unlikely", and grouped
 /// into a section of the binary away from "hot" functions, to improve locality
 /// @headerfile hyperion/assert/detail/def.h
+/// @ingroup attributes
 
 #if HYPERION_PLATFORM_COMPILER_IS_CLANG or HYPERION_PLATFORM_COMPILER_IS_GCC
     #define HYPERION_ATTRIBUTE_COLD [[gnu::cold]]
@@ -49,6 +50,7 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 /// @def HYPERION_ATTRIBUTE_NO_INLINE
 /// @brief Marks a function to not be inlined by the optimizer.
 /// @headerfile hyperion/assert/detail/def.h
+/// @ingroup attributes
 
 #if HYPERION_PLATFORM_COMPILER_IS_CLANG or HYPERION_PLATFORM_COMPILER_IS_GCC
     #define HYPERION_ATTRIBUTE_NO_INLINE [[gnu::noinline]]
@@ -61,6 +63,7 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 /// @def HYPERION_ASSERT_EXPECT
 /// @brief Marks a condition as expected
 /// @headerfile hyperion/assert/detail/def.h
+/// @ingroup attributes
 
 #if HYPERION_PLATFORM_COMPILER_IS_MSVC
     #define HYPERION_ASSERT_EXPECT(expr) /** NOLINT(*-macro-usage) **/ (expr)
@@ -83,12 +86,14 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 
 /// @brief Marks a condition as unexpected
 /// @headerfile hyperion/assert/detail/def.h
+/// @ingroup attributes
 #define HYPERION_ASSERT_UNEXPECT(expr) /** NOLINT(*-macro-usage) **/ \
     (!HYPERION_ASSERT_EXPECT(!(expr)))
 
 /// @def HYPERION_ASSERT_DEBUG_BREAK
 /// @brief Triggers a debugging break point
 /// @headerfile hyperion/assert/detail/def.h
+/// @ingroup definitions
 
 #if HYPERION_PLATFORM_IS_WINDOWS
     #include <intrin.h>
