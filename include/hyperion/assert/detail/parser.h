@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-09-21
+/// @date 2024-09-24
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -38,11 +38,17 @@
 
 namespace hyperion::assert::detail::parser {
 
+    /// @brief Punctuation and operator tokens
+    /// @headerfile hyperion/assert/detail/parser.h
+    /// @ingroup parser
     static inline constexpr auto punctuation = std::array<std::string_view, 49_usize>{
         "~",  "!",  "+",   "-",  "*",   "/",   "%",  "^",  "&", "|",  "=",  "+=",  "-=",
         "*=", "/=", "%=",  "^=", "&=",  "|=",  "==", "!=", "<", ">",  "<=", ">=",  "<=>",
         "&&", "||", "<<",  ">>", "<<=", ">>=", "++", "--", "?", "::", ":",  "...", ".",
         ".*", "->", "->*", "[",  "]",   "{",   "}",  "(",  ")", ";"};
+    /// @brief Keyword tokens
+    /// @headerfile hyperion/assert/detail/parser.h
+    /// @ingroup parser
     static inline constexpr auto keywords = std::array<std::string_view, 88_usize>{
         "alignas",
         "constinit",
@@ -134,6 +140,11 @@ namespace hyperion::assert::detail::parser {
         "not_eq",
     };
 
+    /// @brief Parses the given string into a sequence of tokens
+    /// @param string the string to parse
+    /// @return The parsed tokens
+    /// @headerfile hyperion/assert/detail/parser.h
+    /// @ingroup parser
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     parse(std::string_view string) -> std::vector<tokens::Token>;
 } // namespace hyperion::assert::detail::parser
