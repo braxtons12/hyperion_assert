@@ -88,7 +88,6 @@ local hyperion_assert_sources = {
     "$(projectdir)/src/assert/panic.cpp",
     "$(projectdir)/src/assert/backtrace.cpp",
     "$(projectdir)/src/assert/highlight.cpp",
-    "$(projectdir)/src/assert/detail/cstdio_support.cpp",
     "$(projectdir)/src/assert/detail/parser.cpp",
 }
 

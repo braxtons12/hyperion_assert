@@ -121,7 +121,6 @@ target_sources(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/panic.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/backtrace.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/highlight.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/cstdio_support.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/assert/detail/parser.cpp"
 )
 target_link_libraries(
