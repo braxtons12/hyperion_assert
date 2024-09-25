@@ -510,7 +510,7 @@ namespace hyperion::assert::detail {
         /// @return The operator this expression evaluates
         /// @ingroup decomposer
         /// @headerfile hyperion/assert/detail/decomposer.h
-        [[nodiscard]] constexpr auto operator_() noexcept -> std::string_view {
+        [[nodiscard]] constexpr auto operator_() const noexcept -> std::string_view {
             return Operator<TOp>::operator_();
         }
 
@@ -704,6 +704,10 @@ namespace hyperion::assert::detail {
 
 #undef HYPERION_DEFINE_INITIAL_EXPRESSION_OPERATOR
 
+    /// @brief Decomposes an arbitrary expression into its constituent sub-expressions via
+    /// operator overloading
+    /// @ingroup decomposer
+    /// @headerfile hyperion/assert/detail/decomposer.h
     struct ExpressionDecomposer {
         template<typename TLhs>
         friend constexpr auto
@@ -716,6 +720,11 @@ namespace hyperion::assert::detail {
 
 } // namespace hyperion::assert::detail
 
+/// @brief Implement `fmt::format` support for `UnaryExpression`
+/// @tparam TExpr The result type of the expression
+/// @ingroup decomposer
+/// @headerfile hyperion/assert/detail/decomposer.h
+/// @note if `TExpr` is not `OutputStreamable` then formats to `(NotFormattable)`
 template<typename TExpr>
 struct fmt::formatter<hyperion::assert::detail::UnaryExpression<TExpr>> {
   private:
@@ -749,6 +758,11 @@ struct fmt::formatter<hyperion::assert::detail::UnaryExpression<TExpr>> {
     }
 };
 
+/// @brief Implement `fmt::format` support for `InitialExpression`
+/// @tparam TExpr The result type of the expression
+/// @ingroup decomposer
+/// @headerfile hyperion/assert/detail/decomposer.h
+/// @note if `TExpr` is not `OutputStreamable` then formats to `(NotFormattable)`
 template<typename TExpr>
 struct fmt::formatter<hyperion::assert::detail::InitialExpression<TExpr>> {
   public:
@@ -766,6 +780,14 @@ struct fmt::formatter<hyperion::assert::detail::InitialExpression<TExpr>> {
     }
 };
 
+/// @brief Implement `fmt::format` support for `BinaryExpression`
+/// @tparam TLhs The type of the left-hand side of the expression
+/// @tparam TRhs The type of the right-hand side of the expression
+/// @tparam TOp The operation used in the expression, as a string literal
+/// @ingroup decomposer
+/// @headerfile hyperion/assert/detail/decomposer.h
+/// @note If any sub-expression of this expression is not `OutputStreamable`,
+/// that sub-expression will be formatted to `(NotFormattable)`
 template<typename TLhs, typename TRhs, hyperion::assert::detail::FixedString TOp>
 struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp>> {
   private:
