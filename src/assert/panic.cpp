@@ -104,7 +104,8 @@ namespace hyperion::assert::panic {
                                                    Token::Kind{std::in_place_type<Error>}))),
                                assert::detail::format_source_location(location),
                                fmt::styled("Backtrace:", fmt::emphasis::bold),
-                               hyperion::assert::format_backtrace(backtrace));
+                               hyperion::assert::format_backtrace(backtrace,
+                                                                  backtrace::FormatStyle::Styled));
                 }
                 else {
                     fmt::print(stderr,
@@ -118,7 +119,8 @@ namespace hyperion::assert::panic {
                                assert::detail::format_source_location(location),
                                panic_message,
                                fmt::styled("Backtrace:", fmt::emphasis::bold),
-                               hyperion::assert::format_backtrace(backtrace));
+                               hyperion::assert::format_backtrace(backtrace,
+                                                                  backtrace::FormatStyle::Styled));
                 }
                 HYPERION_ASSERT_DEBUG_BREAK();
                 std::abort();

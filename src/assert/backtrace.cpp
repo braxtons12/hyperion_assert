@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief format implementation for `boost::stacktrace::stacktrace`
 /// @version 0.1
-/// @date 2024-09-20
+/// @date 2024-09-24
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -50,7 +50,7 @@
 namespace hyperion::assert {
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-    format_backtrace(const Backtrace& backtrace, const int desc) -> std::string {
+    format_backtrace(const Backtrace& backtrace, backtrace::FormatStyle style) -> std::string {
 
         using hyperion::operator""_usize;
         std::string output;
@@ -128,10 +128,7 @@ namespace hyperion::assert {
         };
 
         // if we're printing to stderr or a tty, syntax highlight the backtrace
-        const auto format_styled = desc == -1 ?
-                                       false :
-                                       detail::cstdio_support::isatty(desc)
-                                           || desc == detail::cstdio_support::fileno(stderr);
+        const auto format_styled = style == backtrace::FormatStyle::Styled;
         // MSVC gets mad when we use the _usize literal operator here for some reason
         for(auto index = static_cast<usize>(0UL); index < backtrace.size(); ++index) {
             if(!backtrace[index].empty()) {

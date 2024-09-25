@@ -53,6 +53,11 @@
 
 namespace hyperion::assert::detail {
 
+    // clang still doesn't understand tparam tags for concepts
+    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
+        HYPERION_IGNORE_DOCUMENTATION_WARNING_START;
+    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+
     /// @brief A type is `OutputStreamable` if it can be serialized into an output stream
     /// @tparam TType the type to check
     /// @ingroup decomposer
@@ -60,6 +65,10 @@ namespace hyperion::assert::detail {
     template<typename TType>
     concept OutputStreamable
         = requires(const TType& type, std::stringstream& stream) { stream << type; };
+
+    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
+        HYPERION_IGNORE_DOCUMENTATION_WARNING_STOP;
+    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
 
     /// @brief Decomposers store trivially copyable types as copies of those types,
     /// and non-trivially copyable types as references
@@ -598,6 +607,11 @@ namespace hyperion::assert::detail {
 
 #undef HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR
 
+    // clang still doesn't understand tparam tags for concepts
+    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
+        HYPERION_IGNORE_DOCUMENTATION_WARNING_START;
+    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+
     /// @brief Requires that `TType` is a `BinaryExpression` specialization
     /// @tparam TType The type to check
     /// @ingroup decomposer
@@ -605,6 +619,10 @@ namespace hyperion::assert::detail {
     template<typename TType>
     concept IsBinaryExpression = requires { TType::k_is_binary_expression; }
                                  && requires { requires TType::k_is_binary_expression; };
+
+    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
+        HYPERION_IGNORE_DOCUMENTATION_WARNING_STOP;
+    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
 
     /// @brief Represents the initial expression in an expression sequence
     /// @tparam TExpr The result type of the expression

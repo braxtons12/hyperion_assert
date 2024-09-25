@@ -44,20 +44,38 @@
     #pragma GCC diagnostic pop
 #endif // HYPERION_PLATFORM_COMPILER_IS_GCC
 
-
 namespace hyperion::assert {
 
     /// @brief `Backtrace` provides a full backtrace of the current call stack at
     /// the point of its constructor invocation
     /// @headerfile hyperion/assert/backtrace.h
+    /// @ingroup backtrace
     using Backtrace = boost::stacktrace::stacktrace;
 
+    namespace backtrace {
+        /// @brief Configuration for whether the backtrace should be formatted styled
+        /// (i.e. syntax highlighted), or unstyled
+        /// @headerfile hyperion/assert/backtrace.h
+        /// @ingroup backtrace
+        enum class FormatStyle {
+            Unstyled = 0,
+            Styled,
+        };
+    } // namespace backtrace
+
+    /// @brief Formats a `Backtrace` into a string according to the given format style
+    /// @param backtrace The `Backtrace` to format
+    /// @param style The style to format the backtrace in (i.e. syntax highlighted, or unstyled)
+    /// @return The formatted `Backtrace`
+    /// @headerfile hyperion/assert/backtrace.h
+    /// @ingroup backtrace
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    format_backtrace(const Backtrace& backtrace, int desc = detail::cstdio_support::fileno(stderr))
+    format_backtrace(const Backtrace& backtrace,
+                     backtrace::FormatStyle style = backtrace::FormatStyle::Unstyled)
         -> std::string;
 } // namespace hyperion::assert
 
-/// @brief Specialization of `fmt::formatter` to provide `fmt` support for `hyperion::Backtrace`
+/// @brief Implement `fmt::Format` support for `hyperion::Backtrace`
 /// @headerfile hyperion/assert/backtrace.h
 template<>
 struct fmt::formatter<hyperion::assert::Backtrace> {
@@ -70,7 +88,7 @@ struct fmt::formatter<hyperion::assert::Backtrace> {
     template<typename TFormatContext>
     [[nodiscard]] constexpr auto
     format(const hyperion::assert::Backtrace& trace, TFormatContext& context) const {
-        return fmt::format_to(context.out(), "{}", hyperion::assert::format_backtrace(trace, -1));
+        return fmt::format_to(context.out(), "{}", hyperion::assert::format_backtrace(trace));
     }
 };
 
