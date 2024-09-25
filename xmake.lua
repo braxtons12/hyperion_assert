@@ -80,7 +80,6 @@ local hyperion_assert_headers = {
     "$(projectdir)/include/hyperion/assert/tokens.h",
 }
 local hyperion_assert_detail_headers = {
-    "$(projectdir)/include/hyperion/assert/detail/cstdio_support.h",
     "$(projectdir)/include/hyperion/assert/detail/decomposer.h",
     "$(projectdir)/include/hyperion/assert/detail/def.h",
     "$(projectdir)/include/hyperion/assert/detail/parser.h",

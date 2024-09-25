@@ -102,7 +102,6 @@ set(HYPERION_ASSERT_HEADERS
     "${HYPERION_ASSERT_INCLUDE_PATH}/assert/highlight.h"
     "${HYPERION_ASSERT_INCLUDE_PATH}/assert/panic.h"
     "${HYPERION_ASSERT_INCLUDE_PATH}/assert/tokens.h"
-    "${HYPERION_ASSERT_INCLUDE_PATH}/assert/detail/cstdio_support.h"
     "${HYPERION_ASSERT_INCLUDE_PATH}/assert/detail/decomposer.h"
     "${HYPERION_ASSERT_INCLUDE_PATH}/assert/detail/def.h"
     "${HYPERION_ASSERT_INCLUDE_PATH}/assert/detail/parser.h"

@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief format implementation for `boost::stacktrace::stacktrace`
 /// @version 0.1
-/// @date 2024-09-20
+/// @date 2024-09-24
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -28,7 +28,6 @@
 #ifndef HYPERION_ASSERT_BACKTRACE_H
 #define HYPERION_ASSERT_BACKTRACE_H
 
-#include <hyperion/assert/detail/cstdio_support.h>
 #include <hyperion/assert/detail/def.h>
 
 #include <boost/stacktrace.hpp>

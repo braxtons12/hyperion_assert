@@ -26,7 +26,6 @@
 /// SOFTWARE.
 
 #include <hyperion/assert/backtrace.h>
-#include <hyperion/assert/detail/cstdio_support.h>
 #include <hyperion/assert/highlight.h>
 #include <hyperion/assert/tokens.h>
 #include <hyperion/platform/types.h>
