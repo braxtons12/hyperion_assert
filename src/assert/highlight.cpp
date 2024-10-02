@@ -29,8 +29,8 @@
 #include <hyperion/assert/highlight.h>
 #include <hyperion/assert/tokens.h>
 #include <hyperion/mpl/value.h>
-#include <hyperion/platform/def.h>
 #include <hyperion/platform.h>
+#include <hyperion/platform/def.h>
 #include <hyperion/platform/types.h>
 
 #include <flux.hpp>
@@ -100,8 +100,7 @@ namespace hyperion::assert::highlight {
             HYPERION_UNREACHABLE();
         }
 
-        [[nodiscard]] auto
-        get_colors() -> std::unordered_map<std::string_view, Color>& {
+        [[nodiscard]] auto get_colors() -> std::unordered_map<std::string_view, Color>& {
             using namespace std::string_view_literals;
             static auto colors = std::unordered_map<std::string_view, Color>{
                 {"Punctuation"sv, RgbColor{0x9daaaa_u32}},
@@ -119,40 +118,30 @@ namespace hyperion::assert::highlight {
         }
     } // namespace
 
-    [[nodiscard]] auto set_color(const tokens::Token::Kind& kind, Color color) {
-        get_colors()[to_string(kind)] = color;
-    }
-
-    // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved)
-    [[nodiscard]] auto set_color(tokens::Token::Kind&& kind, Color color) {
-        get_colors()[to_string(kind)] = color;
-    }
-
-    [[nodiscard]] auto set_color(const Highlight& _highlight) {
+    [[nodiscard]] auto register_highlight(const Highlight& _highlight) {
         get_colors()[to_string(_highlight.kind)] = _highlight.color;
     }
 
     // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved)
-    [[nodiscard]] auto set_color(Highlight&& _highlight) {
+    [[nodiscard]] auto register_highlight(Highlight&& _highlight) {
         get_colors()[to_string(_highlight.kind)] = _highlight.color;
     }
 
-    [[nodiscard]] auto set_colors(const std::vector<Highlight>& colors) {
+    [[nodiscard]] auto register_highlights(const std::vector<Highlight>& highlights) {
         auto& _colors = get_colors();
-        flux::for_each(colors, [&_colors](const auto& _highlight) {
+        flux::for_each(highlights, [&_colors](const auto& _highlight) {
             _colors[to_string(_highlight.kind)] = _highlight.color;
         });
     }
 
-    [[nodiscard]] auto set_colors(std::vector<Highlight>&& colors) {
+    [[nodiscard]] auto register_highlights(std::vector<Highlight>&& highlights) {
         auto& _colors = get_colors();
-        flux::for_each(std::move(colors), [&_colors](auto&& _highlight) {
+        flux::for_each(std::move(highlights), [&_colors](auto&& _highlight) {
             _colors[to_string(_highlight.kind)] = _highlight.color;
         });
     }
 
-    [[nodiscard]] auto
-    get_color(const tokens::Token::Kind& kind) noexcept -> Color {
+    [[nodiscard]] auto get_color(const tokens::Token::Kind& kind) noexcept -> Color {
         return get_colors()[to_string(kind)];
     }
 
@@ -215,7 +204,8 @@ namespace hyperion::assert::highlight {
         };
     } // namespace
 
-    [[nodiscard]] auto highlight(std::string_view str, bool for_backtrace) -> std::string {
+    [[nodiscard]] auto
+    highlight(std::string_view str, bool first_token_is_function) -> std::string {
         auto tokens = detail::parser::parse(str);
 
         if(tokens.empty()) {
@@ -243,7 +233,7 @@ namespace hyperion::assert::highlight {
             return fmt::styled(pair.first, pair.second);
         };
 
-        if(tokens.size() == 1_usize && for_backtrace) {
+        if(tokens.size() == 1_usize && first_token_is_function) {
             tokens.front().kind = tokens::Identifier{std::in_place_type<tokens::Function>};
             return fmt::format(fmt::runtime(fmt_string), style(get_data(tokens.front())));
         }

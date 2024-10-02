@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief format implementation for `boost::stacktrace::stacktrace`
 /// @version 0.1
-/// @date 2024-09-24
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -60,7 +60,7 @@
 ///            hyperion::format_backtrace(backtrace,
 ///                                       hyperion::backtrace::FormatStyle::Styled));
 /// @endcode
-/// @headerfile hyperion/mpl/list.h
+/// @headerfile hyperion/assert/backtrace.h
 ///
 /// @note `hyperion::Backtrace` is currently an alias for `boost::stacktrace::stacktrace`,
 /// but Hyperion reserves the right to change this at any time (with respect to semantic versioning)

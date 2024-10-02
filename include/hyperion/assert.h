@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Robust C++20 runtime asserts
 /// @version 0.1
-/// @date 2024-09-20
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -403,7 +403,7 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 #else
 
     #define HYPERION_ASSERT_PRECONDITION(condition, ...) /** NOLINT(*-macro-usage) **/ \
-        HYPERION_DETAIL_ASSERT_HANDLER(condition, "Pre-condition" __VA_OPT__(, __VA_ARGS__))
+        HYPERION_DETAIL_ASSERT_HANDLER(condition, "Contract Violaton:\nPre-condition" __VA_OPT__(, __VA_ARGS__))
 
 #endif // not HYPERION_PLATFORM_MODE_IS_DEBUG and HYPERION_ASSERT_CONTRACT_ASSERTIONS_DEBUG_ONLY
 
@@ -483,7 +483,7 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
             __COUNTER__)                                                                      \
             = [&]() {                                                                         \
                   HYPERION_DETAIL_ASSERT_HANDLER(condition,                                   \
-                                                 "Post-condition" __VA_OPT__(, __VA_ARGS__)); \
+                                                 "Contract Violation:\nPost-condition" __VA_OPT__(, __VA_ARGS__)); \
               }
 
 #endif // not HYPERION_PLATFORM_MODE_IS_DEBUG and HYPERION_ASSERT_CONTRACT_ASSERTIONS_DEBUG_ONLY

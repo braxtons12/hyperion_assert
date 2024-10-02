@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ syntax highlighting
 /// @version 0.1
-/// @date 2024-09-24
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -51,127 +51,302 @@
 /// @{
 /// @defgroup highlight Syntax highlighting and highlight configuration
 /// This module provides an API for setting and querying `hyperion::assert`'s
-/// syntax highlighting, as well functionality to syntax highlight arbitrary strings
-/// containing C++ code.
+/// syntax highlighting, powered by libfmt styling functionality, as well functionality
+/// to syntax highlight arbitrary strings containing C++ code in a libfmt-compatible way.
 ///
 /// # Example
 /// @code{.cpp}
-/// // calculate the backtrace up to this point
-/// auto backtrace = hyperion::Backtrace{};
-/// // no syntax highlighting
-/// fmt::print(stdout, "{}", backtrace);
-/// // with syntax highlighting
-/// fmt::print(stdout,
-///            "{}",
-///            hyperion::format_backtrace(backtrace,
-///                                       hyperion::backtrace::FormatStyle::Styled));
+/// constexpr auto keyword_color = hyperion::assert::highlight::Color(0xC67ADA_u32);
+/// constexpr auto keyword_highlight = hyperion::assert::highlight::Highlight {
+///     .kind = hyperion::assert::tokens::Keyword{},
+///     .color = keyword_color,
+/// };
+/// hyperion::assert::highlight::register_highlight(keyword_highlight);
+/// highlighted = hyperion::assert::highlight::highlight("auto my_cpp_code = 42;");
 /// @endcode
-/// @headerfile hyperion/mpl/list.h
+/// @headerfile hyperion/assert/highlight.h
 /// @}
 
 namespace hyperion::assert::highlight {
 
+    /// @brief `RgbColor` represents a red-green-blue color, typically defined as
+    /// a six-digit hexadecimal number (e.g. `0x61AFEF`)
+    /// @headerfile hyperion/assert/highlight.h
+    /// @ingroup highlight
     struct RgbColor {
+        /// @brief Constructs an `RgbColor` from a six-digit hex number
+        /// @param hex the six-digit hex number representing
+        /// the red, green, and blue color values
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
         explicit(false) constexpr RgbColor(const u32 hex) noexcept
             : red{static_cast<u8>((hex >> 16_u32) & 0xFF_u32)},
               green{static_cast<u8>((hex >> 8_u32) & 0xFF_u32)},
               blue{static_cast<u8>(hex & 0xFF_u32)} {
         }
-        explicit(false) constexpr RgbColor(fmt::color color) noexcept
+        /// @brief Constructs an `RgbColor` from a libfmt `fmt::color` type
+        /// @param color the color
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        explicit(false) constexpr RgbColor(const fmt::color color) noexcept
             : RgbColor{static_cast<u32>(color)} {
         }
+        /// @brief Constructs an `RgbColor` from individual red, green, and blue color values
+        /// @param _red the red value
+        /// @param _green the green value
+        /// @param _blue the blue value
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
         constexpr RgbColor(const u8 _red, const u8 _green, const u8 _blue) noexcept
             : red{_red}, green{_green}, blue{_blue} {
         }
 
+        /// @brief Implicit conversion operator for `RgbColor` to its numeric representation
+        /// @return the numeric representation of this `RgbColor`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
         // NOLINTNEXTLINE(*-explicit-constructor)
         [[nodiscard]] explicit(false) constexpr operator u32() const noexcept {
             return static_cast<u32>((red << 16_u32) | (green << 8_u32)) | (blue);
         }
 
+        /// @brief Implicit conversion operator for `RgbColor` to the corresponding libfmt
+        /// `fmt::detail::color_type` representation
+        /// @return the libfmt representation of this `RgbColor`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        // NOLINTNEXTLINE(*-explicit-constructor)
         [[nodiscard]] explicit(false) constexpr operator fmt::detail::color_type() const noexcept {
             return fmt::detail::color_type{static_cast<u32>(*this)};
         }
 
-        u8 red = 0x61_u8;
-        u8 green = 0xAF_u8;
-        u8 blue = 0xEF_u8;
+        /// @brief three-way comparison operator for `RgbColor`s
+        /// @return how this `RgbColor` orders relative to `other`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        constexpr auto operator<=>(const RgbColor& other) const noexcept = default;
+        /// @brief equality comparison operator for `RgbColor`s
+        /// @return whether this `RgbColor` is equal to `other`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        constexpr auto operator==(const RgbColor& other) const noexcept -> bool = default;
+
+        u8 red = 0xFF_u8;
+        u8 green = 0xFF_u8;
+        u8 blue = 0xFF_u8;
     };
 
+    /// @brief `Color` represents either a red-green-blue color value (i.e. an `RgbColor`),
+    /// typically defined as a six-digit hexadecimal number (e.g. `0x61AFEF`), OR a libfmt
+    /// terminal emulator color value (i.e. `fmt::terminal_color`)
+    /// @headerfile hyperion/assert/highlight.h
+    /// @ingroup highlight
     class Color {
       public:
+        /// @brief Default constructs a `Color` as pure white
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
         constexpr Color() noexcept = default;
-        explicit(false) constexpr Color(RgbColor color) noexcept : value{color} {
+        /// @brief Constructs a `Color` as the given `RgbColor` value
+        /// @param color The `RgbColor` value to construct this `Color` as
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        explicit(false) constexpr Color(const RgbColor color) noexcept : m_value{color} {
         }
-        explicit(false) constexpr Color(fmt::terminal_color color) noexcept
-            : is_term{true}, value{color} {
+        /// @brief Constructs a `Color` as the given libfmt `fmt::terminal_color` value
+        /// @param color The `fmt::terminal_color` value to construct this `Color` as
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        explicit(false) constexpr Color(const fmt::terminal_color color) noexcept
+            : m_is_term{true}, m_value{color} {
+        }
+        /// @brief Constructs a `Color` as the given red-blue-green color
+        /// @param rgb_hex The red-blue-green color to construct this `Color` as,
+        /// represented as a 6-digit hexadecimal number
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        explicit(false) constexpr Color(const u32 rgb_hex) noexcept : m_value{RgbColor{rgb_hex}} {
         }
 
+        /// @brief Returns whether this `Color` represents a terminal emulator color
+        /// @return whether this `Color` represents a libfmt terminal emulator color,
+        /// i.e. a `fmt::terminal_color`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
         [[nodiscard]] constexpr auto is_term_color() const noexcept {
-            return is_term;
+            return m_is_term;
         }
 
-        [[nodiscard]] constexpr auto rgb_color() const noexcept -> std::optional<RgbColor> {
-            if(is_term) {
-                return {};
-            }
-
-            return value.rgb_color;
-        }
-
+        /// @brief Returns the libfmt terminal color this `Color` represents,
+        /// if it represents one
+        /// @return the `fmt::terminal_color` this `Color` represents, or `std::nullopt`
+        /// if it doesn't represent an `fmt::terminal_color`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
         [[nodiscard]] constexpr auto
         term_color() const noexcept -> std::optional<fmt::terminal_color> {
-            if(is_term) {
-                return value.term_color;
+            if(m_is_term) {
+                return m_value.term_color;
             }
 
             return {};
         }
 
-        [[nodiscard]] explicit(false) constexpr operator fmt::detail::color_type() const noexcept {
-            if(is_term) {
-                return {value.term_color};
+        /// @brief Returns whether this `Color` represents an `RgbColor`
+        /// @return whether this `Color` represents an `RgbColor`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        [[nodiscard]] constexpr auto is_rgb_color() const noexcept {
+            return m_is_term;
+        }
+
+        /// @brief Returns the `RgbColor` this `Color` represents, if it represents one
+        /// @return the `RgbColor` this `Color` represents, or `std::nullopt`
+        /// if it doesn't represent an `RgbColor`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        [[nodiscard]] constexpr auto rgb_color() const noexcept -> std::optional<RgbColor> {
+            if(m_is_term) {
+                return {};
             }
 
-            return value.rgb_color;
+            return m_value.rgb_color;
+        }
+
+        /// @brief implicit conversion operator for `Color` to the corresponding
+        /// libfmt `fmt::detail::color_type` representation
+        /// @return the libfmt color type representation of this `Color`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        // NOLINTNEXTLINE(*-explicit-constructor)
+        [[nodiscard]] explicit(false) constexpr operator fmt::detail::color_type() const noexcept {
+            if(m_is_term) {
+                return {m_value.term_color};
+            }
+
+            return m_value.rgb_color;
+        }
+
+        /// @brief three-way comparison operator for `Color`s
+        ///
+        /// When `this` and `other` represent different types of colors
+        /// (i.e. `this->is_term_color() != other.is_term_color()`),
+        /// `this` is defined to compare as less than `other` when both of
+        /// `this->is_term_color()` and `other.is_rgb_color()` are true,
+        /// and vice versa
+        ///
+        /// @return how this `Color` orders relative to `other`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        constexpr auto operator<=>(const Color& other) const noexcept -> std::weak_ordering {
+            if(m_is_term && other.m_is_term) {
+                return m_value.term_color <=> other.m_value.term_color;
+            }
+
+            if(m_is_term) {
+                return std::weak_ordering::less;
+            }
+
+            if(other.m_is_term) {
+                return std::weak_ordering::greater;
+            }
+
+            return m_value.rgb_color <=> other.m_value.rgb_color;
+        }
+
+        /// @brief equality comparison operator for `Color`s
+        ///
+        /// When `this` and `other` represent the same type of color
+        /// (i.e. `this->is_term_color() == other.is_term_color()`),
+        /// returns the result of directly comparing the color values
+        /// they represent. Otherwise, returns `false`.
+        ///
+        /// @return whether this `Color` is equal to `other`
+        /// @headerfile hyperion/assert/highlight.h
+        /// @ingroup highlight
+        constexpr auto operator==(const Color& other) const noexcept -> bool {
+            if(m_is_term && other.m_is_term) {
+                return m_value.term_color == other.m_value.term_color;
+            }
+
+            if(!m_is_term && !other.m_is_term) {
+                return m_value.rgb_color == other.m_value.rgb_color;
+            }
+
+            return false;
         }
 
       private:
-        bool is_term = false;
+        bool m_is_term = false;
         union storage {
-            explicit(false) constexpr storage(RgbColor color) noexcept : rgb_color{color} {
+            explicit(false) constexpr storage(const RgbColor color) noexcept : rgb_color{color} {
             }
-            explicit(false) constexpr storage(fmt::terminal_color color) noexcept
+            explicit(false) constexpr storage(const fmt::terminal_color color) noexcept
                 : term_color{color} {
             }
 
-            RgbColor rgb_color = 0x61AFEF_u32;
+            RgbColor rgb_color = 0xFFFFFF_u32;
             fmt::terminal_color term_color;
         };
-        storage value = RgbColor{0x61AFEF_u32};
+        storage m_value = RgbColor{0xFFFFFF_u32};
     };
 
+    /// @brief `Highlight` represents the syntax highlighting configuration
+    /// for a specific token kind
+    /// @headerfile hyperion/assert/highlight.h
+    /// @ingroup highlight
     struct Highlight {
         tokens::Token::Kind kind;
         Color color;
     };
 
+    /// @brief Highlights the given string in a way compatible with libfmt's
+    /// styling functionality, according to the currently configured highlighting style,
+    /// and returns the result as a new `std::string`
+    /// @param str the string to do syntax highlighting on
+    /// @param first_token_is_function Whether the first token in the given string
+    /// is known to represent a function (to prevent it from being highlighted as a variable)
+    /// @return The syntax highlighted string
+    /// @headerfile hyperion/assert/highlight.h
+    /// @ingroup highlight
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    highlight(std::string_view str, bool for_backtrace = false) -> std::string;
+    highlight(std::string_view str, bool first_token_is_function = false) -> std::string;
 
+    /// @brief Registers the given syntax highlighting setting in `hyperion::assert`'s
+    /// syntax highlighting configuration
+    /// @param _highlight The syntax highlighting setting to register
+    /// @headerfile hyperion/assert/highlight.h
+    /// @ingroup highlight
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    set_color(const tokens::Token::Kind& kind, Color color);
+    register_highlight(const Highlight& _highlight);
+    /// @brief Registers the given syntax highlighting setting in `hyperion::assert`'s
+    /// syntax highlighting configuration
+    /// @param _highlight The syntax highlighting setting to register
+    /// @headerfile hyperion/assert/highlight.h
+    /// @ingroup highlight
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    set_color(tokens::Token::Kind&& kind, Color color);
+    register_highlight(Highlight&& _highlight);
+    /// @brief Registers the given syntax highlighting settings in `hyperion::assert`'s
+    /// syntax highlighting configuration
+    /// @param highlights The syntax highlighting settings to register
+    /// @headerfile hyperion/assert/highlight.h
+    /// @ingroup highlight
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    set_color(const Highlight& _highlight);
+    register_highlights(const std::vector<Highlight>& highlights);
+    /// @brief Registers the given syntax highlighting settings in `hyperion::assert`'s
+    /// syntax highlighting configuration
+    /// @param highlights The syntax highlighting settings to register
+    /// @headerfile hyperion/assert/highlight.h
+    /// @ingroup highlight
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    set_color(Highlight&& _highlight);
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    set_colors(const std::vector<Highlight>& colors);
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    set_colors(std::vector<Highlight>&& colors);
+    register_highlights(std::vector<Highlight>&& highlights);
 
+    /// @brief Returns the syntax highlighting color currently registered in
+    /// `hyperion::assert`'s syntax highlighting configuration
+    /// @param kind The token kind to get the registered highlight color for
+    /// @return The registered color syntax highlight color for `kind`
+    /// @headerfile hyperion/assert/highlight.h
+    /// @ingroup highlight
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     get_color(const tokens::Token::Kind& kind) noexcept -> Color;
 
