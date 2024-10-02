@@ -48,31 +48,83 @@
     #pragma GCC diagnostic pop
 #endif // HYPERION_PLATFORM_COMPILER_IS_GCC
 
-
 #include <concepts>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 
+/// @ingroup assert
+/// @{
+/// @defgroup panic Runtime Panics
+/// This module provides an API for triggering and handling runtime "panics".
+/// "Panics" are a runtime error triggered when an irrecoverable error has occurred
+/// or been detected, such as a programming bug or fatal environmental problem.
+///
+/// By default, panics will print their associated panic message,
+/// along with syntax highlighted source location info and a backtrace, to `stderr`,
+/// then trigger a breakpoint in debug builds, or a forced termination in release builds.
+/// this behavior can be customized be registering a custom handler with
+/// `hyperion::assert::panic::set_handler`.
+///
+/// # Example
+/// @code{.cpp}
+/// HYPERION_PANIC("A fatal error has occurred: {}", some_context_variable);
+/// @endcode
+/// @headerfile hyperion/assert/panic.h
+/// @}
+
 namespace hyperion::assert::panic {
 
+    /// @brief `Handler` is the function pointer type for a valid hyperion panic handler.
+    /// a `Handler` must return `void` and take the following arguments, in their presented order:
+    ///
+    /// - `std::string_view` `panic_message`: The pre-formatted panic message used in the
+    /// invocation,
+    /// - `hyperion::source_location` `location`: The source location information,
+    /// - `hyperion::assert::Backtrace` `backtrace`: The backtrace of the code up to and including
+    ///   the invocation of the panic
+    /// @headerfile hyperion/assert/panic.h
+    /// @ingroup panic
     using Handler = void (*)(const std::string_view panic_message,
                              const hyperion::source_location& location,
                              const Backtrace& backtrace) noexcept;
 
+    /// @brief Registers the given panic handler, `handler` as the active panic handler in the
+    /// program
+    /// @param handler The panic handler to register
+    /// @headerfile hyperion/assert/panic.h
+    /// @ingroup panic
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
     set_handler(Handler handler) noexcept -> void;
 
+    /// @brief Returns the currently active panic handler
+    /// @return The active panic handler
+    /// @headerfile hyperion/assert/panic.h
+    /// @ingroup panic
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     get_handler() noexcept -> Handler;
 
+    /// @brief Returns the default panic handler used by `hyperion::assert`
+    /// @return The default panic handler
+    /// @headerfile hyperion/assert/panic.h
+    /// @ingroup panic
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     default_handler() noexcept -> Handler;
 
     namespace detail {
+        /// @brief Executes a panic with the given context parameters
+        /// @param location The source location the panic is being executed from
+        /// @param backtrace The backtrace up to the point of panic
+        /// @headerfile hyperion/assert/panic.h
         HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
-        execute(const hyperion::source_location& location, const Backtrace& backtrace) noexcept -> void;
+        execute(const hyperion::source_location& location, const Backtrace& backtrace) noexcept
+            -> void;
 
+        /// @brief Executes a panic with the given context parameters
+        /// @param location The source location the panic is being executed from
+        /// @param backtrace The backtrace up to the point of panic
+        /// @param message The message the panic is triggered with
+        /// @headerfile hyperion/assert/panic.h
         HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
         execute(const hyperion::source_location& location,
                 const Backtrace& backtrace,
@@ -80,50 +132,104 @@ namespace hyperion::assert::panic {
 
         HYPERION_IGNORE_UNUSED_TEMPLATES_WARNING_START;
 
-        template<typename TArg>
-            requires fmt::is_formattable<TArg>::value
-                     || std::same_as<std::string_view, std::remove_cvref_t<TArg>>
-                     || std::convertible_to<TArg, std::string_view>
-        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
-        execute(const hyperion::source_location& location,
-                const Backtrace& backtrace,
-                TArg&& arg) noexcept(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
-                                     || std::is_nothrow_convertible_v<TArg, std::string_view>) -> void {
-            if constexpr(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
-                         || std::convertible_to<TArg, std::string_view>)
-            {
-                panic::get_handler()(std::string_view{std::forward<TArg>(arg)}, location, backtrace);
-            }
-            else {
-                const auto str = fmt::format("{}", std::forward<TArg>(arg));
-                panic::get_handler()(str, location, backtrace);
-            }
+        /// @brief Executes a panic with the given context parameters
+        ///
+        /// # Requirements
+        /// - `TMessage` must be convertible to `std::string_view`
+        ///
+        /// # Exception Safety
+        /// - May throw any exception throwable by `TMessage`'s conversion operator
+        /// to `std::string_view`
+        ///
+        /// @param location The source location the panic is being executed from
+        /// @param backtrace The backtrace up to the point of panic
+        /// @param message The message the panic is triggered with
+        /// @tparam TMessage The type of `message`
+        /// @headerfile hyperion/assert/panic.h
+        template<typename TMessage>
+            requires std::convertible_to<TMessage, std::string_view>
+        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto execute(
+            const hyperion::source_location& location,
+            const Backtrace& backtrace,
+            TMessage&& message) noexcept(std::is_nothrow_convertible_v<TMessage, std::string_view>)
+            -> void {
+            execute(location, backtrace, std::string_view{std::forward<TMessage>(message)});
         }
 
+        // clang-format off
+
+        /// @brief Executes a panic with the given context parameters
+        ///
+        /// # Exception Safety
+        /// - May throw any exception throwable by formatting the given format arguments into
+        /// a fully formatted string
+        ///
+        /// @param location The source location the panic is being executed from
+        /// @param backtrace The backtrace up to the point of panic
+        /// @param format_string The libfmt format string specifying how to build the panic message
+        /// @param args The arguments to format into the panic message
+        /// @tparam TArgs The types of the arguments to be formatted into the panic message
+        /// @headerfile hyperion/assert/panic.h
         template<typename... TArgs>
             requires(fmt::is_formattable<TArgs>::value && ...)
         HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
         execute(const hyperion::source_location& location,
                 const Backtrace& backtrace,
                 fmt::format_string<TArgs...> format_string,
-                TArgs&&... args) -> void {
+                TArgs&&... args)
+            noexcept(noexcept(fmt::format(format_string, std::forward<TArgs>(args)...)))
+            -> void
+        {
             const auto str = fmt::format(format_string, std::forward<TArgs>(args)...);
-            panic::get_handler()(str, location, backtrace);
+            execute(location, backtrace, std::string_view{str});
         }
 
+        // clang-format on
         HYPERION_IGNORE_UNUSED_TEMPLATES_WARNING_STOP;
-    }
+    } // namespace detail
 
 } // namespace hyperion::assert::panic
 
 HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 
+/// @brief Triggers a runtime "panic"
+/// "Panics" are a runtime error triggered when an irrecoverable error has occurred
+/// or been detected, such as a programming bug or fatal environmental problem.
+///
+/// By default, panics will print their associated panic message,
+/// along with syntax highlighted source location info and a backtrace, to `stderr`,
+/// then trigger a breakpoint in debug builds, or a forced termination in release builds.
+/// this behavior can be customized be registering a custom handler with
+/// `hyperion::assert::panic::set_handler`.
+///
+/// # Example
+/// @code{.cpp}
+/// HYPERION_PANIC("A fatal error has occurred: {}", some_context_variable);
+/// @endcode
+/// @headerfile hyperion/assert/panic.h
+/// @ingroup panic
 #define HYPERION_PANIC(...) /** NOLINT(*-macro-usage) **/ \
-    hyperion::assert::panic::detail::execute(                     \
+    hyperion::assert::panic::detail::execute(             \
         hyperion::source_location::current(),             \
         hyperion::assert::Backtrace {} __VA_OPT__(, __VA_ARGS__))
 
 #if HYPERION_ASSERT_DEFINE_SHORT_ASSERT_NAMES
+    /// @brief Triggers a runtime "panic"
+    /// "Panics" are a runtime error triggered when an irrecoverable error has occurred
+    /// or been detected, such as a programming bug or fatal environmental problem.
+    ///
+    /// By default, panics will print their associated panic message,
+    /// along with syntax highlighted source location info and a backtrace, to `stderr`,
+    /// then trigger a breakpoint in debug builds, or a forced termination in release builds.
+    /// this behavior can be customized be registering a custom handler with
+    /// `hyperion::assert::panic::set_handler`.
+    ///
+    /// # Example
+    /// @code{.cpp}
+    /// HYPERION_PANIC("A fatal error has occurred: {}", some_context_variable);
+    /// @endcode
+    /// @headerfile hyperion/assert/panic.h
+    /// @ingroup panic
     #define PANIC(...) /** NOLINT(*-macro-usage) **/ HYPERION_PANIC(__VA_ARGS__)
 #endif // HYPERION_ASSERT_DEFINE_SHORT_ASSERT_NAMES
 

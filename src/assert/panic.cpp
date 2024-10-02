@@ -85,6 +85,8 @@ namespace hyperion::assert::panic {
     namespace detail {
 
         namespace {
+            HYPERION_IGNORE_INVALID_NORETURN_WARNING_START;
+
             [[noreturn]] HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
             default_handler(const std::string_view panic_message,
                             const hyperion::source_location& location,
@@ -121,9 +123,14 @@ namespace hyperion::assert::panic {
                                hyperion::assert::format_backtrace(backtrace,
                                                                   backtrace::FormatStyle::Styled));
                 }
-                HYPERION_ASSERT_DEBUG_BREAK();
-                std::abort();
+                #if HYPERION_PLATFORM_MODE_IS_DEBUG
+                    HYPERION_ASSERT_DEBUG_BREAK();
+                #else
+                    std::abort();
+                #endif // HYPERION_PLATFORM_MODE_IS_DEBUG
             }
+
+            HYPERION_IGNORE_INVALID_NORETURN_WARNING_STOP;
 
             std::atomic<panic::Handler> s_handler // NOLINT(*-avoid-non-const-global-variables)
                 = &default_handler;
