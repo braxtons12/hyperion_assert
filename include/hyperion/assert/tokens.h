@@ -39,23 +39,60 @@
 /// @defgroup tokens Syntax Highlighting Tokens
 /// This module defines the possible C++ token kinds that could make up
 /// a tokenized fragment of C++ code.
-/// @headerfile hyperion/assert/panic.h
+/// @headerfile hyperion/assert/tokens.h
 /// @}
 
 namespace hyperion::assert::tokens {
 
+    /// @brief The token represents a namespace identifier
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     struct Namespace { };
+    /// @brief The token represents a type identifier
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     struct Type { };
+    /// @brief The token represents a function identifier
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     struct Function { };
+    /// @brief The token represents a variable identifier
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     struct Variable { };
+    /// @brief The token represents a keyword
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     struct Keyword { };
+    /// @brief The token represents a string literal
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     struct String { };
+    /// @brief The token represents a numeric literal
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     struct Numeric { };
+    /// @brief The token represents punctuation
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     struct Punctuation { };
+    /// @brief The token represents an error
+    ///
+    /// This is not specific C++ syntax, but instead for
+    /// highlighting a particular sequence using an error-signaling color
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     struct Error { };
 
+    /// @brief The token represents an identifier
+    /// (a namespace, type, function, or variable)
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     using Identifier = std::variant<Namespace, Type, Function, Variable>;
 
+    /// @brief The represents the type of token a token is
+    /// @headerfile hyperion/assert/tokens.h
+    /// @ingroup tokens
     using Kind = std::variant<Identifier, Keyword, String, Numeric, Punctuation, Error>;
 
 } // namespace hyperion::assert::tokens
