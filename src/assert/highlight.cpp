@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ syntax highlighting
 /// @version 0.1
-/// @date 2024-09-24
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -57,7 +57,7 @@ namespace hyperion::assert::highlight {
 
     namespace {
         [[nodiscard]] constexpr auto
-        to_string(const tokens::Token::Kind& kind) noexcept -> std::string_view {
+        to_string(const tokens::Kind& kind) noexcept -> std::string_view {
             using namespace std::string_view_literals;
             if(std::holds_alternative<tokens::Punctuation>(kind)) {
                 return "Punctuation"sv;
@@ -141,7 +141,7 @@ namespace hyperion::assert::highlight {
         });
     }
 
-    [[nodiscard]] auto get_color(const tokens::Token::Kind& kind) noexcept -> Color {
+    [[nodiscard]] auto get_color(const tokens::Kind& kind) noexcept -> Color {
         return get_colors()[to_string(kind)];
     }
 

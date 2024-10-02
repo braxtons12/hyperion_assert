@@ -3,7 +3,7 @@
 /// @brief Token definitions for Rudimentary C++ parsing (to allow for rudimentary syntax
 /// highlighting)
 /// @version 0.1
-/// @date 2024-03-16
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -34,6 +34,14 @@
 #include <string_view>
 #include <variant>
 
+/// @ingroup tokens
+/// @{
+/// @defgroup tokens Syntax Highlighting Tokens
+/// This module defines the possible C++ token kinds that could make up
+/// a tokenized fragment of C++ code.
+/// @headerfile hyperion/assert/panic.h
+/// @}
+
 namespace hyperion::assert::tokens {
 
     struct Namespace { };
@@ -48,13 +56,7 @@ namespace hyperion::assert::tokens {
 
     using Identifier = std::variant<Namespace, Type, Function, Variable>;
 
-    struct Token {
-        using Kind = std::variant<Identifier, Keyword, String, Numeric, Punctuation, Error>;
-        std::string_view text = {};
-        usize begin = 0;
-        usize end = 0;
-        Kind kind = Punctuation{};
-    };
+    using Kind = std::variant<Identifier, Keyword, String, Numeric, Punctuation, Error>;
 
 } // namespace hyperion::assert::tokens
 

@@ -296,7 +296,7 @@ namespace hyperion::assert::highlight {
     /// @headerfile hyperion/assert/highlight.h
     /// @ingroup highlight
     struct Highlight {
-        tokens::Token::Kind kind;
+        tokens::Kind kind;
         Color color;
     };
 
@@ -348,7 +348,7 @@ namespace hyperion::assert::highlight {
     /// @headerfile hyperion/assert/highlight.h
     /// @ingroup highlight
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    get_color(const tokens::Token::Kind& kind) noexcept -> Color;
+    get_color(const tokens::Kind& kind) noexcept -> Color;
 
 } // namespace hyperion::assert::highlight
 

@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Expression decomposition helper types
 /// @version 0.1
-/// @date 2024-09-24
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -28,6 +28,7 @@
 #ifndef HYPERION_ASSERT_DETAIL_DECOMPOSER_H
 #define HYPERION_ASSERT_DETAIL_DECOMPOSER_H
 
+#include <hyperion/assert/detail/parser.h>
 #include <hyperion/assert/highlight.h>
 #include <hyperion/assert/tokens.h>
 #include <hyperion/mpl/concepts.h>
@@ -53,10 +54,10 @@
 
 namespace hyperion::assert::detail {
 
-    // clang still doesn't understand tparam tags for concepts
-    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
-        HYPERION_IGNORE_DOCUMENTATION_WARNING_START;
-    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+// clang still doesn't understand tparam tags for concepts
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG
+    HYPERION_IGNORE_DOCUMENTATION_WARNING_START;
+#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
 
     /// @brief A type is `OutputStreamable` if it can be serialized into an output stream
     /// @tparam TType the type to check
@@ -66,9 +67,9 @@ namespace hyperion::assert::detail {
     concept OutputStreamable
         = requires(const TType& type, std::stringstream& stream) { stream << type; };
 
-    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
-        HYPERION_IGNORE_DOCUMENTATION_WARNING_STOP;
-    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG
+    HYPERION_IGNORE_DOCUMENTATION_WARNING_STOP;
+#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
 
     /// @brief Decomposers store trivially copyable types as copies of those types,
     /// and non-trivially copyable types as references
@@ -607,10 +608,10 @@ namespace hyperion::assert::detail {
 
 #undef HYPERION_DEFINE_BINARY_EXPRESSION_OPERATOR
 
-    // clang still doesn't understand tparam tags for concepts
-    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
-        HYPERION_IGNORE_DOCUMENTATION_WARNING_START;
-    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+// clang still doesn't understand tparam tags for concepts
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG
+    HYPERION_IGNORE_DOCUMENTATION_WARNING_START;
+#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
 
     /// @brief Requires that `TType` is a `BinaryExpression` specialization
     /// @tparam TType The type to check
@@ -620,9 +621,9 @@ namespace hyperion::assert::detail {
     concept IsBinaryExpression = requires { TType::k_is_binary_expression; }
                                  && requires { requires TType::k_is_binary_expression; };
 
-    #if HYPERION_PLATFORM_COMPILER_IS_CLANG
-        HYPERION_IGNORE_DOCUMENTATION_WARNING_STOP;
-    #endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
+#if HYPERION_PLATFORM_COMPILER_IS_CLANG
+    HYPERION_IGNORE_DOCUMENTATION_WARNING_STOP;
+#endif // HYPERION_PLATFORM_COMPILER_IS_CLANG
 
     /// @brief Represents the initial expression in an expression sequence
     /// @tparam TExpr The result type of the expression
@@ -825,13 +826,14 @@ struct fmt::formatter<hyperion::assert::detail::BinaryExpression<TLhs, TRhs, TOp
     [[nodiscard]] auto format(self& expression, TFormatContext& context) const {
         using hyperion::assert::detail::IsBinaryExpression;
         using hyperion::assert::detail::OutputStreamable;
+        using hyperion::assert::detail::parser::Token;
         using hyperion::assert::highlight::get_color;
         using hyperion::assert::highlight::highlight;
         using hyperion::assert::tokens::Punctuation;
-        using hyperion::assert::tokens::Token;
+        using hyperion::assert::tokens::Kind;
 
         if constexpr(IsBinaryExpression<TLhs>) {
-            const auto punc_color = get_color(Token::Kind{std::in_place_type<Punctuation>});
+            const auto punc_color = get_color(Kind{std::in_place_type<Punctuation>});
 
             if constexpr(formattable<TRhs>) {
                 return fmt::format_to(context.out(),

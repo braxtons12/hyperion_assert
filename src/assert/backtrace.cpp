@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief format implementation for `boost::stacktrace::stacktrace`
 /// @version 0.1
-/// @date 2024-09-24
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -26,6 +26,7 @@
 /// SOFTWARE.
 
 #include <hyperion/assert/backtrace.h>
+#include <hyperion/assert/detail/parser.h>
 #include <hyperion/assert/highlight.h>
 #include <hyperion/assert/tokens.h>
 #include <hyperion/platform/types.h>
@@ -62,7 +63,7 @@ namespace hyperion::assert {
                                             bool styled) {
             using hyperion::assert::highlight::get_color;
             using hyperion::assert::highlight::highlight;
-            using hyperion::assert::tokens::Token;
+            using hyperion::assert::detail::parser::Token;
             using hyperion::assert::tokens::Numeric;
             using hyperion::assert::tokens::String;
             using hyperion::assert::tokens::Punctuation;
@@ -74,9 +75,9 @@ namespace hyperion::assert {
 
             // if we're printing to stderr or a tty, syntax highlight the backtrace
             if(styled) {
-                const auto num_color = get_color(Token::Kind{std::in_place_type<Numeric>});
-                const auto str_color = get_color(Token::Kind{std::in_place_type<String>});
-                const auto punc_color = get_color(Token::Kind{std::in_place_type<Punctuation>});
+                const auto num_color = get_color(tokens::Kind{std::in_place_type<Numeric>});
+                const auto str_color = get_color(tokens::Kind{std::in_place_type<String>});
+                const auto punc_color = get_color(tokens::Kind{std::in_place_type<Punctuation>});
 
                 str += fmt::format(
                     "{:>2}{} {}{:0>16X}",

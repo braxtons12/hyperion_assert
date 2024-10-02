@@ -159,7 +159,7 @@ namespace hyperion::assert::detail {
         using hyperion::assert::highlight::highlight;
         using hyperion::assert::tokens::Error;
         using hyperion::assert::tokens::Punctuation;
-        using hyperion::assert::tokens::Token;
+        using hyperion::assert::detail::parser::Token;
 
         return fmt::format(
             R"({0} {1} {3}
@@ -168,10 +168,10 @@ namespace hyperion::assert::detail {
                 )",
             fmt::styled(assertion_type,
                         fmt::emphasis::bold
-                            | fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+                            | fmt::fg(get_color(tokens::Kind{std::in_place_type<Error>}))),
             fmt::styled("Assertion Failed:",
                         fmt::emphasis::bold
-                            | fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+                            | fmt::fg(get_color(tokens::Kind{std::in_place_type<Error>}))),
             fmt::styled("Where:", fmt::emphasis::bold),
             highlight(condition),
             fmt::styled("Evaluated To:", fmt::emphasis::bold),
@@ -188,7 +188,7 @@ namespace hyperion::assert::detail {
         using hyperion::assert::highlight::highlight;
         using hyperion::assert::tokens::Error;
         using hyperion::assert::tokens::Punctuation;
-        using hyperion::assert::tokens::Token;
+        using hyperion::assert::detail::parser::Token;
 
         return fmt::format(
             R"({0} {1} {3}
@@ -200,10 +200,10 @@ namespace hyperion::assert::detail {
                 )",
             fmt::styled(assertion_type,
                         fmt::emphasis::bold
-                            | fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+                            | fmt::fg(get_color(tokens::Kind{std::in_place_type<Error>}))),
             fmt::styled("Assertion Failed:",
                         fmt::emphasis::bold
-                            | fmt::fg(get_color(Token::Kind{std::in_place_type<Error>}))),
+                            | fmt::fg(get_color(tokens::Kind{std::in_place_type<Error>}))),
             fmt::styled("Where:", fmt::emphasis::bold),
             highlight(condition),
             fmt::styled("Evaluated To:", fmt::emphasis::bold),

@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-09-24
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -140,13 +140,23 @@ namespace hyperion::assert::detail::parser {
         "not_eq",
     };
 
+    /// @brief `Token` represents a C++ token and its location within an associated string
+    /// @headerfile hyperion/assert/detail/parser.h
+    /// @ingroup parser
+    struct Token {
+        std::string_view text = {};
+        usize begin = 0;
+        usize end = 0;
+        tokens::Kind kind = tokens::Punctuation{};
+    };
+
     /// @brief Parses the given string into a sequence of tokens
     /// @param string the string to parse
     /// @return The parsed tokens
     /// @headerfile hyperion/assert/detail/parser.h
     /// @ingroup parser
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
-    parse(std::string_view string) -> std::vector<tokens::Token>;
+    parse(std::string_view string) -> std::vector<Token>;
 } // namespace hyperion::assert::detail::parser
 
 #endif // HYPERION_ASSERT_DETAIL_PARSER_H

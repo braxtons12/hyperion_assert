@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ parser (to allow for rudimentary syntax highlighting)
 /// @version 0.1
-/// @date 2024-09-20
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -40,11 +40,12 @@
 #include <vector>
 
 namespace hyperion::assert::detail::parser {
+
     namespace {
 
         [[nodiscard]] HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
         // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-        lex(std::string_view string) -> std::vector<tokens::Token> {
+        lex(std::string_view string) -> std::vector<Token> {
             constexpr auto split = [](const std::string_view& view, auto pred) noexcept {
                 return flux::ref(view).split(pred).map([](auto elem) {
                     return std::string_view{flux::begin(elem), flux::end(elem)};
@@ -59,7 +60,7 @@ namespace hyperion::assert::detail::parser {
                 return !is_punctuation(elem);
             };
 
-            auto results = std::vector<tokens::Token>{};
+            auto results = std::vector<Token>{};
             // 5 characters per token is a reasonable average to assume to minimize
             // reallocations.
             // Found by meeting roughly in the middle between the common
@@ -85,13 +86,13 @@ namespace hyperion::assert::detail::parser {
                         stripped,
                         begin,
                         end,
-                        tokens::Token::Kind{std::in_place_type<tokens::Punctuation>});
+                        tokens::Kind{std::in_place_type<tokens::Punctuation>});
                 }
                 else if(flux::contains(parser::keywords, stripped)) {
                     results.emplace_back(stripped,
                                          begin,
                                          end,
-                                         tokens::Token::Kind{std::in_place_type<tokens::Keyword>});
+                                         tokens::Kind{std::in_place_type<tokens::Keyword>});
                 }
                 else {
                     const auto split_punctuation = split(stripped, not_punctuation);
@@ -108,7 +109,7 @@ namespace hyperion::assert::detail::parser {
                             punc,
                             punc_begin + begin,
                             punc_end + begin,
-                            tokens::Token::Kind{std::in_place_type<tokens::Punctuation>});
+                            tokens::Kind{std::in_place_type<tokens::Punctuation>});
                     }
 
                     const auto identifiers_or_literals = split(stripped, is_punctuation);
@@ -133,19 +134,19 @@ namespace hyperion::assert::detail::parser {
                             ident_end + begin,
                             [](bool _string, bool _numeric, bool _keyword) {
                                 if(_string) {
-                                    return tokens::Token::Kind{std::in_place_type<tokens::String>};
+                                    return tokens::Kind{std::in_place_type<tokens::String>};
                                 }
                                 if(_numeric) {
 
-                                    return tokens::Token::Kind{std::in_place_type<tokens::Numeric>};
+                                    return tokens::Kind{std::in_place_type<tokens::Numeric>};
                                 }
 
                                 if(_keyword) {
 
-                                    return tokens::Token::Kind{std::in_place_type<tokens::Keyword>};
+                                    return tokens::Kind{std::in_place_type<tokens::Keyword>};
                                 }
 
-                                return tokens::Token::Kind{std::in_place_type<tokens::Identifier>,
+                                return tokens::Kind{std::in_place_type<tokens::Identifier>,
                                                            std::in_place_type<tokens::Namespace>};
                             }(is_string, is_numeric, is_keyword));
                     }
@@ -153,7 +154,7 @@ namespace hyperion::assert::detail::parser {
             }
 
             flux::sort(results,
-                       [](const tokens::Token& lhs, const tokens::Token& rhs) -> std::weak_ordering { 
+                       [](const Token& lhs, const Token& rhs) -> std::weak_ordering {
                            return lhs.begin <=> rhs.begin; 
                        });
             return results;
@@ -162,7 +163,7 @@ namespace hyperion::assert::detail::parser {
 
     [[nodiscard]] HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
     // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-    parse(std::string_view string) -> std::vector<tokens::Token> {
+    parse(std::string_view string) -> std::vector<Token> {
         auto tokens = lex(string);
 
         using Cursor = decltype(flux::first(tokens));

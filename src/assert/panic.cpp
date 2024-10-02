@@ -29,6 +29,7 @@
 
 #include <hyperion/assert/backtrace.h>
 #include <hyperion/assert/detail/def.h>
+#include <hyperion/assert/detail/parser.h>
 #include <hyperion/assert/highlight.h>
 #include <hyperion/assert/panic.h>
 #include <hyperion/assert/tokens.h>
@@ -61,11 +62,11 @@ namespace hyperion::assert::detail {
         using hyperion::assert::tokens::Numeric;
         using hyperion::assert::tokens::Punctuation;
         using hyperion::assert::tokens::String;
-        using hyperion::assert::tokens::Token;
+        using hyperion::assert::detail::parser::Token;
 
-        const auto str_color = get_color(Token::Kind{std::in_place_type<String>});
-        const auto num_color = get_color(Token::Kind{std::in_place_type<Numeric>});
-        const auto punc_color = get_color(Token::Kind{std::in_place_type<Punctuation>});
+        const auto str_color = get_color(tokens::Kind{std::in_place_type<String>});
+        const auto num_color = get_color(tokens::Kind{std::in_place_type<Numeric>});
+        const auto punc_color = get_color(tokens::Kind{std::in_place_type<Punctuation>});
 
         return fmt::format("{}{}{}{}{}{}{} {}",
                            fmt::styled('[', fmt::fg(punc_color)),
@@ -93,7 +94,7 @@ namespace hyperion::assert::panic {
                             const Backtrace& backtrace) noexcept -> void {
                 using hyperion::assert::highlight::get_color;
                 using hyperion::assert::tokens::Error;
-                using hyperion::assert::tokens::Token;
+                using hyperion::assert::detail::parser::Token;
 
                 if(panic_message.empty()) {
                     fmt::print(stderr,
@@ -102,7 +103,7 @@ namespace hyperion::assert::panic {
                                fmt::styled("Panic occurred at",
                                            fmt::emphasis::bold
                                                | fmt::fg(get_color(
-                                                   Token::Kind{std::in_place_type<Error>}))),
+                                                   tokens::Kind{std::in_place_type<Error>}))),
                                assert::detail::format_source_location(location),
                                fmt::styled("Backtrace:", fmt::emphasis::bold),
                                hyperion::assert::format_backtrace(backtrace,
@@ -116,7 +117,7 @@ namespace hyperion::assert::panic {
                                fmt::styled("Panic occurred at",
                                            fmt::emphasis::bold
                                                | fmt::fg(get_color(
-                                                   Token::Kind{std::in_place_type<Error>}))),
+                                                   tokens::Kind{std::in_place_type<Error>}))),
                                assert::detail::format_source_location(location),
                                panic_message,
                                fmt::styled("Backtrace:", fmt::emphasis::bold),
