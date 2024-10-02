@@ -222,7 +222,8 @@ namespace hyperion::assert::detail {
 
         template<typename TFunc>
             requires std::constructible_from<TCallable, TFunc>
-        PostConditionInvoker(TFunc&& func) noexcept(
+                && (!std::same_as<std::remove_cvref_t<TFunc>, PostConditionInvoker>)
+        explicit PostConditionInvoker(TFunc&& func) noexcept(
             std::is_nothrow_constructible_v<TCallable, TFunc>)
             : TCallable{std::forward<TFunc>(func)} {
         }
@@ -465,26 +466,26 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 #if not HYPERION_PLATFORM_MODE_IS_DEBUG and HYPERION_ASSERT_CONTRACT_ASSERTIONS_DEBUG_ONLY
 
     #define HYPERION_ASSERT_POSTCONDITION(condition, ...) /** NOLINT(*-macro-usage) **/ \
-        hyperion::assert::detail::PostConditionInvoker HYPERION_DETAIL_ASSERT_CONCAT3(  \
+        auto HYPERION_DETAIL_ASSERT_CONCAT3(  \
             _postcondition_,                                                            \
             __LINE__,                                                                   \
             __COUNTER__)                                                                \
-            = [&]() {                                                                   \
+            = hyperion::assert::detail::PostConditionInvoker{[&]() {                                                                   \
                   HYPERION_ASSERT_ASSUME(condition);                                    \
                   __VA_OPT__(hyperion::ignore(__VA_ARGS__);)                            \
-              }
+              }}
 
 #else
 
     #define HYPERION_ASSERT_POSTCONDITION(condition, ...) /** NOLINT(*-macro-usage) **/       \
-        hyperion::assert::detail::PostConditionInvoker HYPERION_DETAIL_ASSERT_CONCAT3(        \
+        auto HYPERION_DETAIL_ASSERT_CONCAT3(        \
             _postcondition_,                                                                  \
             __LINE__,                                                                         \
             __COUNTER__)                                                                      \
-            = [&]() {                                                                         \
+            = hyperion::assert::detail::PostConditionInvoker{[&]() {                                                                         \
                   HYPERION_DETAIL_ASSERT_HANDLER(condition,                                   \
                                                  "Contract Violation:\nPost-condition" __VA_OPT__(, __VA_ARGS__)); \
-              }
+              }}
 
 #endif // not HYPERION_PLATFORM_MODE_IS_DEBUG and HYPERION_ASSERT_CONTRACT_ASSERTIONS_DEBUG_ONLY
 
