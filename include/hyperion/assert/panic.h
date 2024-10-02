@@ -4,7 +4,7 @@
 /// mechanism used to fail gracefully and report the associated error when an
 /// irrecoverable error has occurred.
 /// @version 0.1
-/// @date 2024-09-21
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -69,55 +69,57 @@ namespace hyperion::assert::panic {
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     default_handler() noexcept -> Handler;
 
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
-    execute(const hyperion::source_location& location, const Backtrace& backtrace) noexcept -> void;
+    namespace detail {
+        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
+        execute(const hyperion::source_location& location, const Backtrace& backtrace) noexcept -> void;
 
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
-    execute(const hyperion::source_location& location,
-            const Backtrace& backtrace,
-            std::string_view message) noexcept -> void;
+        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
+        execute(const hyperion::source_location& location,
+                const Backtrace& backtrace,
+                std::string_view message) noexcept -> void;
 
-    HYPERION_IGNORE_UNUSED_TEMPLATES_WARNING_START;
+        HYPERION_IGNORE_UNUSED_TEMPLATES_WARNING_START;
 
-    template<typename TArg>
-        requires fmt::is_formattable<TArg>::value
-                 || std::same_as<std::string_view, std::remove_cvref_t<TArg>>
-                 || std::convertible_to<TArg, std::string_view>
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
-    execute(const hyperion::source_location& location,
-            const Backtrace& backtrace,
-            TArg&& arg) noexcept(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
-                                 || std::is_nothrow_convertible_v<TArg, std::string_view>) -> void {
-        if constexpr(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
-                     || std::convertible_to<TArg, std::string_view>)
-        {
-            panic::get_handler()(std::string_view{std::forward<TArg>(arg)}, location, backtrace);
+        template<typename TArg>
+            requires fmt::is_formattable<TArg>::value
+                     || std::same_as<std::string_view, std::remove_cvref_t<TArg>>
+                     || std::convertible_to<TArg, std::string_view>
+        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
+        execute(const hyperion::source_location& location,
+                const Backtrace& backtrace,
+                TArg&& arg) noexcept(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
+                                     || std::is_nothrow_convertible_v<TArg, std::string_view>) -> void {
+            if constexpr(std::same_as<std::string_view, std::remove_cvref_t<TArg>>
+                         || std::convertible_to<TArg, std::string_view>)
+            {
+                panic::get_handler()(std::string_view{std::forward<TArg>(arg)}, location, backtrace);
+            }
+            else {
+                const auto str = fmt::format("{}", std::forward<TArg>(arg));
+                panic::get_handler()(str, location, backtrace);
+            }
         }
-        else {
-            const auto str = fmt::format("{}", std::forward<TArg>(arg));
+
+        template<typename... TArgs>
+            requires(fmt::is_formattable<TArgs>::value && ...)
+        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
+        execute(const hyperion::source_location& location,
+                const Backtrace& backtrace,
+                fmt::format_string<TArgs...> format_string,
+                TArgs&&... args) -> void {
+            const auto str = fmt::format(format_string, std::forward<TArgs>(args)...);
             panic::get_handler()(str, location, backtrace);
         }
-    }
 
-    template<typename... TArgs>
-        requires(fmt::is_formattable<TArgs>::value && ...)
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
-    execute(const hyperion::source_location& location,
-            const Backtrace& backtrace,
-            fmt::format_string<TArgs...> format_string,
-            TArgs&&... args) -> void {
-        const auto str = fmt::format(format_string, std::forward<TArgs>(args)...);
-        panic::get_handler()(str, location, backtrace);
+        HYPERION_IGNORE_UNUSED_TEMPLATES_WARNING_STOP;
     }
-
-    HYPERION_IGNORE_UNUSED_TEMPLATES_WARNING_STOP;
 
 } // namespace hyperion::assert::panic
 
 HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 
 #define HYPERION_PANIC(...) /** NOLINT(*-macro-usage) **/ \
-    hyperion::assert::panic::execute(                     \
+    hyperion::assert::panic::detail::execute(                     \
         hyperion::source_location::current(),             \
         hyperion::assert::Backtrace {} __VA_OPT__(, __VA_ARGS__))
 

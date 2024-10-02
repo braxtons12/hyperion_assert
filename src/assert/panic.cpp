@@ -4,7 +4,7 @@
 /// mechanism used to fail gracefully and report the associated error when an
 /// irrecoverable error has occurred.
 /// @version 0.1
-/// @date 2024-09-20
+/// @date 2024-10-01
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -146,16 +146,18 @@ namespace hyperion::assert::panic {
         return &detail::default_handler;
     }
 
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
-    execute(const hyperion::source_location& location, const Backtrace& backtrace) noexcept
-        -> void {
-        panic::get_handler()("", location, backtrace);
-    }
+    namespace detail {
+        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
+        execute(const hyperion::source_location& location, const Backtrace& backtrace) noexcept
+            -> void {
+            panic::get_handler()("", location, backtrace);
+        }
 
-    HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
-    execute(const hyperion::source_location& location,
-            const Backtrace& backtrace,
-            std::string_view message) noexcept -> void {
-        panic::get_handler()(message, location, backtrace);
-    }
+        HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
+        execute(const hyperion::source_location& location,
+                const Backtrace& backtrace,
+                std::string_view message) noexcept -> void {
+            panic::get_handler()(message, location, backtrace);
+        }
+    } // namespace detail
 } // namespace hyperion::assert::panic
