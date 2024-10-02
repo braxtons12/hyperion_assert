@@ -50,7 +50,7 @@
 namespace hyperion::assert {
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-    format_backtrace(const Backtrace& backtrace, backtrace::FormatStyle style) -> std::string {
+    format_backtrace(const Backtrace& backtrace, const backtrace::FormatStyle style) -> std::string {
 
         using hyperion::operator""_usize;
         std::string output;
@@ -59,8 +59,8 @@ namespace hyperion::assert {
         output.reserve(100_usize * backtrace.size());
         constexpr auto format_frame_to = [](std::string& str,
                                             const boost::stacktrace::frame& frame,
-                                            hyperion::usize index,
-                                            bool styled) {
+                                            const hyperion::usize index,
+                                            const bool styled) {
             using hyperion::assert::highlight::get_color;
             using hyperion::assert::highlight::highlight;
             using hyperion::assert::detail::parser::Token;
@@ -95,10 +95,10 @@ namespace hyperion::assert {
                                                 fmt::format("{}{}",
                                                             fmt::styled(':', fmt::fg(punc_color)),
                                                             fmt::styled(line, fmt::fg(num_color)));
-                    auto file_str = fmt::format("\n                       {}{}{}{}",
+                    const auto file_str = fmt::format("\n                       {}{}{}{}",
                                                 fmt::styled("in [", fmt::fg(punc_color)),
                                                 fmt::styled(file, fmt::fg(str_color)),
-                                                line_str,
+                                                std::move(line_str),
                                                 fmt::styled(']', fmt::fg(punc_color)));
                     str += file_str;
                 }
@@ -117,7 +117,7 @@ namespace hyperion::assert {
                 }
                 if(!file.empty()) {
                     auto line_str = line == 0 ? std::string{} : fmt::format(":{}", line);
-                    auto file_str = fmt::format(" in [{}{}]", file, line_str);
+                    const auto file_str = fmt::format(" in [{}{}]", file, std::move(line_str));
                     str += fmt::format("\n                      {}", file_str);
                 }
                 if(name.empty() && file.empty()) {
