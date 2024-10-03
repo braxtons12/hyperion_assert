@@ -9,7 +9,7 @@ assertions for verifying error conditions have not occurred, debug assertions,
 optimization suggestions, and more, all with stacktrace support, user-configurable handling,
 optional syntax highlighting, and expression decomposition.
 
-# Example
+### Example
 
 ```cpp
     #include <hyperion/assert.h>
@@ -32,15 +32,6 @@ for how to get started using hyperion::assert.
 ### Documentation
 
 You can also find the rest of the project documentation [here](https://braxtons12.github.io/hyperion_assert)
-
-### Example
-
-After following the Quick Start Guide, you'll be able to use hyperion::assert in your project.
-A basic example of what you can do with hyperion::assert is below:
-
-```cpp
-#include <hyperion/assert.h>
-```
 
 ### Contributing
 
