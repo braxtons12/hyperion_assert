@@ -4,7 +4,7 @@
 /// mechanism used to fail gracefully and report the associated error when an
 /// irrecoverable error has occurred.
 /// @version 0.1
-/// @date 2024-10-01
+/// @date 2024-10-02
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -28,7 +28,7 @@
 /// SOFTWARE.
 
 #include <hyperion/assert/backtrace.h>
-#include <hyperion/assert/detail/def.h>
+#include <hyperion/assert/def.h>
 #include <hyperion/assert/detail/parser.h>
 #include <hyperion/assert/highlight.h>
 #include <hyperion/assert/panic.h>

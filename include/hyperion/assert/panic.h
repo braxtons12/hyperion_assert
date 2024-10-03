@@ -4,7 +4,7 @@
 /// mechanism used to fail gracefully and report the associated error when an
 /// irrecoverable error has occurred.
 /// @version 0.1
-/// @date 2024-10-01
+/// @date 2024-10-02
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -31,7 +31,7 @@
 #define HYPERION_ASSERT_PANIC_H
 
 #include <hyperion/assert/backtrace.h>
-#include <hyperion/assert/detail/def.h>
+#include <hyperion/assert/def.h>
 #include <hyperion/platform.h>
 #include <hyperion/platform/def.h>
 #include <hyperion/source_location.h>

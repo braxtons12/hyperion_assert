@@ -3,9 +3,26 @@
 [![XMake](https://github.com/braxtons12/hyperion_assert/actions/workflows/xmake.yml/badge.svg?event=push)](https://github.com/braxtons12/hyperion_assert/actions/workflows/xmake.yml)
 [![CMake](https://github.com/braxtons12/hyperion_assert/actions/workflows/cmake.yml/badge.svg?event=push)](https://github.com/braxtons12/hyperion_assert/actions/workflows/cmake.yml)
 
-hyperion::assert is a C++20 library for all manner of runtime asserts. It includes asserts
-for preconditions, postconditions, hard errors, debug asserts, and optimization suggestions,
-all with printed printed stacktrace support and user-configurable handling.
+hyperion::assert is a C++20 library for all manner of runtime assertions.
+It includes assertions for verifying contract requirements (i.e. pre-conditions, post-conditions),
+assertions for verifying error conditions have not occurred, debug assertions,
+optimization suggestions, and more, all with stacktrace support, user-configurable handling,
+optional syntax highlighting, and expression decomposition.
+
+# Example
+
+```cpp
+    #include <hyperion/assert.h>
+
+    auto example() {
+        const auto lambda = []() {
+            return 4;
+        };
+        HYPERION_ASSERT_DEBUG(2 + lambda() == 7, "lambda() wasn't {}", 5);
+    }
+```
+
+![HYPERION_ASSERT_DEBUG assertion failure output example](docs/resources/debug_assert_output.png "Output Example")
 
 ### Quick Start
 
@@ -41,4 +58,3 @@ the class it was declared in). In these cases, revert to using `enable_if` inste
 ### License
 
 hyperion::assert uses the MIT license.
-

@@ -3,7 +3,7 @@
 /// @brief Implementation of `std::source_location` (or re-export of it,
 /// if it is available)
 /// @version 0.1
-/// @date 2024-09-22
+/// @date 2024-10-02
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -29,7 +29,7 @@
 #ifndef HYPERION_ASSERT_SOURCE_LOCATION_H
 #define HYPERION_ASSERT_SOURCE_LOCATION_H
 
-#include <hyperion/assert/detail/def.h>
+#include <hyperion/assert/def.h>
 #include <hyperion/platform.h>
 #include <hyperion/platform/def.h>
 #include <hyperion/platform/types.h>
@@ -48,12 +48,28 @@
 
 #include <string>
 
+/// @defgroup source_location Source Location
+/// Hyperion provides an alternative implementation of `std::source_location`
+/// as `hyperion::source_location`, for users whose target standard library
+/// implementation doesn't yet support `std::source_location`
+/// (or their implementation still has bugs), and re-exports `std::source_location`
+/// under the hyperion namespace for those that do support it (bug-free).
+///
+/// It also provides a libfmt format specialization for `hyperion::source_location`
+/// (either source of implementation), formatting in the way typically found in assertions
+/// (i.e. `[file_name|line_number:column_number]: function_name` )
+///
+/// @headerfile hyperion/source_location.h
+
 #if HYPERION_STD_LIB_HAS_SOURCE_LOCATION \
     && (not HYPERION_PLATFORM_COMPILER_IS_CLANG or __clang_major__ >= 16)
 
     #include <source_location>
 
 namespace hyperion {
+    /// @brief Re-export of `std::source_location` as `hyperion::source_location`
+    /// @ingroup source_location
+    /// @headerfile hyperion/source_location.h
     using std::source_location;
 } // namespace hyperion
 
@@ -100,6 +116,17 @@ namespace hyperion {
         };
     } // namespace detail
 
+    /// @brief Stand-in, standard-compliant implementation of `std::source_location`,
+    /// for those standard library implementations that don't yet have a bug-free implementation.
+    ///
+    /// Requires that the compiler level support for the pre-requisite intrinsics exists:
+    /// - `__builtin_FILE()` or `__builtin_FILE_NAME()`
+    /// - `__builtin_FUNCSIG()` or `__builtin_FUNCTION()`
+    /// - `__builtin_LINE()`
+    /// - If `__builtin_COLUMN()` is not supported, column number will be reported as `0`
+    ///
+    /// @ingroup source_location
+    /// @headerfile hyperion/source_location.h
     class source_location {
       private:
         constexpr source_location(detail::SLImpl impl) noexcept : m_impl{impl} {
@@ -156,6 +183,9 @@ namespace hyperion::assert::detail {
 
 } // namespace hyperion::assert::detail
 
+/// @brief libfmt format specialization for `hyperion::source_location`
+/// @ingroup source_location
+/// @headerfile hyperion/source_location.h
 template<>
 struct fmt::formatter<hyperion::source_location> {
     // NOLINTNEXTLINE(readability-convert-member-functions-to-static)

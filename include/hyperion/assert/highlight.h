@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Rudimentary C++ syntax highlighting
 /// @version 0.1
-/// @date 2024-10-01
+/// @date 2024-10-02
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -28,7 +28,7 @@
 #ifndef HYPERION_ASSERT_HIGHLIGHT_H
 #define HYPERION_ASSERT_HIGHLIGHT_H
 
-#include <hyperion/assert/detail/def.h>
+#include <hyperion/assert/def.h>
 #include <hyperion/assert/tokens.h>
 
 #if HYPERION_PLATFORM_COMPILER_IS_GCC
@@ -42,6 +42,7 @@
     #pragma GCC diagnostic pop
 #endif // HYPERION_PLATFORM_COMPILER_IS_GCC
 
+#include <compare>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -77,8 +78,6 @@ namespace hyperion::assert::highlight {
         /// @brief Constructs an `RgbColor` from a six-digit hex number
         /// @param hex the six-digit hex number representing
         /// the red, green, and blue color values
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         explicit(false) constexpr RgbColor(const u32 hex) noexcept
             : red{static_cast<u8>((hex >> 16_u32) & 0xFF_u32)},
               green{static_cast<u8>((hex >> 8_u32) & 0xFF_u32)},
@@ -86,8 +85,6 @@ namespace hyperion::assert::highlight {
         }
         /// @brief Constructs an `RgbColor` from a libfmt `fmt::color` type
         /// @param color the color
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         explicit(false) constexpr RgbColor(const fmt::color color) noexcept
             : RgbColor{static_cast<u32>(color)} {
         }
@@ -95,16 +92,12 @@ namespace hyperion::assert::highlight {
         /// @param _red the red value
         /// @param _green the green value
         /// @param _blue the blue value
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         constexpr RgbColor(const u8 _red, const u8 _green, const u8 _blue) noexcept
             : red{_red}, green{_green}, blue{_blue} {
         }
 
         /// @brief Implicit conversion operator for `RgbColor` to its numeric representation
         /// @return the numeric representation of this `RgbColor`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         // NOLINTNEXTLINE(*-explicit-constructor)
         [[nodiscard]] explicit(false) constexpr operator u32() const noexcept {
             return static_cast<u32>((red << 16_u32) | (green << 8_u32)) | (blue);
@@ -113,8 +106,6 @@ namespace hyperion::assert::highlight {
         /// @brief Implicit conversion operator for `RgbColor` to the corresponding libfmt
         /// `fmt::detail::color_type` representation
         /// @return the libfmt representation of this `RgbColor`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         // NOLINTNEXTLINE(*-explicit-constructor)
         [[nodiscard]] explicit(false) constexpr operator fmt::detail::color_type() const noexcept {
             return fmt::detail::color_type{static_cast<u32>(*this)};
@@ -122,13 +113,9 @@ namespace hyperion::assert::highlight {
 
         /// @brief three-way comparison operator for `RgbColor`s
         /// @return how this `RgbColor` orders relative to `other`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         constexpr auto operator<=>(const RgbColor& other) const noexcept = default;
         /// @brief equality comparison operator for `RgbColor`s
         /// @return whether this `RgbColor` is equal to `other`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         constexpr auto operator==(const RgbColor& other) const noexcept -> bool = default;
 
         u8 red = 0xFF_u8;
@@ -144,35 +131,25 @@ namespace hyperion::assert::highlight {
     class Color {
       public:
         /// @brief Default constructs a `Color` as pure white
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         constexpr Color() noexcept = default;
         /// @brief Constructs a `Color` as the given `RgbColor` value
         /// @param color The `RgbColor` value to construct this `Color` as
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         explicit(false) constexpr Color(const RgbColor color) noexcept : m_value{color} {
         }
         /// @brief Constructs a `Color` as the given libfmt `fmt::terminal_color` value
         /// @param color The `fmt::terminal_color` value to construct this `Color` as
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         explicit(false) constexpr Color(const fmt::terminal_color color) noexcept
             : m_is_term{true}, m_value{color} {
         }
         /// @brief Constructs a `Color` as the given red-blue-green color
         /// @param rgb_hex The red-blue-green color to construct this `Color` as,
         /// represented as a 6-digit hexadecimal number
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         explicit(false) constexpr Color(const u32 rgb_hex) noexcept : m_value{RgbColor{rgb_hex}} {
         }
 
         /// @brief Returns whether this `Color` represents a terminal emulator color
         /// @return whether this `Color` represents a libfmt terminal emulator color,
         /// i.e. a `fmt::terminal_color`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         [[nodiscard]] constexpr auto is_term_color() const noexcept {
             return m_is_term;
         }
@@ -181,8 +158,6 @@ namespace hyperion::assert::highlight {
         /// if it represents one
         /// @return the `fmt::terminal_color` this `Color` represents, or `std::nullopt`
         /// if it doesn't represent an `fmt::terminal_color`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         [[nodiscard]] constexpr auto
         term_color() const noexcept -> std::optional<fmt::terminal_color> {
             if(m_is_term) {
@@ -194,8 +169,6 @@ namespace hyperion::assert::highlight {
 
         /// @brief Returns whether this `Color` represents an `RgbColor`
         /// @return whether this `Color` represents an `RgbColor`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         [[nodiscard]] constexpr auto is_rgb_color() const noexcept {
             return m_is_term;
         }
@@ -203,8 +176,6 @@ namespace hyperion::assert::highlight {
         /// @brief Returns the `RgbColor` this `Color` represents, if it represents one
         /// @return the `RgbColor` this `Color` represents, or `std::nullopt`
         /// if it doesn't represent an `RgbColor`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         [[nodiscard]] constexpr auto rgb_color() const noexcept -> std::optional<RgbColor> {
             if(m_is_term) {
                 return {};
@@ -216,8 +187,6 @@ namespace hyperion::assert::highlight {
         /// @brief implicit conversion operator for `Color` to the corresponding
         /// libfmt `fmt::detail::color_type` representation
         /// @return the libfmt color type representation of this `Color`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         // NOLINTNEXTLINE(*-explicit-constructor)
         [[nodiscard]] explicit(false) constexpr operator fmt::detail::color_type() const noexcept {
             if(m_is_term) {
@@ -236,8 +205,6 @@ namespace hyperion::assert::highlight {
         /// and vice versa
         ///
         /// @return how this `Color` orders relative to `other`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         constexpr auto operator<=>(const Color& other) const noexcept -> std::weak_ordering {
             if(m_is_term && other.m_is_term) {
                 return m_value.term_color <=> other.m_value.term_color;
@@ -262,8 +229,6 @@ namespace hyperion::assert::highlight {
         /// they represent. Otherwise, returns `false`.
         ///
         /// @return whether this `Color` is equal to `other`
-        /// @headerfile hyperion/assert/highlight.h
-        /// @ingroup highlight
         constexpr auto operator==(const Color& other) const noexcept -> bool {
             if(m_is_term && other.m_is_term) {
                 return m_value.term_color == other.m_value.term_color;
@@ -277,7 +242,11 @@ namespace hyperion::assert::highlight {
         }
 
       private:
+
         bool m_is_term = false;
+
+        /// @brief storage implementation for `Color`
+        /// @ingroup private
         union storage {
             explicit(false) constexpr storage(const RgbColor color) noexcept : rgb_color{color} {
             }
@@ -288,6 +257,7 @@ namespace hyperion::assert::highlight {
             RgbColor rgb_color = 0xFFFFFF_u32;
             fmt::terminal_color term_color;
         };
+
         storage m_value = RgbColor{0xFFFFFF_u32};
     };
 
@@ -296,7 +266,9 @@ namespace hyperion::assert::highlight {
     /// @headerfile hyperion/assert/highlight.h
     /// @ingroup highlight
     struct Highlight {
+        /// @brief The token kind this highlight configuration is for
         tokens::Kind kind;
+        /// @brief The color tokens of `kind` should be highlighted as
         Color color;
     };
 

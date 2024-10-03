@@ -2,7 +2,7 @@
 /// @author Braxton Salyer <braxtonsalyer@gmail.com>
 /// @brief Robust C++20 runtime asserts
 /// @version 0.1
-/// @date 2024-10-01
+/// @date 2024-10-02
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -30,6 +30,7 @@
 
 #include <hyperion/assert/backtrace.h>
 #include <hyperion/assert/detail/decomposer.h>
+#include <hyperion/assert/def.h>
 #include <hyperion/assert/detail/parser.h>
 #include <hyperion/assert/highlight.h>
 #include <hyperion/assert/panic.h>
@@ -141,7 +142,7 @@
 ///     auto some_context = some_call_that_influences_function();
 ///
 ///     HYPERION_ASSERT_DEBUG(value + function() == 42,
-///                           "Example did not equal the meaning of life",
+///                           "Example did not equal the meaning of life: {}",
 ///                           some_context);
 /// }
 /// @endcode
@@ -243,11 +244,15 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 /// @def HYPERION_ASSERT_ASSUME
 /// @brief Signals to the compiler that a condition can be safely assumed
 /// to be true at all times. Aids in optimization.
+/// @param condition The condition to verify. Can be any arbitrary (sequence of)
+/// expression(s), as long as the result of that (sequence of) expression(s) is
+/// convertible to `bool`
 /// @note Only use this if the condition can be guaranteed to be true.
 /// Using this in cases where the condition is not guaranteed results in
 /// undefined behavior.
 /// If the condition cannot be guaranteed, instead use `HYPERION_ASSERT_EXPECT`
 /// @headerfile hyperion/assert.h
+/// @ingroup assert
 
 #if HYPERION_PLATFORM_COMPILER_IS_MSVC
 
@@ -256,7 +261,10 @@ HYPERION_IGNORE_UNUSED_MACROS_WARNING_START;
 #elif HYPERION_PLATFORM_COMPILER_IS_CLANG
 
     #define HYPERION_ASSERT_ASSUME(condition) /** NOLINT(*-macro-usage) **/ \
-        __builtin_assume(condition)
+        _Pragma("GCC diagnostic push")                                      \
+        _Pragma("GCC diagnostic ignored \"-Wassume\"")                      \
+        __builtin_assume(condition)                                         \
+        _Pragma("GCC diagnostic pop")
 
 #else // not HYPERION_PLATFORM_COMPILER_IS_MSVC and not HYPERION_PLATFORM_COMPILER_IS_CLANG
 
