@@ -1,0 +1,929 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>hyperion::assert &#8212; hyperion::assert  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'assert';</script>
+    <link rel="canonical" href="braxtons12.github.io/hyperion_assert/assert.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="hyperion::assert::backtrace" href="backtrace.html" />
+    <link rel="prev" title="Index" href="genindex.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="dark">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">hyperion::assert  documentation</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="quick_start.html">
+    Quick Start Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="genindex.html">
+    Index
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    hyperion::assert
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="source_location.html">
+    hyperion::source_location
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/braxtons12/hyperion_assert" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="quick_start.html">
+    Quick Start Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="genindex.html">
+    Index
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    hyperion::assert
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="source_location.html">
+    hyperion::source_location
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/braxtons12/hyperion_assert" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        <div class="sidebar-primary-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="quick_start.html">
+    Quick Start Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="genindex.html">
+    Index
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    hyperion::assert
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="source_location.html">
+    hyperion::source_location
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="list-caption"><li class="toctree-l0 has-children"><details><summary><p aria-level="2" class="caption" role="heading"><span class="caption-text">Backtrace</span></p><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="backtrace.html">hyperion::assert::backtrace</a></li>
+</ul></details></li><li class="toctree-l0 has-children"><details><summary><p aria-level="2" class="caption" role="heading"><span class="caption-text">Syntax Highlighting</span></p><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="highlight.html">hyperion::assert::highlight</a></li>
+</ul></details></li><li class="toctree-l0 has-children"><details><summary><p aria-level="2" class="caption" role="heading"><span class="caption-text">Runtime Panics</span></p><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="panic.html">hyperion::assert::panic</a></li>
+</ul></details></li><li class="toctree-l0 has-children"><details><summary><p aria-level="2" class="caption" role="heading"><span class="caption-text">Syntax Tokens</span></p><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tokens.html">hyperion::assert::tokens</a></li>
+</ul></details></li></ul></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">hyperion::assert</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="hyperion-assert">
+<h1>hyperion::assert<a class="headerlink" href="#hyperion-assert" title="Link to this heading">#</a></h1>
+<p>hyperion::assert makes several submodules part of its public interface.
+See links to their documentation below or scroll further for the primary documentation.</p>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Backtrace</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="backtrace.html">hyperion::assert::backtrace</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="backtrace.html#_CPPv49Backtrace"><code class="docutils literal notranslate"><span class="pre">Backtrace</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="backtrace.html#_CPPv411FormatStyle"><code class="docutils literal notranslate"><span class="pre">FormatStyle</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="backtrace.html#_CPPv4N11FormatStyle8UnstyledE"><code class="docutils literal notranslate"><span class="pre">FormatStyle::Unstyled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="backtrace.html#_CPPv4N11FormatStyle6StyledE"><code class="docutils literal notranslate"><span class="pre">FormatStyle::Styled</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="backtrace.html#_CPPv416format_backtraceRK9BacktraceN9backtrace11FormatStyleE"><code class="docutils literal notranslate"><span class="pre">format_backtrace()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Syntax Highlighting</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="highlight.html">hyperion::assert::highlight</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="highlight.html#_CPPv49highlightNSt11string_viewEb"><code class="docutils literal notranslate"><span class="pre">highlight()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlight.html#_CPPv418register_highlightRK9Highlight"><code class="docutils literal notranslate"><span class="pre">register_highlight()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlight.html#_CPPv418register_highlightRR9Highlight"><code class="docutils literal notranslate"><span class="pre">register_highlight()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlight.html#_CPPv419register_highlightsRKNSt6vectorI9HighlightEE"><code class="docutils literal notranslate"><span class="pre">register_highlights()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlight.html#_CPPv419register_highlightsRRNSt6vectorI9HighlightEE"><code class="docutils literal notranslate"><span class="pre">register_highlights()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlight.html#_CPPv49get_colorRKN6tokens4KindE"><code class="docutils literal notranslate"><span class="pre">get_color()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight8RgbColorE"><code class="docutils literal notranslate"><span class="pre">RgbColor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight8RgbColor8RgbColorEK3u32"><code class="docutils literal notranslate"><span class="pre">RgbColor::RgbColor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight8RgbColor8RgbColorEK2u8K2u8K2u8"><code class="docutils literal notranslate"><span class="pre">RgbColor::RgbColor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4NK8hyperion6assert9highlight8RgbColorcv3u32Ev"><code class="docutils literal notranslate"><span class="pre">RgbColor::operator</span> <span class="pre">u32()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight5ColorE"><code class="docutils literal notranslate"><span class="pre">Color</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight5Color5ColorEv"><code class="docutils literal notranslate"><span class="pre">Color::Color()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight5Color5ColorEK8RgbColor"><code class="docutils literal notranslate"><span class="pre">Color::Color()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight5Color5ColorEK3u32"><code class="docutils literal notranslate"><span class="pre">Color::Color()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4NK8hyperion6assert9highlight5Color13is_term_colorEv"><code class="docutils literal notranslate"><span class="pre">Color::is_term_color()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4NK8hyperion6assert9highlight5Color10term_colorEv"><code class="docutils literal notranslate"><span class="pre">Color::term_color()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4NK8hyperion6assert9highlight5Color12is_rgb_colorEv"><code class="docutils literal notranslate"><span class="pre">Color::is_rgb_color()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4NK8hyperion6assert9highlight5Color9rgb_colorEv"><code class="docutils literal notranslate"><span class="pre">Color::rgb_color()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight5Color7storageE"><code class="docutils literal notranslate"><span class="pre">Color::storage</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight5Color7storage7storageEK8RgbColor"><code class="docutils literal notranslate"><span class="pre">Color::storage::storage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight5Color7storage9rgb_colorE"><code class="docutils literal notranslate"><span class="pre">Color::storage::rgb_color</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight5Color7storage10term_colorE"><code class="docutils literal notranslate"><span class="pre">Color::storage::term_color</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight9HighlightE"><code class="docutils literal notranslate"><span class="pre">Highlight</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight9Highlight4kindE"><code class="docutils literal notranslate"><span class="pre">Highlight::kind</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="highlight.html#_CPPv4N8hyperion6assert9highlight9Highlight5colorE"><code class="docutils literal notranslate"><span class="pre">Highlight::color</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Runtime Panics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="panic.html">hyperion::assert::panic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="panic.html#_CPPv47Handler"><code class="docutils literal notranslate"><span class="pre">Handler</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="panic.html#_CPPv411set_handler7Handler"><code class="docutils literal notranslate"><span class="pre">set_handler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="panic.html#_CPPv411get_handlerv"><code class="docutils literal notranslate"><span class="pre">get_handler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="panic.html#_CPPv415default_handlerv"><code class="docutils literal notranslate"><span class="pre">default_handler()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Syntax Tokens</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tokens.html">hyperion::assert::tokens</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv410Identifier"><code class="docutils literal notranslate"><span class="pre">Identifier</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv44Kind"><code class="docutils literal notranslate"><span class="pre">Kind</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv4N8hyperion6assert6tokens9NamespaceE"><code class="docutils literal notranslate"><span class="pre">Namespace</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv4N8hyperion6assert6tokens4TypeE"><code class="docutils literal notranslate"><span class="pre">Type</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv4N8hyperion6assert6tokens8FunctionE"><code class="docutils literal notranslate"><span class="pre">Function</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv4N8hyperion6assert6tokens8VariableE"><code class="docutils literal notranslate"><span class="pre">Variable</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv4N8hyperion6assert6tokens7KeywordE"><code class="docutils literal notranslate"><span class="pre">Keyword</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv4N8hyperion6assert6tokens6StringE"><code class="docutils literal notranslate"><span class="pre">String</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv4N8hyperion6assert6tokens7NumericE"><code class="docutils literal notranslate"><span class="pre">Numeric</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv4N8hyperion6assert6tokens11PunctuationE"><code class="docutils literal notranslate"><span class="pre">Punctuation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokens.html#_CPPv4N8hyperion6assert6tokens5ErrorE"><code class="docutils literal notranslate"><span class="pre">Error</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__assert"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">assert</span></span></dt>
+<dd><p>Hyperion’s runtime assertions library provides a full-featured set of assertions suitable for most tasks. These assertions have a vastly expanded feature-set compared to the standard <code class="docutils literal notranslate"><span class="pre">assert</span></code> from <code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&lt;cassert&gt;</span></code>, including:</p>
+<p><ul class="simple">
+<li><p>Detailed Source Location Information: The complete source location where the assertion was triggered is printed, including file, line, column (if available), and enclosing function information.</p></li>
+<li><p>Expression Decomposition: The full expression passed to the assertion is decomposed into individual sub-expressions, and if the assertion fails, the expression is printed in both its textual form, and with the values of each step in its evaluation rendered in sequence as well. For example, the expression <code class="docutils literal notranslate"><span class="pre">value1</span> <span class="pre">+</span> <span class="pre">value2</span> <span class="pre">&lt;</span> <span class="pre">5</span></code> might result in the following being printed: <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="nl">Where</span><span class="p">:</span><span class="w"> </span><span class="n">value1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">value2</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span>
+<span class="n">Evaluated</span><span class="w"> </span><span class="n">To</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span>
+</pre></div>
+</div>
+ When the result type of a leaf subexpression does not provide a formatting implementation compatible with libfmt, <code class="docutils literal notranslate"><span class="pre">(NotFormattable)</span></code> is rendered instead.</p></li>
+<li><p>Backtrace: The backtrace of the callstack up to the point of the triggered assertion is printed, including all available location information: frame number (starting at 0, with 0 being the current frame), address, function name (if available), file name (if available), and line number (if available). Quality of backtrace depends on the target platform and availability of debug symbols/information. Backtrace functionality relies on Boost.Stacktrace and is subject to its support and limitations.</p></li>
+<li><p>Syntax Highlighting: Full syntax highlighting of the assertion error message, including source locations, expressions, and function names. This uses a simple single-pass implementation for tokenization, and so syntax highlighting is not <em>guaranteed</em> to be 100% accurate (for example, a type may be highlighted as a namespace or vice-versa), but is reasonably accurate for the intended purpose (see screenshots in the README and documentation site for examples of highlighting quality). Syntax highlighting is configurable by making calls to <code class="docutils literal notranslate"><span class="pre">hyperion::assert::highlight::set_color</span></code> or <code class="docutils literal notranslate"><span class="pre">hyperion::assert::highlight::set_colors</span></code> at program startup. By default, highlighting uses the foreground colors of the “One Dark” theme.</p></li>
+<li><p>Context Message Formatting: Assertions take an optional context message, along with optional parameters for the message, using the formatting capabilities of libfmt. The context message must adhere to libfmt’s format string specifications and the additional parameters (if any) must supply a libfmt compatible formatting implementation that is in-scope.</p></li>
+<li><p>Compiler Optimization Aids: All assertions are implemented in such as way that they inform the compiler that it is extremely unlikely that they will fire, which may aid in code generation and optimization performed by the compiler.</p></li>
+</ul>
+</p>
+<p>hyperion::assert provides a variety of assertions and assertion-like utilities:<ul class="simple">
+<li><p>Assumptions (<code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_ASSUME</span></code>): Signals to the compiler that something is assumed to be true. Aids in optimization and code generation. The user must be able to guarantee that the assumption is always valid (otherwise, creates undefined behavior).</p></li>
+<li><p>Expectations (<code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_EXPECT</span></code> and <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_UNEXPECT</span></code>): Signals to the compiler that something is expected to be true (or not), but that it is not guaranteed. Aids in optimization and code generation. Similar to the C++20 <code class="docutils literal notranslate"><span class="pre">[[likely]]</span></code> and <code class="docutils literal notranslate"><span class="pre">[[unlikely]]</span></code> attributes, but is not required required to be applied on a branch.</p></li>
+<li><p>Debug Assertions (<code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_DEBUG</span></code>): Typical Debug assertion, but with all of the enhancements mentioned above.</p></li>
+<li><p>Precondition Assertions (<code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_PRECONDITION</span></code>): Used to verify a precondition has been met at the beginning of a function call. Must be the first statement (or sequence of statements, for multiple preconditions) in the function.</p></li>
+<li><p>Postcondition Assertions (<code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_POSTCONDITION</span></code>): Used to verify a postcondition has been fulfilled by a function’s operations. May be placed at any point within a function, as long as that location is at the function’s outer-most scope. Checked at scope exit.</p></li>
+<li><p>Fatal Assertions (<code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_FATAL</span></code>): Used to verify that an irrecoverable error has <em>not</em> occurred.</p></li>
+<li><p>Requirement Assertions (<code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_REQUIRE</span></code>): Used to verify that a condition that is itself not an error in the state of the program, but otherwise implies that the program can not successfully proceed, has <em>not</em> occurred (examples include Out of Memory or inability to access the network)</p></li>
+</ul>
+</p>
+<p>All categories except for Assumptions and Expectations provide the feature-set mentioned above.</p>
+<section id="group__assert_1autotoc_md7">
+<h2>Example<a class="headerlink" href="#group__assert_1autotoc_md7" title="Link to this heading">#</a></h2>
+<div class="highlight-cpp notranslate" id="group__assert_1autotoc_md7"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">function</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">int</span><span class="p">;</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">example</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">some_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">some_call_that_influences_function</span><span class="p">();</span>
+
+<span class="w">    </span><span class="n">HYPERION_ASSERT_DEBUG</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">function</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<span class="w">                          </span><span class="s">&quot;Example did not equal the meaning of life: {}&quot;</span><span class="p">,</span>
+<span class="w">                          </span><span class="n">some_context</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ASSERT_ASSUME">
+<span class="target" id="group__assert_1gaea2addf09c1a153a728d83742d513e0f"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ASSERT_ASSUME</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">condition</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.HYPERION_ASSERT_ASSUME" title="Link to this definition">#</a><br /></dt>
+<dd><p>Signals to the compiler that a condition can be safely assumed to be true at all times. Aids in optimization. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – The condition to verify. Can be any arbitrary (sequence of) expression(s), as long as the result of that (sequence of) expression(s) is convertible to <code class="docutils literal notranslate"><span class="pre">bool</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only use this if the condition can be guaranteed to be true. Using this in cases where the condition is not guaranteed results in undefined behavior. If the condition cannot be guaranteed, instead use <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_EXPECT</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ASSERT_DEBUG">
+<span class="target" id="group__assert_1ga012b6eb48c94ed394b270a429139188c"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ASSERT_DEBUG</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">condition</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.HYPERION_ASSERT_DEBUG" title="Link to this definition">#</a><br /></dt>
+<dd><p>Typical debug assertion. Useful for sanity checking, logic verification, and checking other conditions that you would like to catch early with debug builds, but avoid checking in release. </p>
+<p>In Debug builds:<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">false</span></code>:<ul>
+<li><p>Prints a helpful error message to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, including:<ul>
+<li><p>The source location at which the assertion was triggered</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">condition</span></code> expression</p></li>
+<li><p>What <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluated to</p></li>
+<li><p>Any additional context you passed in</p></li>
+<li><p>A backtrace of the call stack up to this point</p></li>
+</ul>
+</p></li>
+<li><p>Triggers a debug break point (to aid in debugging the cause of the assertion)</p></li>
+<li><p>Aborts</p></li>
+</ul>
+</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">true</span></code>:<ul>
+<li><p>Does nothing</p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+<p>In Release builds:<ul class="simple">
+<li><p>This maps to <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_ASSUME</span></code>, aiding in code generation and optimization</p></li>
+</ul>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – The condition to verify. Can be any arbitrary (sequence of) expression(s), as long as the result of that (sequence of) expression(s) is convertible to <code class="docutils literal notranslate"><span class="pre">bool</span></code></p></li>
+<li><p><strong>...</strong> – A message providing additional context in the case of failure can be included in the error message printed to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, followed by any additional arguments to be formatted into that context message. Formatting is performed by libfmt, so the message must follow its format string specification, and arguments must provide a libfmt-compatible formatting implementation.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The core mechanism of Hyperion’s assertions is <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code>. All Hyperion assertions eventually map down to this mechanism in the build mode that corresponds with their traditional assertion strategy being active (For <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_DEBUG</span></code> that is Debug builds. For most others, that is always). This means that the exact behavior of assertion failures can be customized by registering a custom Panic handler (for example if you don’t want to abort, or don’t want to trigger a break point). The contents of the error message given to <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code> are fixed, however. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ASSERT_PRECONDITION">
+<span class="target" id="group__assert_1ga57557500232cf8f6489da9d9e115e8cf"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ASSERT_PRECONDITION</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">condition</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.HYPERION_ASSERT_PRECONDITION" title="Link to this definition">#</a><br /></dt>
+<dd><p>Pre-condition assertion. Useful for verifying that function pre-conditions have been met, prior to performing any actual operations. </p>
+<p><ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">false</span></code>:<ul>
+<li><p>Prints a helpful error message to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, including:<ul>
+<li><p>The source location at which the assertion was triggered</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">condition</span></code> expression</p></li>
+<li><p>What <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluated to</p></li>
+<li><p>Any additional context you passed in</p></li>
+<li><p>A backtrace of the call stack up to this point</p></li>
+</ul>
+</p></li>
+<li><p>Triggers a debug break point (to aid in debugging the cause of the assertion)</p></li>
+<li><p>Aborts</p></li>
+</ul>
+</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">true</span></code>:<ul>
+<li><p>Does nothing</p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+<p>By default, Hyperion’s contract assertions (<code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_PRECONDITION</span></code> and <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_POSTCONDITION</span></code>) trigger in both Debug and Release builds. If <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_CONTRACT_ASSERTIONS_DEBUG_ONLY</span></code> has been defined to <code class="docutils literal notranslate"><span class="pre">true</span></code>, in Release builds this will map to <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_ASSUME</span></code>, instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – The condition to verify. Can be any arbitrary (sequence of) expression(s), as long as the result of that (sequence of) expression(s) is convertible to <code class="docutils literal notranslate"><span class="pre">bool</span></code></p></li>
+<li><p><strong>...</strong> – A message providing additional context in the case of failure can be included in the error message printed to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, followed by any additional arguments to be formatted into that context message. Formatting is performed by libfmt, so the message must follow its format string specification, and arguments must provide a libfmt-compatible formatting implementation.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The core mechanism of Hyperion’s assertions is <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code>. All Hyperion assertions eventually map down to this mechanism in the build mode that corresponds with their traditional assertion strategy being active (For <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_DEBUG</span></code> that is Debug builds. For most others, that is always). This means that the exact behavior of assertion failures can be customized by registering a custom Panic handler (for example if you don’t want to abort, or don’t want to trigger a break point). The contents of the error message given to <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code> are fixed, however. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ASSERT_POSTCONDITION">
+<span class="target" id="group__assert_1ga36c1b68f08c01c5d27599a0854718d5f"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ASSERT_POSTCONDITION</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">condition</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.HYPERION_ASSERT_POSTCONDITION" title="Link to this definition">#</a><br /></dt>
+<dd><p>Post-condition assertion. Useful for verifying that function post-conditions have been met, after performing all operations. </p>
+<p><ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">false</span></code>:<ul>
+<li><p>Prints a helpful error message to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, including:<ul>
+<li><p>The source location at which the assertion was triggered</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">condition</span></code> expression</p></li>
+<li><p>What <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluated to</p></li>
+<li><p>Any additional context you passed in</p></li>
+<li><p>A backtrace of the call stack up to this point</p></li>
+</ul>
+</p></li>
+<li><p>Triggers a debug break point (to aid in debugging the cause of the assertion)</p></li>
+<li><p>Aborts</p></li>
+</ul>
+</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">true</span></code>:<ul>
+<li><p>Does nothing</p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+<p>By default, Hyperion’s contract assertions (<code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_PRECONDITION</span></code> and <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_POSTCONDITION</span></code>) trigger in both Debug and Release builds. If <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_CONTRACT_ASSERTIONS_DEBUG_ONLY</span></code> has been defined to <code class="docutils literal notranslate"><span class="pre">true</span></code>, in Release builds this will map to <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_ASSUME</span></code>, instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – The condition to verify. Can be any arbitrary (sequence of) expression(s), as long as the result of that (sequence of) expression(s) is convertible to <code class="docutils literal notranslate"><span class="pre">bool</span></code></p></li>
+<li><p><strong>...</strong> – A message providing additional context in the case of failure can be included in the error message printed to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, followed by any additional arguments to be formatted into that context message. Formatting is performed by libfmt, so the message must follow its format string specification, and arguments must provide a libfmt-compatible formatting implementation.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The core mechanism of Hyperion’s assertions is <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code>. All Hyperion assertions eventually map down to this mechanism in the build mode that corresponds with their traditional assertion strategy being active (For <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_DEBUG</span></code> that is Debug builds. For most others, that is always). This means that the exact behavior of assertion failures can be customized by registering a custom Panic handler (for example if you don’t want to abort, or don’t want to trigger a break point). The contents of the error message given to <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code> are fixed, however. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ASSERT_REQUIRE">
+<span class="target" id="group__assert_1ga4ebadfefe34f739b743b8613a05906a5"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ASSERT_REQUIRE</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">condition</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.HYPERION_ASSERT_REQUIRE" title="Link to this definition">#</a><br /></dt>
+<dd><p>General-purpose hard-requirement assertion. Useful for verifying that conditions crucial to program continuation (for example, conditions for which it is not safe and/or possible to continue execution when they are false) have been maintained. </p>
+<p><ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">false</span></code>:<ul>
+<li><p>Prints a helpful error message to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, including:<ul>
+<li><p>The source location at which the assertion was triggered</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">condition</span></code> expression</p></li>
+<li><p>What <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluated to</p></li>
+<li><p>Any additional context you passed in</p></li>
+<li><p>A backtrace of the call stack up to this point</p></li>
+</ul>
+</p></li>
+<li><p>Triggers a debug break point (to aid in debugging the cause of the assertion)</p></li>
+<li><p>Aborts</p></li>
+</ul>
+</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">true</span></code>:<ul>
+<li><p>Does nothing</p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – The condition to verify. Can be any arbitrary (sequence of) expression(s), as long as the result of that (sequence of) expression(s) is convertible to <code class="docutils literal notranslate"><span class="pre">bool</span></code></p></li>
+<li><p><strong>...</strong> – A message providing additional context in the case of failure can be included in the error message printed to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, followed by any additional arguments to be formatted into that context message. Formatting is performed by libfmt, so the message must follow its format string specification, and arguments must provide a libfmt-compatible formatting implementation.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The core mechanism of Hyperion’s assertions is <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code>. All Hyperion assertions eventually map down to this mechanism in the build mode that corresponds with their traditional assertion strategy being active (For <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_DEBUG</span></code> that is Debug builds. For most others, that is always). This means that the exact behavior of assertion failures can be customized by registering a custom Panic handler (for example if you don’t want to abort, or don’t want to trigger a break point). The contents of the error message given to <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code> are fixed, however. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ASSERT_FATAL">
+<span class="target" id="group__assert_1ga9c47ffb3e3ffe67a262cff4544c9a5c4"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ASSERT_FATAL</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">condition</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.HYPERION_ASSERT_FATAL" title="Link to this definition">#</a><br /></dt>
+<dd><p>Fatal assertion. Useful for verifying that program-fatal conditions have not occurred. </p>
+<p><ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">false</span></code>:<ul>
+<li><p>Prints a helpful error message to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, including:<ul>
+<li><p>The source location at which the assertion was triggered</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">condition</span></code> expression</p></li>
+<li><p>What <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluated to</p></li>
+<li><p>Any additional context you passed in</p></li>
+<li><p>A backtrace of the call stack up to this point</p></li>
+</ul>
+</p></li>
+<li><p>Triggers a debug break point (to aid in debugging the cause of the assertion)</p></li>
+<li><p>Aborts</p></li>
+</ul>
+</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">condition</span></code> evaluates to <code class="docutils literal notranslate"><span class="pre">true</span></code>:<ul>
+<li><p>Does nothing</p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> – The condition to verify. Can be any arbitrary (sequence of) expression(s), as long as the result of that (sequence of) expression(s) is convertible to <code class="docutils literal notranslate"><span class="pre">bool</span></code></p></li>
+<li><p><strong>...</strong> – A message providing additional context in the case of failure can be included in the error message printed to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, followed by any additional arguments to be formatted into that context message. Formatting is performed by libfmt, so the message must follow its format string specification, and arguments must provide a libfmt-compatible formatting implementation.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The core mechanism of Hyperion’s assertions is <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code>. All Hyperion assertions eventually map down to this mechanism in the build mode that corresponds with their traditional assertion strategy being active (For <code class="docutils literal notranslate"><span class="pre">HYPERION_ASSERT_DEBUG</span></code> that is Debug builds. For most others, that is always). This means that the exact behavior of assertion failures can be customized by registering a custom Panic handler (for example if you don’t want to abort, or don’t want to trigger a break point). The contents of the error message given to <code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code> are fixed, however. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ASSERT_EXPECT">
+<span class="target" id="group__assert_1ga0db719d2aded1384e7aa326a3452a333"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ASSERT_EXPECT</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">expr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.HYPERION_ASSERT_EXPECT" title="Link to this definition">#</a><br /></dt>
+<dd><p>Marks a condition as expected. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expr</strong> – the expected condition </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ASSERT_UNEXPECT">
+<span class="target" id="group__assert_1gaabdbc987d5009b61fe1ba3a6d4ed6a5f"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ASSERT_UNEXPECT</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">expr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.HYPERION_ASSERT_UNEXPECT" title="Link to this definition">#</a><br /></dt>
+<dd><p>Marks a condition as unexpected. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expr</strong> – the unexpected condition </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ASSERT_DEBUG_BREAK">
+<span class="target" id="group__assert_1ga651b54ec7d3a5d451c5a21909fe472f6"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ASSERT_DEBUG_BREAK</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.HYPERION_ASSERT_DEBUG_BREAK" title="Link to this definition">#</a><br /></dt>
+<dd><p>Triggers a debugging break point. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__attributes"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">attributes</span></span></dt>
+<dd><p>Hyperion provides several atributes for guiding (or hinting to) the optimizer to better meet the requirements of the user. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ATTRIBUTE_COLD">
+<span class="target" id="group__attributes_1ga8490c8a3cb604859633e3732889c655a"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ATTRIBUTE_COLD</span></span></span><a class="headerlink" href="#c.HYPERION_ATTRIBUTE_COLD" title="Link to this definition">#</a><br /></dt>
+<dd><p>Marks a function as a “cold” code path. “cold” functions are not primed in the instruction cache, branches leading to them are considered “unlikely”, and grouped into a section of the binary away from “hot” functions, to improve locality. </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.HYPERION_ATTRIBUTE_NO_INLINE">
+<span class="target" id="group__attributes_1gaeea25bed71bc6af68a0f3c8eb27d065d"></span><span class="sig-name descname"><span class="n"><span class="pre">HYPERION_ATTRIBUTE_NO_INLINE</span></span></span><a class="headerlink" href="#c.HYPERION_ATTRIBUTE_NO_INLINE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Marks a function to not be inlined by the optimizer. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="genindex.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Index</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="backtrace.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">hyperion::assert::backtrace</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Braxton Salyer &lt;braxtonsalyer@gmail.com&gt;.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
