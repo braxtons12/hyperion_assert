@@ -21,7 +21,7 @@ optional syntax highlighting, and expression decomposition.
     }
 
 .. image:: resources/debug_assert_output.png
-    :width: 400
+    :width: 800
     :alt: HYPERION_ASSERT_DEBUG assertion failure output example
 
 
