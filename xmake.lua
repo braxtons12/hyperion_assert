@@ -75,13 +75,13 @@ local hyperion_assert_main_headers = {
 }
 local hyperion_assert_headers = {
     "$(projectdir)/include/hyperion/assert/backtrace.h",
+    "$(projectdir)/include/hyperion/assert/def.h",
     "$(projectdir)/include/hyperion/assert/highlight.h",
     "$(projectdir)/include/hyperion/assert/panic.h",
     "$(projectdir)/include/hyperion/assert/tokens.h",
 }
 local hyperion_assert_detail_headers = {
     "$(projectdir)/include/hyperion/assert/detail/decomposer.h",
-    "$(projectdir)/include/hyperion/assert/detail/def.h",
     "$(projectdir)/include/hyperion/assert/detail/parser.h",
 }
 local hyperion_assert_sources = {
