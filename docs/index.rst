@@ -25,7 +25,6 @@ optional syntax highlighting, and expression decomposition.
     :alt: HYPERION_ASSERT_DEBUG assertion failure output example
 
 
-
 See the :doc:`Quick Start Guide <quick_start>` for how to get started using hyperion::assert.
 
 For an overview of each module, see the links in the left sidebar or below.
