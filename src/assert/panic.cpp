@@ -3,8 +3,8 @@
 /// @brief Provides runtime panic support. A runtime panic is an error reporting
 /// mechanism used to fail gracefully and report the associated error when an
 /// irrecoverable error has occurred.
-/// @version 0.1
-/// @date 2024-10-02
+/// @version 0.1.1
+/// @date 2025-01-18
 ///
 /// MIT License
 /// @copyright Copyright (c) 2024 Braxton Salyer <braxtonsalyer@gmail.com>
@@ -57,12 +57,12 @@ namespace hyperion::assert::detail {
 
     HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE [[nodiscard]] auto
     format_source_location(const hyperion::source_location& location) -> std::string {
+        using hyperion::assert::detail::parser::Token;
         using hyperion::assert::highlight::get_color;
         using hyperion::assert::highlight::highlight;
         using hyperion::assert::tokens::Numeric;
         using hyperion::assert::tokens::Punctuation;
         using hyperion::assert::tokens::String;
-        using hyperion::assert::detail::parser::Token;
 
         const auto str_color = get_color(tokens::Kind{std::in_place_type<String>});
         const auto num_color = get_color(tokens::Kind{std::in_place_type<Numeric>});
@@ -84,17 +84,22 @@ namespace hyperion::assert::detail {
 namespace hyperion::assert::panic {
 
     namespace detail {
+#if HYPERION_PLATFORM_COMPILER_IS_GCC && __GNUC__ >= 14
+    #define NORETURN
+#else
+    #define NORETURN [[noreturn]]
+#endif // HYPERION_PLATFORM_COMPILER_IS_GCC && __GNUC__ >= 14
 
         namespace {
             HYPERION_IGNORE_INVALID_NORETURN_WARNING_START;
 
-            [[noreturn]] HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
+            NORETURN HYPERION_ATTRIBUTE_COLD HYPERION_ATTRIBUTE_NO_INLINE auto
             default_handler(const std::string_view panic_message,
                             const hyperion::source_location& location,
                             const Backtrace& backtrace) noexcept -> void {
+                using hyperion::assert::detail::parser::Token;
                 using hyperion::assert::highlight::get_color;
                 using hyperion::assert::tokens::Error;
-                using hyperion::assert::detail::parser::Token;
 
                 if(panic_message.empty()) {
                     fmt::print(stderr,
@@ -124,11 +129,11 @@ namespace hyperion::assert::panic {
                                hyperion::assert::format_backtrace(backtrace,
                                                                   backtrace::FormatStyle::Styled));
                 }
-                #if HYPERION_PLATFORM_MODE_IS_DEBUG
-                    HYPERION_ASSERT_DEBUG_BREAK();
-                #else
-                    std::abort();
-                #endif // HYPERION_PLATFORM_MODE_IS_DEBUG
+#if HYPERION_PLATFORM_MODE_IS_DEBUG
+                HYPERION_ASSERT_DEBUG_BREAK();
+#else
+                std::abort();
+#endif // HYPERION_PLATFORM_MODE_IS_DEBUG
             }
 
             HYPERION_IGNORE_INVALID_NORETURN_WARNING_STOP;
@@ -136,6 +141,8 @@ namespace hyperion::assert::panic {
             std::atomic<panic::Handler> s_handler // NOLINT(*-avoid-non-const-global-variables)
                 = &default_handler;
         } // namespace
+
+#undef NORETURN
 
     } // namespace detail
 
