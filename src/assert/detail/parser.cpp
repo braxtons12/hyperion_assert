@@ -47,9 +47,8 @@ namespace hyperion::assert::detail::parser {
         // NOLINTNEXTLINE(readability-function-cognitive-complexity)
         lex(std::string_view string) -> std::vector<Token> {
             constexpr auto split = [](const std::string_view& view, auto pred) noexcept {
-                return flux::ref(view).split(pred).map([](auto elem) {
-                    return std::string_view{flux::begin(elem), flux::end(elem)};
-                });
+                return flux::ref(view).split(pred).map(
+                    [](auto elem) { return std::string_view{flux::begin(elem), flux::end(elem)}; });
             };
 
             constexpr auto is_punctuation = [](const char& elem) -> bool {
@@ -82,11 +81,10 @@ namespace hyperion::assert::detail::parser {
                 const auto end = begin + stripped.size();
                 search_start = end;
                 if(flux::contains(parser::punctuation, stripped)) {
-                    results.emplace_back(
-                        stripped,
-                        begin,
-                        end,
-                        tokens::Kind{std::in_place_type<tokens::Punctuation>});
+                    results.emplace_back(stripped,
+                                         begin,
+                                         end,
+                                         tokens::Kind{std::in_place_type<tokens::Punctuation>});
                 }
                 else if(flux::contains(parser::keywords, stripped)) {
                     results.emplace_back(stripped,
@@ -105,11 +103,10 @@ namespace hyperion::assert::detail::parser {
                         const auto punc_begin = stripped.find(punc, punc_start);
                         const auto punc_end = punc_begin + punc.size();
                         punc_start = punc_end;
-                        results.emplace_back(
-                            punc,
-                            punc_begin + begin,
-                            punc_end + begin,
-                            tokens::Kind{std::in_place_type<tokens::Punctuation>});
+                        results.emplace_back(punc,
+                                             punc_begin + begin,
+                                             punc_end + begin,
+                                             tokens::Kind{std::in_place_type<tokens::Punctuation>});
                     }
 
                     const auto identifiers_or_literals = split(stripped, is_punctuation);
@@ -147,16 +144,27 @@ namespace hyperion::assert::detail::parser {
                                 }
 
                                 return tokens::Kind{std::in_place_type<tokens::Identifier>,
-                                                           std::in_place_type<tokens::Namespace>};
+                                                    std::in_place_type<tokens::Namespace>};
                             }(is_string, is_numeric, is_keyword));
                     }
                 }
             }
 
+            // work around flux main using three-way comparator for sort,
+            // but the current release version using older STL style "less" comparator
+#if FLUX_VERSION_MAJOR == 0 && FLUX_VERSION_MINOR == 4 && FLUX_VERSION_DEVEL != 1
+            flux::sort(
+                results,
+
+                [](const Token& lhs, const Token& rhs) -> bool { return lhs.begin < rhs.begin; });
+#else
             flux::sort(results,
+
                        [](const Token& lhs, const Token& rhs) -> std::weak_ordering {
-                           return lhs.begin <=> rhs.begin; 
+                           return lhs.begin <=> rhs.begin;
                        });
+#endif // FLUX_VERSION_MAJOR == 0 && FLUX_VERSION_MINOR == 4 && FLUX_VERSION_DEVEL != 1
+
             return results;
         }
     } // namespace

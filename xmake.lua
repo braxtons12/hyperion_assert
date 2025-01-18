@@ -1,6 +1,6 @@
 ---@diagnostic disable: undefined-global,undefined-field
 set_project("hyperion_assert")
-set_version("0.1.0")
+set_version("0.2.0")
 
 set_xmakever("2.8.7")
 
@@ -44,7 +44,7 @@ add_requires("fmt", {
         languages = "cxx20",
     }
 })
-add_requires("flux main", {
+add_requires("flux >=0.4.0", {
     system = false,
     external = true,
     configs = {

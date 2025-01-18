@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(hyperion_assert LANGUAGES CXX VERSION 0.1.0)
+project(hyperion_assert LANGUAGES CXX VERSION 0.2.0)
 
 include(CTest)
 
@@ -31,7 +31,7 @@ if(${HYPERION_USE_FETCH_CONTENT})
 
     FetchContent_Declare(hyperion_mpl
         GIT_REPOSITORY "https://github.com/braxtons12/hyperion_mpl"
-        GIT_TAG "v0.8.6"
+        GIT_TAG "v0.9.1"
         SYSTEM
     )
     FetchContent_MakeAvailable(hyperion_mpl)
