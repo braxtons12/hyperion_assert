@@ -44,7 +44,7 @@ add_requires("fmt", {
         languages = "cxx20",
     }
 })
-add_requires("flux main", {
+add_requires("flux >=0.4.0", {
     system = false,
     external = true,
     configs = {
