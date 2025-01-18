@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(hyperion_assert LANGUAGES CXX VERSION 0.2.0)
+project(hyperion_assert LANGUAGES CXX VERSION 0.2.1)
 
 include(CTest)
 
