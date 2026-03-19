@@ -419,7 +419,7 @@
 <h1>hyperion::source_location<a class="headerlink" href="#hyperion-source-location" title="Link to this heading">#</a></h1>
 <dl>
 <dt class="sig sig-object cpp">
-<span class="target" id="group__source__location"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">source_location</span></span></dt>
+<span class="target" id="group__source__location"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Source</span> <span class="pre">Location</span></span></dt>
 <dd><p>Hyperion provides an alternative implementation of <code class="docutils literal notranslate"><span class="pre">std::source_location</span></code> as <code class="docutils literal notranslate"><a class="reference internal" href="#classhyperion_1_1source__location"><span class="std std-ref"><span class="pre">hyperion::source_location</span></span></a></code>, for users whose target standard library implementation doesn’t yet support <code class="docutils literal notranslate"><span class="pre">std::source_location</span></code> (or their implementation still has bugs), and re-exports <code class="docutils literal notranslate"><span class="pre">std::source_location</span></code> under the hyperion namespace for those that do support it (bug-free).</p>
 <p>It also provides a libfmt format specialization for <code class="docutils literal notranslate"><a class="reference internal" href="#classhyperion_1_1source__location"><span class="std std-ref"><span class="pre">hyperion::source_location</span></span></a></code> (either source of implementation), formatting in the way typically found in assertions (i.e. <code class="docutils literal notranslate"><span class="pre">[file_name|line_number:column_number]:</span> <span class="pre">function_name</span></code> ) </p>
 <dl class="cpp class">
@@ -487,8 +487,8 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion15source_locationE"><code class="docutils literal notranslate"><span class="pre">source_location</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4IEN3fmt9formatterIN8hyperion15source_locationEEE"><code class="docutils literal notranslate"><span class="pre">formatter</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion15source_locationE"><code class="docutils literal notranslate"><span class="pre">hyperion::source_location</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4IEN3fmt9formatterIN8hyperion15source_locationEEE"><code class="docutils literal notranslate"><span class="pre">fmt::formatter&lt;</span> <span class="pre">hyperion::source_location</span> <span class="pre">&gt;</span></code></a></li>
 </ul>
   </nav></div>
 

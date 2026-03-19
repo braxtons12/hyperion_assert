@@ -431,7 +431,7 @@
 <h1>hyperion::assert::panic<a class="headerlink" href="#hyperion-assert-panic" title="Link to this heading">#</a></h1>
 <dl>
 <dt class="sig sig-object cpp">
-<span class="target" id="group__panic"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">panic</span></span></dt>
+<span class="target" id="group__panic"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Runtime</span> <span class="pre">Panics</span></span></dt>
 <dd><p>This module provides an API for triggering and handling runtime “panics”. “Panics” are a runtime error triggered when an irrecoverable error has occurred or been detected, such as a programming bug or fatal environmental problem.</p>
 <p>By default, panics will print their associated panic message, along with syntax highlighted source location info and a backtrace, to <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, then trigger a breakpoint in debug builds, or a forced termination in release builds. this behavior can be customized be registering a custom handler with <code class="docutils literal notranslate"><a class="reference internal" href="#group__panic_1gacedb86df18b2f8dd4e1a6252c44390c8"><span class="std std-ref"><span class="pre">hyperion::assert::panic::set_handler</span></span></a></code>.</p>
 <section id="group__panic_1autotoc_md19">
@@ -558,6 +558,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#c.HYPERION_PANIC"><code class="docutils literal notranslate"><span class="pre">HYPERION_PANIC</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47Handler"><code class="docutils literal notranslate"><span class="pre">Handler</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411set_handler7Handler"><code class="docutils literal notranslate"><span class="pre">set_handler()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411get_handlerv"><code class="docutils literal notranslate"><span class="pre">get_handler()</span></code></a></li>

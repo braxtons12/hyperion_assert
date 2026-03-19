@@ -431,7 +431,7 @@
 <h1>hyperion::assert::highlight<a class="headerlink" href="#hyperion-assert-highlight" title="Link to this heading">#</a></h1>
 <dl>
 <dt class="sig sig-object cpp">
-<span class="target" id="group__highlight"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">highlight</span></span></dt>
+<span class="target" id="group__highlight"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Syntax</span> <span class="pre">highlighting</span> <span class="pre">and</span> <span class="pre">highlight</span> <span class="pre">configuration</span></span></dt>
 <dd><p>This module provides an API for setting and querying <code class="docutils literal notranslate"><span class="pre">hyperion::assert</span></code>’s syntax highlighting, powered by libfmt styling functionality, as well functionality to syntax highlight arbitrary strings containing C++ code in a libfmt-compatible way.</p>
 <section id="group__highlight_1autotoc_md18">
 <h2>Example<a class="headerlink" href="#group__highlight_1autotoc_md18" title="Link to this heading">#</a></h2>
@@ -837,31 +837,31 @@ three-way comparison operator for <code class="docutils literal notranslate"><a 
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419register_highlightsRKNSt6vectorI9HighlightEE"><code class="docutils literal notranslate"><span class="pre">register_highlights()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419register_highlightsRRNSt6vectorI9HighlightEE"><code class="docutils literal notranslate"><span class="pre">register_highlights()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49get_colorRKN6tokens4KindE"><code class="docutils literal notranslate"><span class="pre">get_color()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight8RgbColorE"><code class="docutils literal notranslate"><span class="pre">RgbColor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight8RgbColor8RgbColorEK3u32"><code class="docutils literal notranslate"><span class="pre">RgbColor::RgbColor()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight8RgbColor8RgbColorEK2u8K2u8K2u8"><code class="docutils literal notranslate"><span class="pre">RgbColor::RgbColor()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight8RgbColorcv3u32Ev"><code class="docutils literal notranslate"><span class="pre">RgbColor::operator</span> <span class="pre">u32()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight8RgbColorE"><code class="docutils literal notranslate"><span class="pre">hyperion::assert::highlight::RgbColor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight8RgbColor8RgbColorEK3u32"><code class="docutils literal notranslate"><span class="pre">explicit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight8RgbColor8RgbColorEK2u8K2u8K2u8"><code class="docutils literal notranslate"><span class="pre">RgbColor()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight8RgbColorcv3u32Ev"><code class="docutils literal notranslate"><span class="pre">explicit()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5ColorE"><code class="docutils literal notranslate"><span class="pre">Color</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color5ColorEv"><code class="docutils literal notranslate"><span class="pre">Color::Color()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color5ColorEK8RgbColor"><code class="docutils literal notranslate"><span class="pre">Color::Color()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color5ColorEK3u32"><code class="docutils literal notranslate"><span class="pre">Color::Color()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight5Color13is_term_colorEv"><code class="docutils literal notranslate"><span class="pre">Color::is_term_color()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight5Color10term_colorEv"><code class="docutils literal notranslate"><span class="pre">Color::term_color()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight5Color12is_rgb_colorEv"><code class="docutils literal notranslate"><span class="pre">Color::is_rgb_color()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight5Color9rgb_colorEv"><code class="docutils literal notranslate"><span class="pre">Color::rgb_color()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color7storageE"><code class="docutils literal notranslate"><span class="pre">Color::storage</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color7storage7storageEK8RgbColor"><code class="docutils literal notranslate"><span class="pre">Color::storage::storage()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color7storage9rgb_colorE"><code class="docutils literal notranslate"><span class="pre">Color::storage::rgb_color</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color7storage10term_colorE"><code class="docutils literal notranslate"><span class="pre">Color::storage::term_color</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5ColorE"><code class="docutils literal notranslate"><span class="pre">hyperion::assert::highlight::Color</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color5ColorEv"><code class="docutils literal notranslate"><span class="pre">Color()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color5ColorEK8RgbColor"><code class="docutils literal notranslate"><span class="pre">explicit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color5ColorEK3u32"><code class="docutils literal notranslate"><span class="pre">explicit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight5Color13is_term_colorEv"><code class="docutils literal notranslate"><span class="pre">is_term_color()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight5Color10term_colorEv"><code class="docutils literal notranslate"><span class="pre">term_color()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight5Color12is_rgb_colorEv"><code class="docutils literal notranslate"><span class="pre">is_rgb_color()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK8hyperion6assert9highlight5Color9rgb_colorEv"><code class="docutils literal notranslate"><span class="pre">rgb_color()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color7storageE"><code class="docutils literal notranslate"><span class="pre">hyperion::assert::highlight::Color::storage</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color7storage7storageEK8RgbColor"><code class="docutils literal notranslate"><span class="pre">explicit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color7storage9rgb_colorE"><code class="docutils literal notranslate"><span class="pre">rgb_color</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight5Color7storage10term_colorE"><code class="docutils literal notranslate"><span class="pre">term_color</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight9HighlightE"><code class="docutils literal notranslate"><span class="pre">Highlight</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight9Highlight4kindE"><code class="docutils literal notranslate"><span class="pre">Highlight::kind</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight9Highlight5colorE"><code class="docutils literal notranslate"><span class="pre">Highlight::color</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight9HighlightE"><code class="docutils literal notranslate"><span class="pre">hyperion::assert::highlight::Highlight</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight9Highlight4kindE"><code class="docutils literal notranslate"><span class="pre">kind</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8hyperion6assert9highlight9Highlight5colorE"><code class="docutils literal notranslate"><span class="pre">color</span></code></a></li>
 </ul>
 </li>
 </ul>
