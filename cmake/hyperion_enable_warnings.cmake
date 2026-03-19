@@ -43,6 +43,7 @@ function(hyperion_enable_warnings TARGET)
             -Wno-c++98-compat-pedantic
             -Wno-c++98-c++11-c++14-compat-pedantic
             -Wno-c++20-compat
+            -Wno-c2y-extensions
             -Wno-gnu-zero-variadic-macro-arguments
             -Wno-undefined-func-template
             -Wno-ctad-maybe-unsupported
